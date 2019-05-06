@@ -1,0 +1,14 @@
+node_modules/
+npm-debug.log
+build/
+build-tools/
+.nyc_output/
+coverage/
+test/
+.git/
+services/
+dev/
+test/
+kubernetes/
+.env/
+testdata/

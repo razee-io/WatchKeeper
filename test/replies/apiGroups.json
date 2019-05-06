@@ -1,0 +1,11 @@
+{
+  "groups": [{
+    "preferredVersion": {
+      "groupVersion": "group1"
+    }
+  },{
+    "preferredVersion": {
+      "groupVersion": "group2"
+    }
+  }]
+}
