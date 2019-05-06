@@ -1,0 +1,17 @@
+{
+  "kind": "APIResourceList",
+  "groupVersion": "v2",
+  "resources": [{
+    "name": "jobs",
+    "singularName": "job",
+    "namespaced": true,
+    "kind": "Job",
+    "verbs": ["watch"]
+  },{
+    "name": "cronjobs",
+    "singularName": "cronjob",
+    "namespaced": true,
+    "kind": "CronJob",
+    "verbs": ["get"]
+  }]
+}
