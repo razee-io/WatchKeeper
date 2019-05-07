@@ -6,41 +6,61 @@ metadata:
     version: "{{TRAVIS_COMMIT}}"
 items:
   - apiVersion: v1
-    kind: ServiceAccount
+    kind: Namespace
     metadata:
-      name: watch-keeper-sa
+      name: razee
       labels:
-        addonmanager.kubernetes.io/mode: Reconcile
-        razee/watch-resource: "true"
+        razee/watch-resource: "lite"
       annotations:
         razee.io/git-repo: "{{{GIT_REMOTE}}}"
         razee.io/commit-sha: "{{TRAVIS_COMMIT}}"
-    imagePullSecrets:
-    - name: registry-default-secret
+  - apiVersion: rbac.authorization.k8s.io/v1
+    kind: ClusterRole
+    metadata:
+      name: cluster-reader
+      namespace: razee
+      annotations:
+        razee.io/git-repo: "{{{GIT_REMOTE}}}"
+        razee.io/commit-sha: "{{TRAVIS_COMMIT}}"
+    rules:
+    - apiGroups:
+      - '*'
+      resources:
+      - '*'
+      verbs: ["get", "list", "watch"]
+    - nonResourceURLs:
+      - '*'
+      verbs: ["get", "list", "watch"]
+  - apiVersion: v1
+    kind: ServiceAccount
+    metadata:
+      name: watch-keeper-sa
+      namespace: razee
+      annotations:
+        razee.io/git-repo: "{{{GIT_REMOTE}}}"
+        razee.io/commit-sha: "{{TRAVIS_COMMIT}}"
 
   - apiVersion: rbac.authorization.k8s.io/v1
     kind: ClusterRoleBinding
     metadata:
       name: watch-keeper-rb
-      labels:
-        razee/force-apply: "true"
-        addonmanager.kubernetes.io/mode: Reconcile
-        razee/watch-resource: "true"
       annotations:
         razee.io/git-repo: "{{{GIT_REMOTE}}}"
         razee.io/commit-sha: "{{TRAVIS_COMMIT}}"
     roleRef:
       apiGroup: rbac.authorization.k8s.io
       kind: ClusterRole
-      name: cluster-admin
+      name: cluster-reader
     subjects:
     - kind: ServiceAccount
       name: watch-keeper-sa
+      namespace: razee
 
   - kind: NetworkPolicy
     apiVersion: networking.k8s.io/v1
     metadata:
       name: watch-keeper-deny-ingress
+      namespace: razee
       annotations:
         razee.io/git-repo: "{{{GIT_REMOTE}}}"
         razee.io/commit-sha: "{{TRAVIS_COMMIT}}"
@@ -60,10 +80,9 @@ items:
         razee.io/git-repo: "{{{GIT_REMOTE}}}"
         razee.io/commit-sha: "{{TRAVIS_COMMIT}}"
       name: watch-keeper
+      namespace: razee
       labels:
-        razee/restart-on-config-change: "true"
-        addonmanager.kubernetes.io/mode: Reconcile
-        razee/watch-resource: "true"
+        razee/watch-resource: "detail"
     spec:
       replicas: 1
       revisionHistoryLimit: 0
