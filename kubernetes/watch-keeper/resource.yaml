@@ -116,7 +116,7 @@ items:
                     key: RAZEEDASH_ORG_KEY
               - name: NODE_ENV
                 value: "production"
-            image: "quay.io/razee/watch-keeper:{{TRAVIS_COMMIT}}"
+            image: "quay.io/razee/watch-keeper:{{TRAVIS_TAG}}"
             imagePullPolicy: Always
             name: watch-keeper
             resources:
