@@ -100,6 +100,12 @@ items:
           serviceAccountName: watch-keeper-sa
           containers:
           - env:
+              - name: START_DELAY_MAX
+                valueFrom:
+                  configMapKeyRef:
+                    name: watch-keeper-config
+                    key: START_DELAY_MAX
+                    optional: true
               - name: NAMESPACE
                 valueFrom:
                   fieldRef:
