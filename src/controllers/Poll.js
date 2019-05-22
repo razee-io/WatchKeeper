@@ -1,18 +1,18 @@
 /**
-* Copyright 2019 IBM Corp. All Rights Reserved.
-*
-* Licensed under the Apache License, Version 2.0 (the "License");
-* you may not use this file except in compliance with the License.
-* You may obtain a copy of the License at
-*
-*      http://www.apache.org/licenses/LICENSE-2.0
-*
-* Unless required by applicable law or agreed to in writing, software
-* distributed under the License is distributed on an "AS IS" BASIS,
-* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-* See the License for the specific language governing permissions and
-* limitations under the License.
-*/
+ * Copyright 2019 IBM Corp. All Rights Reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 const objectPath = require('object-path');
 
 const log = require('../bunyan-api').createLogger('Poll');
@@ -89,7 +89,10 @@ async function handleWatchedNamespaces(metaResources, razeedashSender, selector,
       });
       gr = undefined;
       for (var i = 0; i < namespaces.length; i++) {
-        let response = await handleSelector(metaResources, razeedashSender, { fieldSelector: `metadata.namespace==${namespaces[i]}`, export: 'true', limit: selector.limit }, formatter);
+        let nsFilterFormatter = (o) => {
+          return (objectPath.get(o, 'metadata.namespace') == namespaces[i]) ? formatter(o) : undefined;
+        };
+        let response = await handleSelector(metaResources, razeedashSender, { fieldSelector: `metadata.namespace==${namespaces[i]}`, export: 'true', limit: selector.limit }, nsFilterFormatter);
         success = (success && response);
       }
     } while (next);
@@ -118,12 +121,17 @@ function liteResourceFormatter(o) {
 }
 
 function detailedResourceFormatter(o) {
+  let result;
   if (Util.hasLabel(o, 'razee/watch-resource')) {
-    Util.prepObject2Send(o);
+    result = o;
+    Util.prepObject2Send(result);
   }
-  return o;
+  return result;
 }
 
+// Run query for all known resource meta, remove from the list anything that
+// doesnt have any resources on the system. This takes a while up front, but
+// should save time for the rest of the calls
 async function trimMetaResources(metaResources) {
   util = util || await Util.fetch();
   let selector = { limit: 500 };
