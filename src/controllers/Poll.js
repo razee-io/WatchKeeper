@@ -104,7 +104,7 @@ async function handleWatchedNamespaces(metaResources, razeedashSender, selector,
 
 function liteResourceFormatter(o) {
   let result;
-  if (objectPath.has(o, 'metadata.namespace')) {
+  if (objectPath.get(o, 'metadata.namespace', null)!==null) {
     result = {};
     result.kind = o.kind;
     result.apiVersion = o.apiVersion;
