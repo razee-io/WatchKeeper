@@ -129,7 +129,7 @@ function detailedResourceFormatter(o) {
   return result;
 }
 
-// Run query for all know resource meta, remove from the list anything that
+// Run query for all known resource meta, remove from the list anything that
 // doesnt have any resources on the system. This takes a while up front, but
 // should save time for the rest of the calls
 async function trimMetaResources(metaResources) {
