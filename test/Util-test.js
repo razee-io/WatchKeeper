@@ -1,18 +1,18 @@
 /**
-* Copyright 2019 IBM Corp. All Rights Reserved.
-*
-* Licensed under the Apache License, Version 2.0 (the "License");
-* you may not use this file except in compliance with the License.
-* You may obtain a copy of the License at
-*
-*      http://www.apache.org/licenses/LICENSE-2.0
-*
-* Unless required by applicable law or agreed to in writing, software
-* distributed under the License is distributed on an "AS IS" BASIS,
-* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-* See the License for the specific language governing permissions and
-* limitations under the License.
-*/
+ * Copyright 2019 IBM Corp. All Rights Reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 const assert = require('chai').assert;
 //process.env.LOG_LEVEL = 'debug';
 var rewire = require('rewire');
@@ -22,26 +22,21 @@ const nock = require('nock');
 const TEST_RAZEEDASH_URL = 'https://localhost:3000/api/v2';
 const TEST_RAZEEDASH_URL_ALT = 'https://localhost:3000/api/v2';
 const TEST_POD = {
-  metadata:
-  {
+  metadata: {
     name: 'kubernetes-dashboard',
     namespace: 'kube-system',
-    selfLink:
-      '/api/v1/namespaces/kube-system/services/kubernetes-dashboard',
+    selfLink: '/api/v1/namespaces/kube-system/services/kubernetes-dashboard',
     uid: 'b3117196-fca8-11e8-a0e0-36848ff40b0b',
     resourceVersion: '10739692',
     creationTimestamp: '2018-12-10T18:23:32Z',
-    labels:
-    {
+    labels: {
       'addonmanager.kubernetes.io/mode': 'Reconcile',
       'k8s-app': 'kubernetes-dashboard',
       'kubernetes.io/cluster-service': 'true',
       'razee/watch-resource': 'lite'
     },
-    annotations:
-    {
-      'kubectl.kubernetes.io/last-applied-configuration':
-        '{"apiVersion":"v1","kind":"Service","metadata":{"annotations":{},"labels":{"addonmanager.kubernetes.io/mode":"Reconcile","k8s-app":"kubernetes-dashboard","kubernetes.io/cluster-service":"true"},"name":"kubernetes-dashboard","namespace":"kube-system"},"spec":{"ports":[{"port":443,"targetPort":8443}],"selector":{"k8s-app":"kubernetes-dashboard"}}}\n'
+    annotations: {
+      'kubectl.kubernetes.io/last-applied-configuration': '{"apiVersion":"v1","kind":"Service","metadata":{"annotations":{},"labels":{"addonmanager.kubernetes.io/mode":"Reconcile","k8s-app":"kubernetes-dashboard","kubernetes.io/cluster-service":"true"},"name":"kubernetes-dashboard","namespace":"kube-system"},"spec":{"ports":[{"port":443,"targetPort":8443}],"selector":{"k8s-app":"kubernetes-dashboard"}}}\n'
     }
   },
   status: { loadBalancer: {} }
@@ -50,7 +45,7 @@ const TEST_POD_STRINGFY_RESULT = '{"metadata":{"name":"kubernetes-dashboard","na
 
 describe('Util', () => {
 
-  before(() => { });
+  before(() => {});
   beforeEach(() => {
     nock('https://localhost:3000')
       .post('/api/v2/clusters/good')
@@ -66,8 +61,8 @@ describe('Util', () => {
       .post('/api/v2/clusters/info/messages')
       .reply(200, '{"level":"INFO","message":"some info","data":{}}');
   });
-  afterEach(() => { });
-  after(() => { });
+  afterEach(() => {});
+  after(() => {});
 
   // ===========================================================================
   describe('constuctor()', () => {
@@ -204,7 +199,7 @@ describe('Util', () => {
       assert.equal(cacheObj.razeedashUrl, TEST_RAZEEDASH_URL);
       let cached = await Util.fetch(TEST_RAZEEDASH_URL);
       assert.equal(cached.razeedashUrl, TEST_RAZEEDASH_URL);
-    });    // ---------- Success ----------
+    }); // ---------- Success ----------
     it('fetch - override default', async () => {
       var getClusterUid = {
         getClusterUid: async () => {
@@ -301,12 +296,12 @@ describe('Util', () => {
   });
   describe('lightSynonyms', () => {
     it('string', () => {
-      assert.equal(Util.liteSynonyms(), 'lite,light,brief');
+      assert.equal(Util.liteSynonyms(), 'lite,Lite,light,brief');
     });
   });
   describe('detailSynonyms', () => {
     it('string', () => {
-      assert.equal(Util.detailSynonyms(), 'heavy,detail,detailed');
+      assert.equal(Util.detailSynonyms(), 'heavy,detail,Detail,detailed');
     });
   });
 });
