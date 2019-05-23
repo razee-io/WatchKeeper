@@ -89,10 +89,8 @@ async function handleWatchedNamespaces(metaResources, razeedashSender, selector,
       });
       gr = undefined;
       for (var i = 0; i < namespaces.length; i++) {
-        let nsFilterFormatter = (o) => {
-          return (objectPath.get(o, 'metadata.namespace') == namespaces[i]) ? formatter(o) : undefined;
-        };
-        let response = await handleSelector(metaResources, razeedashSender, { fieldSelector: `metadata.namespace==${namespaces[i]}`, export: 'true', limit: selector.limit }, nsFilterFormatter);
+        let response = await handleSelector(metaResources, razeedashSender, { fieldSelector: `metadata.namespace==${namespaces[i]}`, export: 'true', limit: selector.limit },
+          (o) => (objectPath.get(o, 'metadata.namespace') == namespaces[i]) ? formatter(o) : undefined);
         success = (success && response);
       }
     } while (next);
@@ -104,29 +102,21 @@ async function handleWatchedNamespaces(metaResources, razeedashSender, selector,
   return success;
 }
 
-
 function liteResourceFormatter(o) {
-  let result;
-  if (objectPath.has(o, 'metadata.namespace')) {
-    result = {};
-    result.kind = o.kind;
-    result.apiVersion = o.apiVersion;
-    result.metadata = objectPath.get(o, 'metadata');
-    if (objectPath.has(o, 'status')) {
-      result.status = objectPath.get(o, 'status');
-    }
-    Util.prepObject2Send(result);
+  let result = {};
+  result.kind = o.kind;
+  result.apiVersion = o.apiVersion;
+  result.metadata = objectPath.get(o, 'metadata');
+  if (objectPath.has(o, 'status')) {
+    result.status = objectPath.get(o, 'status');
   }
+  Util.prepObject2Send(result);
   return result;
 }
 
 function detailedResourceFormatter(o) {
-  let result;
-  if (Util.hasLabel(o, 'razee/watch-resource')) {
-    result = o;
-    Util.prepObject2Send(result);
-  }
-  return result;
+  Util.prepObject2Send(o);
+  return o;
 }
 
 // Run query for all known resource meta, remove from the list anything that
@@ -163,15 +153,24 @@ async function poll() {
   }
   // must be run asynchronously, sequentially, and in order of declining detail
   // Send singlely labeled unaltered resource
-  success = success && await handleSelector(metaResources, razeedashSender, { labelSelector: 'razee/watch-resource in (debug)', limit: 500 }, (o) => { return Util.hasLabel(o, 'razee/watch-resource') ? o : undefined; });
+  success = success && await handleSelector(metaResources, razeedashSender, { labelSelector: 'razee/watch-resource in (debug)', limit: 500 },
+    (o) => Util.hasLabel(o, 'razee/watch-resource') ? o : undefined);
+
   // Send singlely labeled detailed resource
-  success = success && await handleSelector(metaResources, razeedashSender, { labelSelector: `razee/watch-resource in (true,${Util.detailSynonyms()})`, limit: 500 }, detailedResourceFormatter);
+  success = success && await handleSelector(metaResources, razeedashSender, { labelSelector: `razee/watch-resource in (true,${Util.detailSynonyms()})`, limit: 500 },
+    (o) => Util.hasLabel(o, 'razee/watch-resource') ? detailedResourceFormatter(o) : undefined);
+
   // Send all resources detailed within the labeled namespace
-  success = success && await handleWatchedNamespaces(metaResources, razeedashSender, { labelSelector: `razee/watch-resource in (${Util.detailSynonyms()})`, limit: 500 }, detailedResourceFormatter);
+  success = success && await handleWatchedNamespaces(metaResources, razeedashSender, { labelSelector: `razee/watch-resource in (${Util.detailSynonyms()})`, limit: 500 },
+    (o) => objectPath.has(o, 'metadata.namespace') ? detailedResourceFormatter(o) : undefined);
+
   // Send singlely labeled lite resource
-  success = success && await handleSelector(metaResources, razeedashSender, { labelSelector: `razee/watch-resource in (${Util.liteSynonyms()})`, limit: 500 }, liteResourceFormatter);
+  success = success && await handleSelector(metaResources, razeedashSender, { labelSelector: `razee/watch-resource in (${Util.liteSynonyms()})`, limit: 500 },
+    (o) => Util.hasLabel(o, 'razee/watch-resource') ? liteResourceFormatter(o) : undefined);
+
   // Send all resources lite within the labeled namespace
-  success = success && await handleWatchedNamespaces(metaResources, razeedashSender, { labelSelector: `razee/watch-resource in (true,${Util.liteSynonyms()})`, limit: 500 }, liteResourceFormatter);
+  success = success && await handleWatchedNamespaces(metaResources, razeedashSender, { labelSelector: `razee/watch-resource in (true,${Util.liteSynonyms()})`, limit: 500 },
+    (o) => objectPath.has(o, 'metadata.namespace') ? liteResourceFormatter(o) : undefined);
 
   if (success) {
     razeedashSender.sendPollSummary();

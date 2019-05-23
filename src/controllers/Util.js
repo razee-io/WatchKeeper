@@ -1,18 +1,18 @@
 /**
-* Copyright 2019 IBM Corp. All Rights Reserved.
-*
-* Licensed under the Apache License, Version 2.0 (the "License");
-* you may not use this file except in compliance with the License.
-* You may obtain a copy of the License at
-*
-*      http://www.apache.org/licenses/LICENSE-2.0
-*
-* Unless required by applicable law or agreed to in writing, software
-* distributed under the License is distributed on an "AS IS" BASIS,
-* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-* See the License for the specific language governing permissions and
-* limitations under the License.
-*/
+ * Copyright 2019 IBM Corp. All Rights Reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 const objectPath = require('object-path');
 const hash = require('object-hash');
 
@@ -66,9 +66,9 @@ module.exports = class Util {
     try {
       let response = await this._messenger.error(msg, err);
       return response;
-    } catch(err) {
+    } catch (err) {
       log.error(`failed to send error message ${err}`);
-      return {statusCode: 500, body: err};
+      return { statusCode: 500, body: err };
     }
   }
 
@@ -77,9 +77,9 @@ module.exports = class Util {
     try {
       let response = await this._messenger.warn(msg, err);
       return response;
-    } catch(err) {
+    } catch (err) {
       log.error(`failed to send warn message ${err}`);
-      return {statusCode: 500, body: err};
+      return { statusCode: 500, body: err };
     }
   }
 
@@ -88,9 +88,9 @@ module.exports = class Util {
     try {
       let response = await this._messenger.info(msg, err);
       return response;
-    } catch(err) {
+    } catch (err) {
       log.error(`failed to send info message ${err}`);
-      return {statusCode: 500, body: err};
+      return { statusCode: 500, body: err };
     }
   }
   // fetch - Get razeedash URL.  First one will be default URL unless def = true
@@ -165,12 +165,12 @@ module.exports = class Util {
   }
 
   static liteSynonyms() {
-    let synonyms = ['lite', 'light', 'brief'];
+    let synonyms = ['lite', 'Lite', 'light', 'brief'];
     return synonyms.toString();
   }
 
   static detailSynonyms() {
-    let synonyms = ['heavy', 'detail', 'detailed'];
+    let synonyms = ['heavy', 'detail', 'Detail', 'detailed'];
     return synonyms.toString();
   }
 
