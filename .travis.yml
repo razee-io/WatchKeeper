@@ -25,7 +25,7 @@ deploy:
     skip_cleanup: true
     on:
       tags: true
-      condition: ${TRAVIS_TAG} =~ [0-9]+\.[0-9]+\.[0-9]+_[0-9]{3}
+      condition: ${TRAVIS_TAG} =~ ^[0-9]+\.[0-9]+\.[0-9]+_[0-9]{3}$
   - provider: releases
     file: /tmp/resource.yaml
     skip_cleanup: true
@@ -34,7 +34,7 @@ deploy:
       secure: "${GITHUB_TOKEN}"
     on:
       tags: true
-      condition: ${TRAVIS_TAG} =~ [0-9]+\.[0-9]+\.[0-9]+_[0-9]{3}
+      condition: ${TRAVIS_TAG} =~ ^[0-9]+\.[0-9]+\.[0-9]+_[0-9]{3}$
 
   # Deploy released builds
   - provider: script
@@ -42,7 +42,7 @@ deploy:
     skip_cleanup: true
     on:
       tags: true
-      condition: ${TRAVIS_TAG} =~ [0-9]+\.[0-9]+\.[0-9]+
+      condition: ${TRAVIS_TAG} =~ ^[0-9]+\.[0-9]+\.[0-9]+$
   - provider: releases
     file: /tmp/resource.yaml
     skip_cleanup: true
@@ -50,4 +50,4 @@ deploy:
       secure: "${GITHUB_TOKEN}"
     on:
       tags: true
-      condition: ${TRAVIS_TAG} =~ [0-9]+\.[0-9]+\.[0-9]+
+      condition: ${TRAVIS_TAG} =~ ^[0-9]+\.[0-9]+\.[0-9]+$
