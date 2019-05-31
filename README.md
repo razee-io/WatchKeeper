@@ -15,7 +15,7 @@ Watch-Keeper is a tool that inventories and reports back the resources running o
 
 Watch-Keeper collects and reports on data in a few different ways. Each of these ways is on a differently timed interval and affects when data shows-up/is-updated in RazeeDash.
 
-1. Heartbeat: this occurs once a mintute. every heartbeat collects the [user defined cluster metadata](#Cluster-Metadata), the cluster id, and the cluster kube version, and sends the data to RazeeDash.
+1. Heartbeat: this occurs once a mintute. every heartbeat collects the user defined [cluster metadata](#cluster-metadata), the cluster id, and the cluster kube version, and sends the data to RazeeDash.
 
 ## Cluster Metadata
 
