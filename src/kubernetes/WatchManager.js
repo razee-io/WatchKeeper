@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-const objectPath = require('object-path');
+
 const { Watchman } = require('@razee/kubernetes-util');
 const log = require('../bunyan-api').createLogger('WatchManager');
 
@@ -33,8 +33,7 @@ module.exports = function WatchManager() {
   };
 
   let _ensureWatch = function (options, objectHandler, startWatch = true) {
-    let selfLink = objectPath.get(options.watchable, 'metadata.selfLink');
-    let w = _getWatch(selfLink);
+    let w = _getWatch(options.watchUri);
     if (w) {
       return w;
     }
