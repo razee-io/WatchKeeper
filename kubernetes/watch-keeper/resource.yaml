@@ -11,6 +11,7 @@ items:
       name: razee
       labels:
         razee/watch-resource: "lite"
+        kapitan.razee.io/mode: "EnsureExists"
       annotations:
         razee.io/git-repo: "{{{GIT_REMOTE}}}"
         razee.io/commit-sha: "{{TRAVIS_COMMIT}}"
