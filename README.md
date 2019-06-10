@@ -1,5 +1,57 @@
-# watch-keeper
+# Watch-Keeper
 
 [![Build Status](https://travis-ci.com/razee-io/Watch-keeper.svg?branch=master)](https://travis-ci.com/razee-io/Watch-keeper) [![Greenkeeper badge](https://badges.greenkeeper.io/razee-io/Watch-keeper.svg)](https://greenkeeper.io/)
+![GitHub](https://img.shields.io/github/license/razee-io/Watch-keeper.svg?color=success)
 
-Keep an eye on your Kubernetes resources
+Watch-Keeper is a tool that inventories and reports back the resources running on your cluster. Watch-Keeper works with [RazeeDash](https://github.com/razee-io/Razeedash) to display information about your resources.
+
+## Install
+
+1. [Install RazeeDash](https://github.com/razee-io/Razee#step-1-install-razee) or use a hosted razee such as [razee.io](https://app.razee.io).
+1. Add your Github org to your razee.
+1. Go to `https://<razeedash-url>/<your-org-name>/org` then copy and run the `kubectl command` against your new cluster to install the watch-keeper components.
+
+## Collecting Resources
+
+### Collection Methods:
+
+1. Watches: this is where watch-keeper gets its name. Watch-keeper creates watches on any resource with the label `razee/watch-resource=<level>`, and reports to razeedash whenever a change occurs.
+1. Polling: any resource with the `razee/watch-resource=<level>` label is reported. This is useful for resources that are not watchable.
+1. Namespaces: you can gather info from a cluster by labeling a namespace with `razee/watch-resource=<level>`. This will collect and report all data within the labeled namespace at the desired `<level>`.
+
+- Ex. `kubectl label cm my-cm razee/watch-resource=lite`
+
+### Collection Levels:
+
+1. `lite`: reports the resource `.metadata` and `.status` (where applicable) sections to RazeeDash.
+1. `detail`: reports the entire resource to RazeeDash, but redacts all environment variables from resources and data values from ConfigMaps and Secrets.
+1. `debug`: reports the entire resource to RazeeDash. All data is reported, including Secret values.
+
+### Notes
+
+1. `<levels>` must be lower case
+1. Labeling namespaces, especially using the detail or debug level collections, can gather much more data than anticipated resulting in delays in data reporting.
+1. Similarly,  delays can occur when reporting on a namespace with lots of resources (> thousand).
+
+## Feature Intervals
+
+Watch-Keeper collects and reports on data in a few different ways. Each of these ways is on a differently timed interval and affects when data populates/updates in RazeeDash. These intervals are configurable via environment variables defined in the deployment yaml (note: Intervals are in minutes and should follow: CLEAN_START_INTERVAL > POLL_INTERVAL > VALIDATE_INTERVAL).
+
+1. Heartbeat: every heartbeat collects the user defined [cluster metadata](#cluster-metadata), the cluster id, and the cluster kube version, and sends the data to RazeeDash.
+    - Timing: `1 minute` (non configurable)
+1. Validate Watched Resources:  every `VALIDATE_INTERVAL` minutes, watch keeper will make sure it has a watch created for the resource kinds (ie. apps/v1 Deployment) that have at least one resource instance with the label. This means the first time you add the label to a previously unwatched resource kind, it could take up to `VALIDATE_INTERVAL` minutes to show in razeedash.
+    - Timing: `VALIDATE_INTERVAL=10`
+1. Poll labeled Resources: every `POLL_INTERVAL` minutes, watch keeper will find all resources with the `razee/watch-resource` label and send to RazeeDash, as well as find all namespaces with the `razee/watch-resource` label and collects/reports all resources within those namespaces.
+    - Timing: `POLL_INTERVAL=60`
+    - coming soon: RazeeDash will have a way to force a re-polling. This will be communicated during the heartbeat, and may take a minute to occur.
+1. Clean Start: this is a housekeeping interval. It clears out all watches, and re-verifies watches it should have. Default is once a day.
+    - Timing: `CLEAN_START_INTERVAL=1440`
+
+## Cluster Metadata
+
+You can add extra cluster metadata to send to RazeeDash. This can help differentiate clusters on RazeeDash and be more human readable than a uuid. To do this, add the label `razee/cluster-metadata=true` to a configmap. If the configmap contains the key `name`, RazeeDash will display the name instead of the uuid.
+
+```shell
+kubectl create cm my-watch-keeper-cm --from-literal=name=mySpecialDevCluster
+kubectl label cm my-watch-keeper-cm razee/cluster-metadata=true
+```
