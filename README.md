@@ -33,7 +33,7 @@ Watch-Keeper is a tool that inventories and reports back the resources running o
 1. Labeling namespaces, especially using the detail or debug level collections, can gather much more data than anticipated resulting in delays in data reporting.
 1. Similarly,  delays can occur when reporting on a namespace with lots of resources (> thousand).
 
-## Reporting Behaviors
+## Communication Intervals
 
 Watch-Keeper collects and reports on data in a few different ways. Each of these ways is on a differently timed interval and affects when data populates/updates in RazeeDash. These intervals are configurable via environment variables defined in the deployment yaml (note: Intervals are in minutes and should follow: CLEAN_START_INTERVAL > POLL_INTERVAL > VALIDATE_INTERVAL).
 
