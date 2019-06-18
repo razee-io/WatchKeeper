@@ -16,9 +16,8 @@
 const objectPath = require('object-path');
 const hash = require('object-hash');
 
-const KubeApiConfig = require('../kubernetes/KubeApiConfig')();
-const KubeClass = require('../kubernetes/kubeClass');
-var kc = new KubeClass(KubeApiConfig);
+const { KubeClass, KubeApiConfig } = require('@razee/kubernetes-util');
+var kc = new KubeClass(KubeApiConfig());
 const DataCollector = require('./DataCollector');
 var dc = new DataCollector(kc);
 
