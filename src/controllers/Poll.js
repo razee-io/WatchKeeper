@@ -16,9 +16,9 @@
 const objectPath = require('object-path');
 
 const log = require('../bunyan-api').createLogger('Poll');
-const KubeApiConfig = require('../kubernetes/KubeApiConfig')();
-const KubeClass = require('../kubernetes/kubeClass');
-const kc = new KubeClass(KubeApiConfig);
+
+const { KubeClass, KubeApiConfig } = require('@razee/kubernetes-util');
+const kc = new KubeClass(KubeApiConfig());
 const Util = require('./Util');
 const RazeedashSender = require('../razeedash/Sender');
 var util;
@@ -76,7 +76,7 @@ async function handleWatchedNamespaces(metaResources, razeedashSender, selector,
   let success = true;
   metaResources = metaResources.filter(resource => { return resource.namespaced; });
   let resourceMeta = {
-    uri: '/api/v1/namespaces'
+    uri: () => '/api/v1/namespaces'
   };
   try {
     let next = undefined;
