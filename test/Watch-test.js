@@ -1,18 +1,18 @@
 /**
-* Copyright 2019 IBM Corp. All Rights Reserved.
-*
-* Licensed under the Apache License, Version 2.0 (the "License");
-* you may not use this file except in compliance with the License.
-* You may obtain a copy of the License at
-*
-*      http://www.apache.org/licenses/LICENSE-2.0
-*
-* Unless required by applicable law or agreed to in writing, software
-* distributed under the License is distributed on an "AS IS" BASIS,
-* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-* See the License for the specific language governing permissions and
-* limitations under the License.
-*/
+ * Copyright 2019 IBM Corp. All Rights Reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 const assert = require('chai').assert;
 var rewire = require('rewire');
 const DataCollector = rewire('../src/controllers/DataCollector');
@@ -21,26 +21,21 @@ const Util = rewire('../src/controllers/Util');
 const nock = require('nock');
 const TEST_RAZEEDASH_URL = 'https://localhost:3000/api/v2';
 const TEST_POD = {
-  metadata:
-  {
+  metadata: {
     name: 'kubernetes-dashboard',
     namespace: 'kube-system',
-    selfLink:
-      '/api/v1/namespaces/kube-system/services/kubernetes-dashboard',
+    selfLink: '/api/v1/namespaces/kube-system/services/kubernetes-dashboard',
     uid: 'b3117196-fca8-11e8-a0e0-36848ff40b0b',
     resourceVersion: '10739692',
     creationTimestamp: '2018-12-10T18:23:32Z',
-    labels:
-    {
+    labels: {
       'addonmanager.kubernetes.io/mode': 'Reconcile',
       'k8s-app': 'kubernetes-dashboard',
       'kubernetes.io/cluster-service': 'true',
       'razee/watch-resource': 'lite'
     },
-    annotations:
-    {
-      'kubectl.kubernetes.io/last-applied-configuration':
-        '{"apiVersion":"v1","kind":"Service","metadata":{"annotations":{},"labels":{"addonmanager.kubernetes.io/mode":"Reconcile","k8s-app":"kubernetes-dashboard","kubernetes.io/cluster-service":"true"},"name":"kubernetes-dashboard","namespace":"kube-system"},"spec":{"ports":[{"port":443,"targetPort":8443}],"selector":{"k8s-app":"kubernetes-dashboard"}}}\n'
+    annotations: {
+      'kubectl.kubernetes.io/last-applied-configuration': '{"apiVersion":"v1","kind":"Service","metadata":{"annotations":{},"labels":{"addonmanager.kubernetes.io/mode":"Reconcile","k8s-app":"kubernetes-dashboard","kubernetes.io/cluster-service":"true"},"name":"kubernetes-dashboard","namespace":"kube-system"},"spec":{"ports":[{"port":443,"targetPort":8443}],"selector":{"k8s-app":"kubernetes-dashboard"}}}\n'
     }
   },
   status: { loadBalancer: {} }
@@ -62,11 +57,9 @@ describe('Watch', () => {
       let mockWatchManager = {
         removeAllWatches: () => { return true; }
       };
-      let revertWatch = Watch.__set__(
-        {
-          'WatchManager': mockWatchManager,
-        }
-      );
+      let revertWatch = Watch.__set__({
+        'WatchManager': mockWatchManager,
+      });
       let result = Watch.removeAllWatches();
       revertWatch();
       assert.isTrue(result);
@@ -76,8 +69,10 @@ describe('Watch', () => {
   describe('#watch', () => {
     it('success', async () => {
       DataCollector.__set__({
-        getClusterUid: async () => { return 'good'; },
-        getClusterMeta: async () => { return {}; }
+        getClusterUid: () => { return 'good'; },
+        getClusterMeta: () => {
+          return {};
+        }
       });
       let mockWatchManager = {
         ensureWatch: (options, objectHandler) => { // eslint-disable-line no-nounuse-vars
@@ -85,9 +80,10 @@ describe('Watch', () => {
         }
       };
       let mockKubeClass = {
-        getKubeResourcesMeta: async (verb) => { // eslint-disable-line no-unused-vars
+        getKubeResourcesMeta: () => { // eslint-disable-line no-unused-vars
           return Promise.resolve([{
             '_path': '/api/v1',
+            'uri': () => '/api/v1/endpoints/watch',
             '_resourceMeta': {
               'name': 'endpoints',
               'singularName': '',
@@ -157,13 +153,11 @@ describe('Watch', () => {
         }
       };
       let util = new Util(TEST_RAZEEDASH_URL, 'good');
-      var revertWatch = Watch.__set__(
-        {
-          'kc': mockKubeClass,
-          'util': util,
-          'WatchManager': mockWatchManager,
-        }
-      );
+      var revertWatch = Watch.__set__({
+        'kc': mockKubeClass,
+        'util': util,
+        'WatchManager': mockWatchManager,
+      });
       Watch.__set__('util', util);
       let result = await Watch.watch();
       revertWatch();
@@ -172,8 +166,8 @@ describe('Watch', () => {
 
     it('error', async () => {
       DataCollector.__set__({
-        getClusterUid: async () => { return 'good'; },
-        getClusterMeta: async () => { return {}; }
+        getClusterUid: () => { return 'good'; },
+        getClusterMeta: () => { return {}; }
       });
       let mockWatchManager = {
         ensureWatch: (options, objectHandler) => { // eslint-disable-line no-nounuse-vars
@@ -181,9 +175,10 @@ describe('Watch', () => {
         }
       };
       let mockKubeClass = {
-        getKubeResourcesMeta: async (verb) => { // eslint-disable-line no-unused-vars
+        getKubeResourcesMeta: (verb) => { // eslint-disable-line no-unused-vars
           return Promise.resolve([{
             '_path': '/api/v1',
+            'uri': () => '/api/v1/endpoints/watch',
             '_resourceMeta': {
               'name': 'endpoints',
               'singularName': '',
@@ -199,13 +194,11 @@ describe('Watch', () => {
         }
       };
       let util = new Util(TEST_RAZEEDASH_URL, 'good');
-      var revertWatch = Watch.__set__(
-        {
-          'kc': mockKubeClass,
-          'util': util,
-          'WatchManager': mockWatchManager,
-        }
-      );
+      var revertWatch = Watch.__set__({
+        'kc': mockKubeClass,
+        'util': util,
+        'WatchManager': mockWatchManager,
+      });
       Watch.__set__('util', util);
       let result = await Watch.watch();
       revertWatch();
@@ -214,8 +207,8 @@ describe('Watch', () => {
 
     it('success - remove watch - watchable.metadata.continue undefined', async () => {
       DataCollector.__set__({
-        getClusterUid: async () => { return 'good'; },
-        getClusterMeta: async () => { return {}; }
+        getClusterUid: () => { return 'good'; },
+        getClusterMeta: () => { return {}; }
       });
       let mockWatchManager = {
         ensureWatch: (options, objectHandler, startWatch = true) => { // eslint-disable-line no-unused-vars
@@ -226,9 +219,10 @@ describe('Watch', () => {
         }
       };
       let mockKubeClass = {
-        getKubeResourcesMeta: async (verb) => { // eslint-disable-line no-unused-vars
+        getKubeResourcesMeta: (verb) => { // eslint-disable-line no-unused-vars
           return Promise.resolve([{
             '_path': '/api/v1',
+            'uri': () => '/api/v1/endpoints/watch',
             '_resourceMeta': {
               'name': 'endpoints',
               'singularName': '',
@@ -266,13 +260,11 @@ describe('Watch', () => {
         }
       };
       let util = new Util(TEST_RAZEEDASH_URL, 'good');
-      var revertWatch = Watch.__set__(
-        {
-          'kc': mockKubeClass,
-          'util': util,
-          'WatchManager': mockWatchManager,
-        }
-      );
+      var revertWatch = Watch.__set__({
+        'kc': mockKubeClass,
+        'util': util,
+        'WatchManager': mockWatchManager,
+      });
       Watch.__set__('util', util);
       let result = await Watch.watch();
       revertWatch();
@@ -281,8 +273,8 @@ describe('Watch', () => {
 
     it('success - remove watch - watchable.metadata.continue blank', async () => {
       DataCollector.__set__({
-        getClusterUid: async () => { return 'good'; },
-        getClusterMeta: async () => { return {}; }
+        getClusterUid: () => { return 'good'; },
+        getClusterMeta: () => { return {}; }
       });
       let mockWatchManager = {
         ensureWatch: (options, objectHandler, startWatch = true) => { // eslint-disable-line no-unused-vars
@@ -293,9 +285,10 @@ describe('Watch', () => {
         }
       };
       let mockKubeClass = {
-        getKubeResourcesMeta: async (verb) => { // eslint-disable-line no-unused-vars
+        getKubeResourcesMeta: (verb) => { // eslint-disable-line no-unused-vars
           return Promise.resolve([{
             '_path': '/api/v1',
+            'uri': () => '/api/v1/endpoints/watch',
             '_resourceMeta': {
               'name': 'endpoints',
               'singularName': '',
@@ -334,13 +327,11 @@ describe('Watch', () => {
         }
       };
       let util = new Util(TEST_RAZEEDASH_URL, 'good');
-      var revertWatch = Watch.__set__(
-        {
-          'kc': mockKubeClass,
-          'util': util,
-          'WatchManager': mockWatchManager,
-        }
-      );
+      var revertWatch = Watch.__set__({
+        'kc': mockKubeClass,
+        'util': util,
+        'WatchManager': mockWatchManager,
+      });
       Watch.__set__('util', util);
       let result = await Watch.watch();
       revertWatch();
