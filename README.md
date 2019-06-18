@@ -55,3 +55,18 @@ You can add extra cluster metadata to send to RazeeDash. This can help different
 kubectl create cm my-watch-keeper-cm --from-literal=name=mySpecialDevCluster
 kubectl label cm my-watch-keeper-cm razee/cluster-metadata=true
 ```
+
+## Resource Metadata
+
+You can add extra annotations to your resources in order to help the RazeeDash dashboard link to your change management system. 
+
+- Working with github:
+  1. `kubectl annotate <resource-kind> <resource-name> "razee.io/git-repo=<github repo>"`
+      - ie. `"razee.io/git-repo=https://github.com/razee-io/Watch-keeper"`
+  1. `kubectl annotate <resource-kind> <resource-name> "razee.io/commit-sha=<github sha>"`
+      - ie. `"razee.io/commit-sha=c6645609f8d3b8a48d53246fb7c1f6b60d054aef"`
+  1. **Note**: We find it best practice to collect this info and add them to your resource yamls at build time instead of doing it manually on your cluster.
+- Working with any change management system:
+  1. `kubectl annotate <resource-kind> <resource-name> "razee.io/source-url=<fully qualified path>"`
+      - ie. `"razee.io/git-repo=https://github.com/razee-io/Watch-keeper/commit/c6645609f8d3b8a48d53246fb7c1f6b60d054aef"`
+  1. **Note**: We find it best practice to collect this info and add them to your resource yamls at build time instead of doing it manually on your cluster.
