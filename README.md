@@ -7,9 +7,19 @@ Watch-Keeper is a tool that inventories and reports back the resources running o
 
 ## Install
 
+### Via RazeeDash
+
 1. [Install RazeeDash](https://github.com/razee-io/Razee#step-1-install-razee) or use a hosted razee such as [razee.io](https://app.razee.io).
 1. Add your Github org to your razee.
 1. Go to `https://<razeedash-url>/<your-org-name>/org` then copy and run the `kubectl command` against your new cluster to install the watch-keeper components.
+
+### Manually
+
+1. `kubectl create cm watch-keeper-config --from-literal=RAZEEDASH_URL=<path to razeedash api> --from-literal=START_DELAY_MAX=0`
+    - eg. `kubectl create cm watch-keeper-config --from-literal=RAZEEDASH_URL=http://app.razee.io/api/v2 --from-literal=START_DELAY_MAX=0`
+1. `kubectl create secret generic watch-keeper-secret --from-literal=RAZEEDASH_ORG_KEY=<plain text org api key to auth with razeedash>`
+    - eg. `kubectl create secret generic watch-keeper-secret --from-literal=RAZEEDASH_ORG_KEY=orgApiKey-88888888-4444-4444-4444-121212121212`
+1. `kubectl apply -f https://github.com/razee-io/Watch-keeper/releases/latest/download/resource.yaml`
 
 ## Collecting Resources
 
@@ -39,7 +49,7 @@ Watch-Keeper collects and reports on data in a few different ways. Each of these
 
 1. Heartbeat: every heartbeat collects the user defined [cluster metadata](#cluster-metadata), the cluster id, and the cluster kube version, and sends the data to RazeeDash.
     - Timing: `1 minute` (non configurable)
-1. Validate Watched Resources:  every `VALIDATE_INTERVAL` minutes, watch keeper will make sure it has a watch created for the resource kinds (ie. apps/v1 Deployment) that have at least one resource instance with the label. This means the first time you add the label to a previously unwatched resource kind, it could take up to `VALIDATE_INTERVAL` minutes to show in razeedash.
+1. Validate Watched Resources:  every `VALIDATE_INTERVAL` minutes, watch keeper will make sure it has a watch created for the resource kinds (eg. apps/v1 Deployment) that have at least one resource instance with the label. This means the first time you add the label to a previously unwatched resource kind, it could take up to `VALIDATE_INTERVAL` minutes to show in razeedash.
     - Timing: `VALIDATE_INTERVAL=10`
 1. Poll labeled Resources: every `POLL_INTERVAL` minutes, watch keeper will find all resources with the `razee/watch-resource` label and send to RazeeDash, as well as find all namespaces with the `razee/watch-resource` label and collects/reports all resources within those namespaces.
     - Timing: `POLL_INTERVAL=60`
@@ -62,11 +72,11 @@ You can add extra annotations to your resources in order to help the RazeeDash d
 
 - Working with github:
   1. `kubectl annotate <resource-kind> <resource-name> "razee.io/git-repo=<github repo>"`
-      - ie. `"razee.io/git-repo=https://github.com/razee-io/Watch-keeper"`
+      - eg. `"razee.io/git-repo=https://github.com/razee-io/Watch-keeper"`
   1. `kubectl annotate <resource-kind> <resource-name> "razee.io/commit-sha=<github sha>"`
-      - ie. `"razee.io/commit-sha=c6645609f8d3b8a48d53246fb7c1f6b60d054aef"`
+      - eg. `"razee.io/commit-sha=c6645609f8d3b8a48d53246fb7c1f6b60d054aef"`
   1. **Note**: We find it best practice to collect this info and add them to your resource yamls at build time instead of doing it manually on your cluster.
 - Working with any change management system:
   1. `kubectl annotate <resource-kind> <resource-name> "razee.io/source-url=<fully qualified path>"`
-      - ie. `"razee.io/git-repo=https://github.com/razee-io/Watch-keeper/commit/c6645609f8d3b8a48d53246fb7c1f6b60d054aef"`
+      - eg. `"razee.io/git-repo=https://github.com/razee-io/Watch-keeper/commit/c6645609f8d3b8a48d53246fb7c1f6b60d054aef"`
   1. **Note**: We find it best practice to collect this info and add them to your resource yamls at build time instead of doing it manually on your cluster.
