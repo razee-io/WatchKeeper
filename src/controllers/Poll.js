@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 const objectPath = require('object-path');
+const fs = require('fs-extra');
 
 const log = require('../bunyan-api').createLogger('Poll');
 
@@ -119,19 +120,72 @@ function detailedResourceFormatter(o) {
   return o;
 }
 
+async function readFile(path) {
+  if (await fs.pathExists(path)) {
+    try {
+      return await fs.readJson(path);
+    } catch (e) {
+      log.error(e);
+    }
+  }
+  return;
+}
+
+function listContains(list, ...search) {
+  for (var i = 0; i < list.length; i++) {
+    for (var j = 0; j < search.length; j++) {
+      if (list[i].toLowerCase() == search[j].toLowerCase()) {
+        return true;
+      }
+    }
+
+  }
+  return false;
+}
+
+async function selectiveListTrim(metaResources, whitelist, blacklist) {
+  if (!whitelist && !blacklist) {
+    return metaResources;
+  }
+
+  let result = [];
+  metaResources.map(mr => {
+    let apiVersion = mr.path.replace(/\/(api)s?\//, '');
+    let kind = mr.kind;
+    let name = mr.name;
+
+    if (!name.endsWith('/status')) {
+      if (whitelist) {
+        if (Array.isArray(whitelist[apiVersion]) && listContains(whitelist[apiVersion], kind, name)) {
+          result.push(mr);
+        }
+      } else if (blacklist) {
+        if (!(Array.isArray(blacklist[apiVersion]) && listContains(blacklist[apiVersion], kind, name))) {
+          result.push(mr);
+        }
+      }
+    }
+  });
+  return result;
+}
+
 // Run query for all known resource meta, remove from the list anything that
 // doesnt have any resources on the system. This takes a while up front, but
 // should save time for the rest of the calls
 async function trimMetaResources(metaResources) {
+  metaResources = await selectiveListTrim(metaResources, await readFile('limit-poll/whitelist.json'), await readFile('limit-poll/blacklist.json'));
+
   util = util || await Util.fetch();
   let selector = { limit: 500 };
   let result = [];
   for (var i = 0; i < metaResources.length; i++) {
-    let resource = await kc.getResource(metaResources[i], selector);
+    if (!metaResources[i].name.endsWith('/status')) { // call to /status returns same data as call to plain endpoint. so no need to make call
+      let resource = await kc.getResource(metaResources[i], selector);
 
-    let cont = objectPath.get(resource, 'object.metadata.continue');
-    if (resource.statusCode === 200 && (objectPath.get(resource, 'object.items', []).length > 0 || (cont !== undefined && cont !== ''))) {
-      result.push(metaResources[i]);
+      let cont = objectPath.get(resource, 'object.metadata.continue');
+      if (resource.statusCode === 200 && (objectPath.get(resource, 'object.items', []).length > 0 || (cont !== undefined && cont !== ''))) {
+        result.push(metaResources[i]);
+      }
     }
   }
   return result;
@@ -161,8 +215,8 @@ async function poll() {
     (o) => Util.hasLabel(o, 'razee/watch-resource') ? detailedResourceFormatter(o) : undefined);
 
   // Send all resources detailed within the labeled namespace
-  success = success && await handleWatchedNamespaces(metaResources, razeedashSender, { labelSelector: `razee/watch-resource in (${Util.detailSynonyms()})`, limit: 500 },
-    (o) => objectPath.has(o, 'metadata.namespace') ? detailedResourceFormatter(o) : undefined);
+  // success = success && await handleWatchedNamespaces(metaResources, razeedashSender, { labelSelector: `razee/watch-resource in (${Util.detailSynonyms()})`, limit: 500 },
+  //   (o) => objectPath.has(o, 'metadata.namespace') ? detailedResourceFormatter(o) : undefined);
 
   // Send singlely labeled lite resource
   success = success && await handleSelector(metaResources, razeedashSender, { labelSelector: `razee/watch-resource in (${Util.liteSynonyms()})`, limit: 500 },
