@@ -1,18 +1,18 @@
 /**
-* Copyright 2019 IBM Corp. All Rights Reserved.
-*
-* Licensed under the Apache License, Version 2.0 (the "License");
-* you may not use this file except in compliance with the License.
-* You may obtain a copy of the License at
-*
-*      http://www.apache.org/licenses/LICENSE-2.0
-*
-* Unless required by applicable law or agreed to in writing, software
-* distributed under the License is distributed on an "AS IS" BASIS,
-* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-* See the License for the specific language governing permissions and
-* limitations under the License.
-*/
+ * Copyright 2019 IBM Corp. All Rights Reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 const assert = require('chai').assert;
 var deepEqual = require('deep-equal');
 const nock = require('nock');
@@ -31,9 +31,8 @@ const Poll = rewire('../src/controllers/Poll');
 var revertUtil;
 
 describe('Poll', () => {
-  before(() => {
-  });
-  after(() => { });
+  before(() => {});
+  after(() => {});
   beforeEach(() => {
     nock('https://localhost:3000')
       .persist()
@@ -76,51 +75,48 @@ describe('Poll', () => {
           'selfLink': '/api/v1/endpoints',
           'resourceVersion': '14403118'
         },
-        'items': [
-          {
-            'metadata': {
-              'name': 'kubernetes-dashboard',
-              'namespace': 'kube-system',
-              'selfLink': '/api/v1/namespaces/kube-system/endpoints/kubernetes-dashboard',
-              'uid': 'b3156476-fca8-11e8-9f10-3a7d3a0f8cf2',
-              'resourceVersion': '10739693',
-              'creationTimestamp': '2018-12-10T18:23:32Z',
-              'labels': {
-                'addonmanager.kubernetes.io/mode': 'Reconcile',
-                'k8s-app': 'kubernetes-dashboard',
-                'kubernetes.io/cluster-service': 'true',
-                'razee/watch-resource': 'lite'
-              }
-            },
-            'subsets': [
-              {
-                'addresses': [{ 'ip': '172.30.167.199', 'nodeName': '10.190.53.3', 'targetRef': { 'kind': 'Pod', 'namespace': 'kube-system', 'name': 'kubernetes-dashboard-866c4b5df-zdr6m', 'uid': '16e8dfc8-1df5-11e9-9b2c-968d43411ffe', 'resourceVersion': '10609328' } }],
-                'ports': [{ 'port': 8443, 'protocol': 'TCP' }]
-              }]
+        'items': [{
+          'metadata': {
+            'name': 'kubernetes-dashboard',
+            'namespace': 'kube-system',
+            'selfLink': '/api/v1/namespaces/kube-system/endpoints/kubernetes-dashboard',
+            'uid': 'b3156476-fca8-11e8-9f10-3a7d3a0f8cf2',
+            'resourceVersion': '10739693',
+            'creationTimestamp': '2018-12-10T18:23:32Z',
+            'labels': {
+              'addonmanager.kubernetes.io/mode': 'Reconcile',
+              'k8s-app': 'kubernetes-dashboard',
+              'kubernetes.io/cluster-service': 'true',
+              'razee/watch-resource': 'lite'
+            }
+          },
+          'subsets': [{
+            'addresses': [{ 'ip': '172.30.167.199', 'nodeName': '10.190.53.3', 'targetRef': { 'kind': 'Pod', 'namespace': 'kube-system', 'name': 'kubernetes-dashboard-866c4b5df-zdr6m', 'uid': '16e8dfc8-1df5-11e9-9b2c-968d43411ffe', 'resourceVersion': '10609328' } }],
+            'ports': [{ 'port': 8443, 'protocol': 'TCP' }]
           }]
+        }]
       };
-      let expected = [
-        {
-          'type': 'POLLED',
-          'object': {
-            'kind': 'Endpoints',
-            'apiVersion': 'v1',
-            'metadata': {
-              'name': 'kubernetes-dashboard',
-              'namespace': 'kube-system',
-              'selfLink': '/api/v1/namespaces/kube-system/endpoints/kubernetes-dashboard',
-              'uid': 'b3156476-fca8-11e8-9f10-3a7d3a0f8cf2',
-              'resourceVersion': '10739693',
-              'creationTimestamp': '2018-12-10T18:23:32Z',
-              'labels': {
-                'addonmanager.kubernetes.io/mode': 'Reconcile',
-                'k8s-app': 'kubernetes-dashboard',
-                'kubernetes.io/cluster-service': 'true',
-                'razee/watch-resource': 'lite'
-              }
+      let expected = [{
+        'type': 'POLLED',
+        'object': {
+          'kind': 'Endpoints',
+          'apiVersion': 'v1',
+          'metadata': {
+            'name': 'kubernetes-dashboard',
+            'namespace': 'kube-system',
+            'selfLink': '/api/v1/namespaces/kube-system/endpoints/kubernetes-dashboard',
+            'uid': 'b3156476-fca8-11e8-9f10-3a7d3a0f8cf2',
+            'resourceVersion': '10739693',
+            'creationTimestamp': '2018-12-10T18:23:32Z',
+            'labels': {
+              'addonmanager.kubernetes.io/mode': 'Reconcile',
+              'k8s-app': 'kubernetes-dashboard',
+              'kubernetes.io/cluster-service': 'true',
+              'razee/watch-resource': 'lite'
             }
           }
-        }];
+        }
+      }];
       let actual = createPolledResource(given, liteResourceFormatter);
       assert.isTrue(deepEqual(actual, expected), JSON.stringify(actual));
     });
@@ -150,47 +146,42 @@ describe('Poll', () => {
       let mockKubeClass = {
         getResourcesPaged: async (resourceMeta, queryParms) => { // eslint-disable-line no-unused-vars
           return Promise.resolve({
-            'resources': [
-              {
-                'resource-metadata':
-                {
-                  '_path': '/api/v1',
-                  '_resourceMeta': { 'name': 'namespaces', 'singularName': '', 'namespaced': false, 'kind': 'Namespace', 'verbs': ['create', 'delete', 'get', 'list', 'patch', 'update', 'watch'], 'shortNames': ['ns'] }
-                },
-                'statusCode': 200,
-                'object': { 'kind': 'NamespaceList', 'apiVersion': 'v1', 'metadata': { 'selfLink': '/api/v1/namespaces', 'resourceVersion': '14426928' }, 'items': [] }
-              }]
+            'resources': [{
+              'resource-metadata': {
+                '_path': '/api/v1',
+                '_resourceMeta': { 'name': 'namespaces', 'singularName': '', 'namespaced': false, 'kind': 'Namespace', 'verbs': ['create', 'delete', 'get', 'list', 'patch', 'update', 'watch'], 'shortNames': ['ns'] }
+              },
+              'statusCode': 200,
+              'object': { 'kind': 'NamespaceList', 'apiVersion': 'v1', 'metadata': { 'selfLink': '/api/v1/namespaces', 'resourceVersion': '14426928' }, 'items': [] }
+            }]
           });
         }
       };
       // Poll
-      let createPolledResourceResponse = [
-        {
-          'type': 'POLLED',
-          'object': {
-            'metadata': {
-              'name': 'kubernetes-dashboard',
-              'namespace': 'kube-system',
-              'selfLink': '/api/v1/namespaces/kube-system/endpoints/kubernetes-dashboard',
-              'uid': 'b3156476-fca8-11e8-9f10-3a7d3a0f8cf2',
-              'resourceVersion': '10739693',
-              'creationTimestamp': '2018-12-10T18:23:32Z',
-              'labels': {
-                'addonmanager.kubernetes.io/mode': 'Reconcile',
-                'k8s-app': 'kubernetes-dashboard',
-                'kubernetes.io/cluster-service': 'true',
-                'razee/watch-resource': 'lite'
-              }
+      let createPolledResourceResponse = [{
+        'type': 'POLLED',
+        'object': {
+          'metadata': {
+            'name': 'kubernetes-dashboard',
+            'namespace': 'kube-system',
+            'selfLink': '/api/v1/namespaces/kube-system/endpoints/kubernetes-dashboard',
+            'uid': 'b3156476-fca8-11e8-9f10-3a7d3a0f8cf2',
+            'resourceVersion': '10739693',
+            'creationTimestamp': '2018-12-10T18:23:32Z',
+            'labels': {
+              'addonmanager.kubernetes.io/mode': 'Reconcile',
+              'k8s-app': 'kubernetes-dashboard',
+              'kubernetes.io/cluster-service': 'true',
+              'razee/watch-resource': 'lite'
             }
           }
-        }];
-      var revertPoll = Poll.__set__(
-        {
-          'util': util,
-          'kc': mockKubeClass,
-          'createPolledResource': (resourceList, resourceFormatter) => { return createPolledResourceResponse; }, // eslint-disable-line no-unused-vars
         }
-      );
+      }];
+      var revertPoll = Poll.__set__({
+        'util': util,
+        'kc': mockKubeClass,
+        'createPolledResource': (resourceList, resourceFormatter) => { return createPolledResourceResponse; }, // eslint-disable-line no-unused-vars
+      });
       // Test
       let handleSelection = Poll.__get__('handleSelector');
       let result = await handleSelection(metaResources, fakeSender, selector, liteResourceFormatter);
@@ -217,12 +208,10 @@ describe('Poll', () => {
         }
       };
       // Poll
-      var revertPoll = Poll.__set__(
-        {
-          'util': util,
-          'kc': mockKubeClass
-        }
-      );
+      var revertPoll = Poll.__set__({
+        'util': util,
+        'kc': mockKubeClass
+      });
       // Test
       let handleSelection = Poll.__get__('handleSelector');
       let result = await handleSelection(metaResources, fakeSender, selector, liteResourceFormatter);
@@ -248,32 +237,30 @@ describe('Poll', () => {
       let mockKubeClass = {
         getResourcesPaged: async (resourceMeta, queryParms) => { // eslint-disable-line no-unused-vars
           return Promise.resolve({
-            'resources': [
-              {
-                'resource-metadata': {
-                  'uri': '/api/v1/namespaces'
+            'resources': [{
+              'resource-metadata': {
+                'uri': '/api/v1/namespaces'
+              },
+              'statusCode': 200,
+              'object': {
+                'kind': 'NamespaceList',
+                'apiVersion': 'v1',
+                'metadata': {
+                  'selfLink': '/api/v1/namespaces',
+                  'resourceVersion': '14831957'
                 },
-                'statusCode': 200,
-                'object': {
-                  'kind': 'NamespaceList',
-                  'apiVersion': 'v1',
-                  'metadata': {
-                    'selfLink': '/api/v1/namespaces',
-                    'resourceVersion': '14831957'
-                  }, 'items': [{ 'metadata': { 'name': 'myspace' } }]
-                }
-              }]
+                'items': [{ 'metadata': { 'name': 'myspace' } }]
+              }
+            }]
           });
         }
       };
       // Poll
-      var revertPoll = Poll.__set__(
-        {
-          'util': util,
-          'kc': mockKubeClass,
-          'handleSelector': async (metaResources, razeedashSender, selector, formatter) => { return Promise.resolve(true); },         // eslint-disable-line no-unused-vars
-        }
-      );
+      var revertPoll = Poll.__set__({
+        'util': util,
+        'kc': mockKubeClass,
+        'handleSelector': async (metaResources, razeedashSender, selector, formatter) => { return Promise.resolve(true); }, // eslint-disable-line no-unused-vars
+      });
       // Test
       let handleWatchedNamespaces = Poll.__get__('handleWatchedNamespaces');
       let result = await handleWatchedNamespaces(metaResources, fakeSender, selector, liteResourceFormatter);
@@ -300,12 +287,10 @@ describe('Poll', () => {
         }
       };
       // Poll
-      var revertPoll = Poll.__set__(
-        {
-          'util': util,
-          'kc': mockKubeClass
-        }
-      );
+      var revertPoll = Poll.__set__({
+        'util': util,
+        'kc': mockKubeClass
+      });
       // Test
       let handleWatchedNamespaces = Poll.__get__('handleWatchedNamespaces');
       let result = await handleWatchedNamespaces(metaResources, fakeSender, selector, liteResourceFormatter);
@@ -372,15 +357,16 @@ describe('Poll', () => {
         }
       };
       // Poll
-      var revertPoll = Poll.__set__(
-        {
-          'util': util,
-          'kc': mockKubeClass
-        }
-      );
+      var revertPoll = Poll.__set__({
+        'util': util,
+        'kc': mockKubeClass
+      });
       // Test
       let given = [{
         '_path': '/api/v1',
+        'path': '/api/v1',
+        'name': 'namespaces',
+        'kind': 'Namespace',
         '_resourceMeta': {
           'name': 'namespaces',
           'singularName': '',
@@ -390,9 +376,23 @@ describe('Poll', () => {
           'shortNames': ['ns']
         }
       }];
-      let expected = [{ '_path': '/api/v1', '_resourceMeta': { 'name': 'namespaces', 'singularName': '', 'namespaced': false, 'kind': 'Namespace', 'verbs': ['create', 'delete', 'get', 'list', 'patch', 'update', 'watch'], 'shortNames': ['ns'] } }];
+      let expected = [{
+        '_path': '/api/v1',
+        'path': '/api/v1',
+        'name': 'namespaces',
+        'kind': 'Namespace',
+        '_resourceMeta': {
+          'name': 'namespaces',
+          'singularName': '',
+          'namespaced': false,
+          'kind': 'Namespace',
+          'verbs': ['create', 'delete', 'get', 'list', 'patch', 'update', 'watch'],
+          'shortNames': ['ns']
+        }
+      }];
       let trimMetaResources = Poll.__get__('trimMetaResources');
       let actual = await trimMetaResources(given);
+      console.dir(actual, { depth: null });
       assert.isTrue(deepEqual(actual, expected), JSON.stringify(actual));
       revertPoll();
     });
@@ -410,12 +410,10 @@ describe('Poll', () => {
         }
       };
       // Poll
-      var revertPoll = Poll.__set__(
-        {
-          'util': util,
-          'kc': mockKubeClass
-        }
-      );
+      var revertPoll = Poll.__set__({
+        'util': util,
+        'kc': mockKubeClass
+      });
       let actual = await Poll.poll();
       assert.isFalse(actual);
       revertPoll();
@@ -442,14 +440,13 @@ describe('Poll', () => {
       };
 
       // Poll
-      var revertPoll = Poll.__set__(
-        {
-          'util': util,
-          'kc': mockKubeClass,
-          'trimMetaResources': async (verb) => { // eslint-disable-line no-unused-vars
-            return Promise.reject(new Error('some getKubeResourcesMeta error'));
-          }
-        });
+      var revertPoll = Poll.__set__({
+        'util': util,
+        'kc': mockKubeClass,
+        'trimMetaResources': async (verb) => { // eslint-disable-line no-unused-vars
+          return Promise.reject(new Error('some getKubeResourcesMeta error'));
+        }
+      });
       let actual = await Poll.poll();
       assert.isFalse(actual);
       revertPoll();
@@ -482,17 +479,15 @@ describe('Poll', () => {
         }
       };
       // Poll
-      var revertPoll = Poll.__set__(
-        {
-          'util': util,
-          'kc': mockKubeClass,
-          'trimMetaResources': async (resourceMeta) => { // eslint-disable-line no-unused-vars
+      var revertPoll = Poll.__set__({
+        'util': util,
+        'kc': mockKubeClass,
+        'trimMetaResources': async (resourceMeta) => { // eslint-disable-line no-unused-vars
             return Promise.resolve([{ '_path': '/api/v1', '_resourceMeta': { 'name': 'namespaces', 'singularName': '', 'namespaced': false, 'kind': 'Namespace', 'verbs': ['create', 'delete', 'get', 'list', 'patch', 'update', 'watch'], 'shortNames': ['ns'] } }]);
           },
           'handleSelector': async () => { return Promise.resolve(true); },
-          'handleWatchedNamespaces': async () => { return Promise.resolve(true); },
-        }
-      );
+            'handleWatchedNamespaces': async () => { return Promise.resolve(true); },
+      });
       let actual = await Poll.poll();
       assert.isTrue(actual, 'should return true');
       revertPoll();
@@ -525,17 +520,15 @@ describe('Poll', () => {
         }
       };
       // Poll
-      var revertPoll = Poll.__set__(
-        {
-          'util': util,
-          'kc': mockKubeClass,
-          'trimMetaResources': async (resourceMeta) => { // eslint-disable-line no-unused-vars
+      var revertPoll = Poll.__set__({
+        'util': util,
+        'kc': mockKubeClass,
+        'trimMetaResources': async (resourceMeta) => { // eslint-disable-line no-unused-vars
             return Promise.resolve([{ '_path': '/api/v1', '_resourceMeta': { 'name': 'namespaces', 'singularName': '', 'namespaced': false, 'kind': 'Namespace', 'verbs': ['create', 'delete', 'get', 'list', 'patch', 'update', 'watch'], 'shortNames': ['ns'] } }]);
           },
           'handleSelector': async () => { return Promise.resolve(false); },
-          'handleWatchedNamespaces': async () => { return Promise.resolve(true); },
-        }
-      );
+            'handleWatchedNamespaces': async () => { return Promise.resolve(true); },
+      });
       let actual = await Poll.poll();
       assert.isFalse(actual, 'should return false if handleSelector returns false');
       revertPoll();
@@ -568,17 +561,15 @@ describe('Poll', () => {
         }
       };
       // Poll
-      var revertPoll = Poll.__set__(
-        {
-          'util': util,
-          'kc': mockKubeClass,
-          'trimMetaResources': async (resourceMeta) => { // eslint-disable-line no-unused-vars
+      var revertPoll = Poll.__set__({
+        'util': util,
+        'kc': mockKubeClass,
+        'trimMetaResources': async (resourceMeta) => { // eslint-disable-line no-unused-vars
             return Promise.resolve([{ '_path': '/api/v1', '_resourceMeta': { 'name': 'namespaces', 'singularName': '', 'namespaced': false, 'kind': 'Namespace', 'verbs': ['create', 'delete', 'get', 'list', 'patch', 'update', 'watch'], 'shortNames': ['ns'] } }]);
           },
           'handleSelector': async () => { return Promise.resolve(true); },
-          'handleWatchedNamespaces': async () => { return Promise.resolve(false); },
-        }
-      );
+            'handleWatchedNamespaces': async () => { return Promise.resolve(false); },
+      });
       let actual = await Poll.poll();
       assert.isFalse(actual, 'should return false if handleWatchedNamespaces returns false');
       revertPoll();
