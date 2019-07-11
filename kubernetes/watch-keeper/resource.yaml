@@ -4,6 +4,7 @@ metadata:
   name: watch-keeper-deployment
   annotations:
     version: "{{TRAVIS_COMMIT}}"
+type: array
 items:
   - apiVersion: v1
     kind: Namespace
