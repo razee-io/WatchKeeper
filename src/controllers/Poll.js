@@ -120,7 +120,7 @@ function detailedResourceFormatter(o) {
   return o;
 }
 
-async function readFile(path) {
+async function readJsonFile(path) {
   if (await fs.pathExists(path)) {
     try {
       return await fs.readJson(path);
@@ -173,7 +173,7 @@ async function selectiveListTrim(metaResources, whitelist, blacklist) {
 // doesnt have any resources on the system. This takes a while up front, but
 // should save time for the rest of the calls
 async function trimMetaResources(metaResources) {
-  metaResources = await selectiveListTrim(metaResources, await readFile('limit-poll/whitelist.json'), await readFile('limit-poll/blacklist.json'));
+  metaResources = await selectiveListTrim(metaResources, await readJsonFile('limit-poll/whitelist.json'), await readJsonFile('limit-poll/blacklist.json'));
 
   util = util || await Util.fetch();
   let selector = { limit: 500 };
