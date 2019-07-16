@@ -392,7 +392,7 @@ describe('Poll', () => {
       }];
       let trimMetaResources = Poll.__get__('trimMetaResources');
       let actual = await trimMetaResources(given);
-      console.dir(actual, { depth: null });
+      // console.dir(actual, { depth: null });
       assert.isTrue(deepEqual(actual, expected), JSON.stringify(actual));
       revertPoll();
     });
@@ -483,10 +483,12 @@ describe('Poll', () => {
         'util': util,
         'kc': mockKubeClass,
         'trimMetaResources': async (resourceMeta) => { // eslint-disable-line no-unused-vars
-            return Promise.resolve([{ '_path': '/api/v1', '_resourceMeta': { 'name': 'namespaces', 'singularName': '', 'namespaced': false, 'kind': 'Namespace', 'verbs': ['create', 'delete', 'get', 'list', 'patch', 'update', 'watch'], 'shortNames': ['ns'] } }]);
-          },
-          'handleSelector': async () => { return Promise.resolve(true); },
-            'handleWatchedNamespaces': async () => { return Promise.resolve(true); },
+          return Promise.resolve([{ '_path': '/api/v1', '_resourceMeta': { 'name': 'namespaces', 'singularName': '', 'namespaced': false, 'kind': 'Namespace', 'verbs': ['create', 'delete', 'get', 'list', 'patch', 'update', 'watch'], 'shortNames': ['ns'] } }]);
+        }, 'handleSelector': async () => {
+          return Promise.resolve(true);
+        }, 'handleWatchedNamespaces': async () => {
+          return Promise.resolve(true);
+        },
       });
       let actual = await Poll.poll();
       assert.isTrue(actual, 'should return true');
@@ -524,10 +526,12 @@ describe('Poll', () => {
         'util': util,
         'kc': mockKubeClass,
         'trimMetaResources': async (resourceMeta) => { // eslint-disable-line no-unused-vars
-            return Promise.resolve([{ '_path': '/api/v1', '_resourceMeta': { 'name': 'namespaces', 'singularName': '', 'namespaced': false, 'kind': 'Namespace', 'verbs': ['create', 'delete', 'get', 'list', 'patch', 'update', 'watch'], 'shortNames': ['ns'] } }]);
-          },
-          'handleSelector': async () => { return Promise.resolve(false); },
-            'handleWatchedNamespaces': async () => { return Promise.resolve(true); },
+          return Promise.resolve([{ '_path': '/api/v1', '_resourceMeta': { 'name': 'namespaces', 'singularName': '', 'namespaced': false, 'kind': 'Namespace', 'verbs': ['create', 'delete', 'get', 'list', 'patch', 'update', 'watch'], 'shortNames': ['ns'] } }]);
+        }, 'handleSelector': async () => {
+          return Promise.resolve(false);
+        }, 'handleWatchedNamespaces': async () => {
+          return Promise.resolve(true);
+        },
       });
       let actual = await Poll.poll();
       assert.isFalse(actual, 'should return false if handleSelector returns false');
@@ -565,10 +569,12 @@ describe('Poll', () => {
         'util': util,
         'kc': mockKubeClass,
         'trimMetaResources': async (resourceMeta) => { // eslint-disable-line no-unused-vars
-            return Promise.resolve([{ '_path': '/api/v1', '_resourceMeta': { 'name': 'namespaces', 'singularName': '', 'namespaced': false, 'kind': 'Namespace', 'verbs': ['create', 'delete', 'get', 'list', 'patch', 'update', 'watch'], 'shortNames': ['ns'] } }]);
-          },
-          'handleSelector': async () => { return Promise.resolve(true); },
-            'handleWatchedNamespaces': async () => { return Promise.resolve(false); },
+          return Promise.resolve([{ '_path': '/api/v1', '_resourceMeta': { 'name': 'namespaces', 'singularName': '', 'namespaced': false, 'kind': 'Namespace', 'verbs': ['create', 'delete', 'get', 'list', 'patch', 'update', 'watch'], 'shortNames': ['ns'] } }]);
+        }, 'handleSelector': async () => {
+          return Promise.resolve(true);
+        }, 'handleWatchedNamespaces': async () => {
+          return Promise.resolve(false);
+        },
       });
       let actual = await Poll.poll();
       assert.isFalse(actual, 'should return false if handleWatchedNamespaces returns false');
