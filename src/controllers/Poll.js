@@ -214,6 +214,7 @@ async function poll() {
   success = success && await handleSelector(metaResources, razeedashSender, { labelSelector: `razee/watch-resource in (true,${Util.detailSynonyms()})`, limit: 500 },
     (o) => Util.hasLabel(o, 'razee/watch-resource') ? detailedResourceFormatter(o) : undefined);
 
+  // For now we think its a bad idea to allow a whole ns to be detail tagged.
   // Send all resources detailed within the labeled namespace
   // success = success && await handleWatchedNamespaces(metaResources, razeedashSender, { labelSelector: `razee/watch-resource in (${Util.detailSynonyms()})`, limit: 500 },
   //   (o) => objectPath.has(o, 'metadata.namespace') ? detailedResourceFormatter(o) : undefined);
@@ -223,7 +224,7 @@ async function poll() {
     (o) => Util.hasLabel(o, 'razee/watch-resource') ? liteResourceFormatter(o) : undefined);
 
   // Send all resources lite within the labeled namespace
-  success = success && await handleWatchedNamespaces(metaResources, razeedashSender, { labelSelector: `razee/watch-resource in (true,${Util.liteSynonyms()})`, limit: 500 },
+  success = success && await handleWatchedNamespaces(metaResources, razeedashSender, { labelSelector: `razee/watch-resource in (true,${Util.liteSynonyms()},${Util.detailSynonyms()})`, limit: 500 },
     (o) => objectPath.has(o, 'metadata.namespace') ? liteResourceFormatter(o) : undefined);
 
   if (success) {
