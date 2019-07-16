@@ -142,3 +142,12 @@ items:
               periodSeconds: 300
               timeoutSeconds: 30
               failureThreshold: 1
+            volumeMounts:
+            - mountPath: /usr/src/app/limit-poll
+              name: limit-poll
+          volumes:
+          - configMap:
+              defaultMode: 420
+              name: watch-keeper-limit-poll
+              optional: true
+            name: limit-poll
