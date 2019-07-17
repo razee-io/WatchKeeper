@@ -75,12 +75,12 @@ describe('Watch', () => {
         }
       });
       let mockWatchManager = {
-        ensureWatch: (options, objectHandler) => { // eslint-disable-line no-nounuse-vars
+        ensureWatch: (options, objectHandler) => { 
           return objectHandler(TEST_POD);
         }
       };
       let mockKubeClass = {
-        getKubeResourcesMeta: () => { // eslint-disable-line no-unused-vars
+        getKubeResourcesMeta: () => { 
           return Promise.resolve([{
             '_path': '/api/v1',
             'uri': () => '/api/v1/endpoints/watch',
@@ -94,7 +94,8 @@ describe('Watch', () => {
             }
           }]);
         },
-        getResource: async (resourceMeta, queryParms) => { // eslint-disable-line no-unused-vars
+        // eslint-disable-next-line no-unused-vars
+        getResource: async (resourceMeta, queryParms) => { 
           return Promise.resolve({
             'resource-metadata': {
               '_path': '/api/v1',
@@ -170,7 +171,7 @@ describe('Watch', () => {
         getClusterMeta: () => { return {}; }
       });
       let mockWatchManager = {
-        ensureWatch: (options, objectHandler) => { // eslint-disable-line no-nounuse-vars
+        ensureWatch: (options, objectHandler) => { 
           return objectHandler(TEST_POD);
         }
       };
