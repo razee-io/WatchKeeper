@@ -47,6 +47,7 @@ function removeAllWatches() {
 async function watch() {
   log.info('Validating Watches ============');
   let success = true;
+  // eslint-disable-next-line require-atomic-updates
   util = util || await Util.fetch();
   let resourcesMeta = await kc.getKubeResourcesMeta('watch');
   let selector = { labelSelector: `razee/watch-resource in (true,debug,${Util.liteSynonyms()},${Util.detailSynonyms()})`, limit: 500 };

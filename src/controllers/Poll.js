@@ -49,6 +49,7 @@ function createPolledResource(resourceList, resourceFormatter) {
 
 async function handleSelector(metaResources, razeedashSender, selector, formatter) {
   let success = true;
+  // eslint-disable-next-line require-atomic-updates
   util = util || await Util.fetch();
   try {
     let next = undefined;
@@ -175,6 +176,7 @@ async function selectiveListTrim(metaResources, whitelist, blacklist) {
 async function trimMetaResources(metaResources) {
   metaResources = await selectiveListTrim(metaResources, await readJsonFile('limit-poll/whitelist.json'), await readJsonFile('limit-poll/blacklist.json'));
 
+  // eslint-disable-next-line require-atomic-updates
   util = util || await Util.fetch();
   let selector = { limit: 500 };
   let result = [];
@@ -195,6 +197,7 @@ async function trimMetaResources(metaResources) {
 async function poll() {
   let metaResources;
   let success = true;
+  // eslint-disable-next-line require-atomic-updates
   util = util || await Util.fetch();
   log.info('Polling Resources ============');
   let razeedashSender = new RazeedashSender(util.dsa);

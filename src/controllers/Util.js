@@ -96,8 +96,10 @@ module.exports = class Util {
   static async fetch(razeedashUrl, def = false) {
     if (!util[razeedashUrl]) {
       let clusterID = await dc.getClusterUid();
+      // eslint-disable-next-line require-atomic-updates
       util[razeedashUrl] = new Util(razeedashUrl, clusterID);
       if (!util[undefined] || def) {
+        // eslint-disable-next-line require-atomic-updates
         util[undefined] = util[razeedashUrl];
       }
     }
