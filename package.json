@@ -54,7 +54,7 @@
     "request": "^2.88.0",
     "request-promise-native": "^1.0.5",
     "requestretry": "^4.0.0",
-    "shellcheck": "^0.2.3",
+    "shellcheck": "^0.3.0",
     "touch": "^3.1.0",
     "valid-url": "^1.0.9"
   },
