@@ -54,7 +54,6 @@
     "request": "^2.88.0",
     "request-promise-native": "^1.0.5",
     "requestretry": "^4.0.0",
-    "shellcheck": "^0.2.3",
     "touch": "^3.1.0",
     "valid-url": "^1.0.9"
   },
@@ -74,6 +73,7 @@
     "npm-watch": "^0.6.0",
     "nyc": "^14.1.1",
     "rewire": "^4.0.1",
+    "shellcheck": "^0.3.0",
     "sinon": "^7.2.2",
     "yaml-lint": "^1.2.4"
   }
