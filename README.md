@@ -43,6 +43,31 @@ Watch-Keeper is a tool that inventories and reports back the resources running o
 1. Labeling namespaces, especially using the detail or debug level collections, can gather much more data than anticipated resulting in delays in data reporting.
 1. Similarly,  delays can occur when reporting on a namespace with lots of resources (> thousand).
 
+### White/Black Lists
+
+You can white or black list resources by creating a ConfigMap, in the namespace your Watch-Keeper is running, called `watch-keeper-limit-poll`.
+
+- when creating the ConfigMap for the first time, you will need to restart the Watch-Keeper pods so that it can pick up the volume mount.
+- if both a whitelist and blacklist are specified, only whitelist will work.
+
+To create your white/black list you will specify the list you want as the key, and a json string as the
+value. The json keys will be the `apiVersion` of the resource you want to add, and the value will be and array
+of the `kind`s of resources you want to add.
+
+```yaml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: watch-keeper-limit-poll
+  namespace: <watch-keeper ns>
+data:
+  whitelist.json: |
+    {
+      "v1": ["Pod", "Service"],
+      "apps/v1": ["Scale", "Deployment", "DaemonSet", "ReplicaSet", "Pod"]
+    }
+```
+
 ## Feature Intervals
 
 Watch-Keeper collects and reports on data in a few different ways. Each of these ways is on a differently timed interval and affects when data populates/updates in RazeeDash. These intervals are configurable via environment variables defined in the deployment yaml (note: Intervals are in minutes and should follow: CLEAN_START_INTERVAL > POLL_INTERVAL > VALIDATE_INTERVAL).
