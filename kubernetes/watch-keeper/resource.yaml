@@ -101,6 +101,9 @@ items:
           name: watch-keeper
         spec:
           serviceAccountName: watch-keeper-sa
+          securityContext:
+            runAsUser: 1000
+            runAsGroup: 1000
           containers:
           - env:
               - name: START_DELAY_MAX
