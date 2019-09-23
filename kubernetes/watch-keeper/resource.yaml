@@ -12,8 +12,8 @@ items:
       name: razee
       labels:
         razee/watch-resource: "lite"
-        kapitan.razee.io/mode: "EnsureExists"
-        kapitan.razee.io/Reconcile: "false"
+        deploy.razee.io/mode: "EnsureExists"
+        deploy.razee.io/Reconcile: "false"
       annotations:
         razee.io/git-repo: "{{{GIT_REMOTE}}}"
         razee.io/commit-sha: "{{TRAVIS_COMMIT}}"

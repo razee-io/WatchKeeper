@@ -132,6 +132,7 @@ module.exports = class Util {
     } else {
       objectPath.del(o, ['metadata', 'annotations', 'kubectl.kubernetes.io/last-applied-configuration']);
       objectPath.del(o, ['metadata', 'annotations', 'kapitan.razee.io/last-applied-configuration']);
+      objectPath.del(o, ['metadata', 'annotations', 'deploy.razee.io/last-applied-configuration']);
       if (objectPath.get(o, 'kind') === 'Secret' || objectPath.get(o, 'kind') === 'ConfigMap') { // secret or configmap
         let data = objectPath.get(o, 'data', {});
         let keys = Object.keys(data);
