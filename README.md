@@ -27,7 +27,7 @@ Watch-Keeper is a tool that inventories and reports back the resources running o
 
 1. Watches: this is where watch-keeper gets its name. Watch-keeper creates watches on any resource with the label `razee/watch-resource=<level>`, and reports to razeedash whenever a change occurs.
 1. Polling: any resource with the `razee/watch-resource=<level>` label is reported. This is useful for resources that are not watchable.
-1. Namespaces: you can gather info from a cluster by labeling a namespace with `razee/watch-resource=<level>`. This will collect and report all data within the labeled namespace at the desired `<level>`.
+1. Namespaces: you can gather info from a cluster by labeling a namespace with `razee/watch-resource=<level>`. This will collect and report all data within the labeled namespace at the desired `<level>`. See [white/black lists](#whiteblack-lists) to limit what is collected.
 
 - Ex. `kubectl label cm my-cm razee/watch-resource=lite`
 
@@ -42,6 +42,40 @@ Watch-Keeper is a tool that inventories and reports back the resources running o
 1. `<levels>` must be lower case
 1. Labeling namespaces, especially using the detail or debug level collections, can gather much more data than anticipated resulting in delays in data reporting.
 1. Similarly,  delays can occur when reporting on a namespace with lots of resources (> thousand).
+
+### White/Black Lists
+
+You can white or black list resources by creating a ConfigMap named
+`watch-keeper-limit-poll`, in the namespace your Watch-Keeper is running.
+
+- When creating the ConfigMap for the first time, you will need to restart the
+Watch-Keeper pods so that it can pick up the volume mount.
+- If both a whitelist and blacklist are specified, only the whitelist will be used.
+- The white/black list is employed during the **Polling** and **Namespace**
+[collection methods](#Collection-Methods). Any individual resource specifically
+labeled to be watched will still be watched, regardless of the white/black list.
+
+#### Creating a White/Black List
+
+- To create your white/black list, the ConfigMap will specify the kind of list
+you want as the key, and the white/black list as a JSON string for the value.
+- The white/black list itself is a JSON string:
+  - The keys will be the `apiVersion` of the resource you want to add.
+  - The value will be and array of the `kind`s of resources you want to add.
+
+```yaml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: watch-keeper-limit-poll
+  namespace: <watch-keeper ns>
+data:
+  whitelist.json: |
+    {
+      "v1": ["Pod", "Service"],
+      "apps/v1": ["Scale", "Deployment", "DaemonSet", "ReplicaSet", "Pod"]
+    }
+```
 
 ## Feature Intervals
 
@@ -68,7 +102,7 @@ kubectl label cm my-watch-keeper-cm razee/cluster-metadata=true
 
 ## Resource Metadata
 
-You can add extra annotations to your resources in order to help the RazeeDash dashboard link to your change management system. 
+You can add extra annotations to your resources in order to help the RazeeDash dashboard link to your change management system.
 
 - Working with github:
   1. `kubectl annotate <resource-kind> <resource-name> "razee.io/git-repo=<github repo>"`
