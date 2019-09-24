@@ -27,7 +27,7 @@ Watch-Keeper is a tool that inventories and reports back the resources running o
 
 1. Watches: this is where watch-keeper gets its name. Watch-keeper creates watches on any resource with the label `razee/watch-resource=<level>`, and reports to razeedash whenever a change occurs.
 1. Polling: any resource with the `razee/watch-resource=<level>` label is reported. This is useful for resources that are not watchable.
-1. Namespaces: you can gather info from a cluster by labeling a namespace with `razee/watch-resource=<level>`. This will collect and report all data within the labeled namespace at the desired `<level>`. See [white/black lists](#white/black-lists) to limit what is collected.
+1. Namespaces: you can gather info from a cluster by labeling a namespace with `razee/watch-resource=<level>`. This will collect and report all data within the labeled namespace at the desired `<level>`. See [white/black lists](#whiteblack-lists) to limit what is collected.
 
 - Ex. `kubectl label cm my-cm razee/watch-resource=lite`
 
