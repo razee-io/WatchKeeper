@@ -51,32 +51,31 @@ module.exports = class RazeedashSender {
     this._sentSelflinks={};
   }
 
-
-  sendPollSummary() {
+  sendPollComplete() {
     let gcObject = {
-      'type': 'SYNC',
-      'object': Object.keys(this._sentSelflinks)
+      type: 'SYNC',
+      count: this.resourceCount()
     };
     let result = this._dsa.send(gcObject);
     this.reset();
     return result;
   }
 
-  // only send selfLink's once and then filter others
+  // only send resources (as identified by selfLink) once and then filter others
   _distill(...resourceArrays) {
-    let temp = [];
+    let result = [];
     resourceArrays.forEach((a) => {
       a.forEach((e) => {
         if (e) {
           let selfLink = objectPath.get(e, 'object.metadata.selfLink');
           if(selfLink && !this._sentSelflinks[selfLink]){
             this._sentSelflinks[selfLink] = true;
-            temp.push(e);
+            result.push(e);
           }
         }
       });
     });
-    return temp;
+    return result;
   }
 
 

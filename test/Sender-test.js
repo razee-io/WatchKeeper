@@ -160,10 +160,9 @@ describe('Sender', () => {
       };
       let sender = new RazeedashSender(fakeDSA);
       sender.send([testResource]);
-      sender.sendPollSummary();
+      sender.sendPollComplete();
       assert(fakeDSA.send.calledTwice);
       assert.equal(fakeDSA.send.secondCall.args[0].type, 'SYNC');
-      assert.equal(fakeDSA.send.secondCall.args[0].object, '/api/v1/namespaces/kube-system/endpoints/kubernetes-dashboard');
     });
   });
 });

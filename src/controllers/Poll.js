@@ -231,7 +231,7 @@ async function poll() {
     (o) => objectPath.has(o, 'metadata.namespace') ? liteResourceFormatter(o) : undefined);
 
   if (success) {
-    razeedashSender.sendPollSummary();
+    razeedashSender.sendPollComplete();
   } else {
     log.error('Encountered error while polling. Not sending SYNC.');
   }
