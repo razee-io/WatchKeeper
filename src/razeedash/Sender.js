@@ -54,7 +54,7 @@ module.exports = class RazeedashSender {
   sendPollComplete() {
     let gcObject = {
       type: 'SYNC',
-      count: this.resourceCount()
+      count: this.resourceCount
     };
     let result = this._dsa.send(gcObject);
     this.reset();
