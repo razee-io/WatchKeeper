@@ -200,7 +200,7 @@ async function poll() {
   // eslint-disable-next-line require-atomic-updates
   util = util || await Util.fetch();
   log.info('Polling Resources ============');
-  let razeedashSender = new RazeedashSender(util.dsa);
+  let razeedashSender = new RazeedashSender(util.clusterID);
   try {
     metaResources = await kc.getKubeResourcesMeta('get');
     metaResources = await trimMetaResources(metaResources);
@@ -231,7 +231,11 @@ async function poll() {
     (o) => objectPath.has(o, 'metadata.namespace') ? liteResourceFormatter(o) : undefined);
 
   if (success) {
-    razeedashSender.sendPollComplete();
+    try {
+      await razeedashSender.sendPollComplete();
+    } catch (e) {
+      log.error(`Encountered error while sending SYNC: ${e}`);
+    }
   } else {
     log.error('Encountered error while polling. Not sending SYNC.');
   }

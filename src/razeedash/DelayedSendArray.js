@@ -1,18 +1,18 @@
 /**
-* Copyright 2019 IBM Corp. All Rights Reserved.
-*
-* Licensed under the Apache License, Version 2.0 (the "License");
-* you may not use this file except in compliance with the License.
-* You may obtain a copy of the License at
-*
-*      http://www.apache.org/licenses/LICENSE-2.0
-*
-* Unless required by applicable law or agreed to in writing, software
-* distributed under the License is distributed on an "AS IS" BASIS,
-* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-* See the License for the specific language governing permissions and
-* limitations under the License.
-*/
+ * Copyright 2019 IBM Corp. All Rights Reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 var validUrl = require('valid-url');
 var requestretry = require('requestretry');
 const HttpAgent = require('agentkeepalive');
@@ -32,40 +32,41 @@ const _queueObject = Symbol('queueObject');
 
 module.exports = class DelayedSendArray {
 
-  constructor(url, clusterID, max) {
+  constructor(url, clusterID, max, trackSendPromises) {
     this._clusterID = clusterID;
     this.url = url;
+    if (!this._clusterID) {
+      throw Error('clusterID must be defined');
+    }
+    if (!validUrl.isUri(url)) {
+      throw Error(`${url} not valid.`);
+    }
     if (url.startsWith('https')) {
       this.agent = httpsAgent;
     } else {
       this.agent = httpAgent;
     }
+
     this.sendObject = [];
-    if (Number.isInteger(max)) {
-      this._maxItems = max;
-    } else {
-      this._maxItems = 50;
-    }
-    if (!validUrl.isUri(url)) {
-      throw Error(`${url} not valid.`);
-    }
-    if (!this._clusterID) {
-      throw Error('clusterID must be defined');
+    this._maxItems = Number.isInteger(max) ? max : 50;
+    this._trackSendPromises = trackSendPromises || false;
+    this._sendPromises = [];
+    if (this._trackSendPromises) {
+      this._pollStarted = new Date(Date.now());
     }
   }
 
   get maxItems() {
     return this._maxItems;
   }
+  get getSendPromises() {
+    return this._sendPromises;
+  }
 
   // private methods
   [_queueObject](o) {
     if (o.constructor === {}.constructor) {
       this.sendObject.push(o);
-      if (this.sendObject.length >= this.maxItems) {
-        this.flush();
-      }
-      return this.sendObject.length;
     } else {
       let type = typeof o;
       throw `Type ${type} not supported.`;
@@ -74,46 +75,44 @@ module.exports = class DelayedSendArray {
 
   // public methods
   send(o) {
-    var result = 0;
-    let sendObjectLength = 0;
     if (Array.isArray(o)) {
-      o.forEach((e) => { sendObjectLength = this[_queueObject](e); });
-      result = o.length;
+      o.forEach((e) => { this[_queueObject](e); });
     } else {
-      sendObjectLength = this[_queueObject](o);
-      result += 1;
+      this[_queueObject](o);
     }
-    if (sendObjectLength > 0 && !this.flushTimeout) {
+
+    if (this.sendObject.length >= this.maxItems) {
+      this.flush();
+    } else if (this.sendObject.length > 0 && !this.flushTimeout) {
       this.flushTimeout = setTimeout(() => {
         this.flush();
       }, 1000);
     }
-    return result;
   }
 
   flush() {
     clearTimeout(this.flushTimeout);
     this.flushTimeout = undefined;
-    var result = 0;
     if (this.sendObject.length > 0) {
       let outBoundArray = this.sendObject;
       this.sendObject = [];
-      result = outBoundArray.length;
       let httpMethod = 'POST';
-      this.httpCall(httpMethod, outBoundArray);
-      return result;
+      let res = this.httpCall(httpMethod, outBoundArray);
+      if (this._trackSendPromises) {
+        this._sendPromises.push(res);
+      }
     }
-    return result;
   }
 
   async httpCall(httpMethod, data, options = {}) {
-    let url = `${this.url}/clusters/${this._clusterID}/resources`;
+    let url = `${this.url}/clusters/${this._clusterID}/${options.endpoint || 'resources'}`;
     return requestretry({
       url: url,
       method: httpMethod,
       agent: this.agent,
       headers: {
-        'razee-org-key': process.env.RAZEEDASH_ORG_KEY
+        'razee-org-key': process.env.RAZEEDASH_ORG_KEY,
+        'poll-cycle': this._pollStarted
       },
       json: true,
       body: data,
@@ -125,11 +124,14 @@ module.exports = class DelayedSendArray {
       if (response.statusCode == 200) {
         let numSent = Array.isArray(data) ? data.length : 1;
         log.info(`${httpMethod} ${numSent} resource(s) to razeedash successful`);
-        return numSent;
+        return response;
       } else {
         log.error(`${httpMethod} ${url} to razeedash failed: ${response.statusCode}`);
-        return 0;
+        return response;
       }
-    }).catch(err => { log.error(err); return err; });
+    }).catch(err => {
+      log.error(err);
+      return err;
+    });
   }
 };
