@@ -123,10 +123,10 @@ module.exports = class DelayedSendArray {
     }).then(function (response) {
       if (response.statusCode == 200) {
         let numSent = Array.isArray(data) ? data.length : 1;
-        log.info(`${httpMethod} ${numSent} resource(s) to razeedash successful`);
+        log.info(`${httpMethod} ${numSent} resource(s) to ${url} successful`);
         return response;
       } else {
-        log.error(`${httpMethod} ${url} to razeedash failed: ${response.statusCode}`);
+        log.error(`${httpMethod} to ${url} failed: ${response.statusCode}`);
         return response;
       }
     }).catch(err => {
