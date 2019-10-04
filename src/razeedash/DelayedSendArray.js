@@ -118,7 +118,7 @@ module.exports = class DelayedSendArray {
       body: data,
 
       maxAttempts: options.maxAttempts || 5, // (default) try 5 times
-      retryDelay: options.retryDelay || 5000, // (default) wait for 5s before trying again
+      retryDelay: options.retryDelay || 3000, // (default) wait for 5s before trying again
       retryStrategy: options.retryStrategy || requestretry.RetryStrategies.HTTPOrNetworkError // (default) retry on 5xx or network errors
     }).then(function (response) {
       if (response.statusCode == 200) {
