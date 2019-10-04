@@ -52,14 +52,14 @@ module.exports = class RazeedashSender {
   }
 
   async sendPollComplete() {
-    let gcObject = [{
+    let gcObject = {
       type: 'SYNC',
       count: this.resourceCount
-    }];
+    };
 
     this.flush();
     await Promise.all(this._dsa.getSendPromises);
-    let result = await this._dsa.httpCall('POST', gcObject, { endpoint: 'tbd_new_sync_endpoint' });
+    let result = await this._dsa.httpCall('POST', gcObject, { endpoint: 'resources/sync' });
     if (result.statusCode === 404) {
       log.debug('New SYNC endpoint not found.. sending selfLinks array to old endpoint');
       gcObject = [{
