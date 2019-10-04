@@ -59,7 +59,8 @@ module.exports = class DelayedSendArray {
   get maxItems() {
     return this._maxItems;
   }
-  get getSendPromises() {
+
+  getSendPromises() {
     return this._sendPromises;
   }
 

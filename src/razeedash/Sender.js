@@ -58,7 +58,7 @@ module.exports = class RazeedashSender {
     };
 
     this.flush();
-    await Promise.all(this._dsa.getSendPromises);
+    await Promise.all(this._dsa.getSendPromises());
     let result = await this._dsa.httpCall('POST', gcObject, { endpoint: 'resources/sync' });
     if (result.statusCode === 404) {
       log.debug('New SYNC endpoint not found.. sending selfLinks array to old endpoint');
