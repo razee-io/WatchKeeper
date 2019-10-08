@@ -31,11 +31,16 @@ var util = {};
 module.exports = class Util {
 
   constructor(razeedashUrl, clusterID) {
+    this._clusterID = clusterID;
     this._url = razeedashUrl || process.env.RAZEEDASH_URL || 'http://localhost:3000/api/v2';
     this._dsa = new DelayedSendArray(this._url, clusterID);
     this._messenger = new Messenger(this._url, clusterID);
     this._heartbeat = new Heartbeat(this._url, clusterID);
     this._customMeta = {};
+  }
+
+  get clusterID() {
+    return this._clusterID;
   }
 
   get razeedashUrl() {
@@ -96,6 +101,7 @@ module.exports = class Util {
   static async fetch(razeedashUrl, def = false) {
     if (!util[razeedashUrl]) {
       let clusterID = await dc.getClusterUid();
+      log.debug(`ClusterID retrieved: ${clusterID}`);
       // eslint-disable-next-line require-atomic-updates
       util[razeedashUrl] = new Util(razeedashUrl, clusterID);
       if (!util[undefined] || def) {
