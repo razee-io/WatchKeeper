@@ -1,18 +1,18 @@
 /**
-* Copyright 2019 IBM Corp. All Rights Reserved.
-*
-* Licensed under the Apache License, Version 2.0 (the "License");
-* you may not use this file except in compliance with the License.
-* You may obtain a copy of the License at
-*
-*      http://www.apache.org/licenses/LICENSE-2.0
-*
-* Unless required by applicable law or agreed to in writing, software
-* distributed under the License is distributed on an "AS IS" BASIS,
-* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-* See the License for the specific language governing permissions and
-* limitations under the License.
-*/
+ * Copyright 2019 IBM Corp. All Rights Reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 const assert = require('chai').assert;
 const sinon = require('sinon');
 const nock = require('nock');
@@ -65,9 +65,9 @@ describe('DelaySendArray', () => {
     it('should return 0 when flush is called on an empty send array', () => {
       let dsa = new DelayedSendArray('http://localhost:3000/api/v2', clusterID);
       let spy = sinon.spy(dsa, 'httpCall');
-      let result = dsa.flush();
-      assert.equal(result, 0, 'should return 0 when flush called');
-      assert(spy.notCalled, 'should call httpCall() when send array is empty');
+      dsa.flush();
+      assert.isUndefined(dsa.flushTimeout, 'should not have a flush timeout');
+      assert(spy.notCalled, 'should not call httpCall() when send array is empty');
     });
   });
 
@@ -86,10 +86,10 @@ describe('DelaySendArray', () => {
         })
         .reply(200, { success: '¯\\_(ツ)_/¯' });
 
-      let dsa = new DelayedSendArray('http://localhost:3000/api/v2', clusterID);
-      let sent = dsa.httpCall('POST', sendObject);
+      let dsa = new DelayedSendArray('http://localhost:3000/api/v2', clusterID, );
+      let sent = await dsa.httpCall('POST', sendObject);
 
-      assert.deepEqual(await sent, 1, 'should succeed on final attempt');
+      assert.deepEqual(sent.statusCode, 200, 'should succeed sending data');
     });
     it('should handle retry on 500s and network errors', async () => {
       let sendObject = [{ stuff: 'my special object' }];
@@ -106,9 +106,9 @@ describe('DelaySendArray', () => {
         .reply(200, { success: '¯\\_(ツ)_/¯' });
 
       let dsa = new DelayedSendArray('http://localhost:3000/api/v2', clusterID);
-      let sent = dsa.httpCall('POST', sendObject, { retryDelay: 1 });
+      let sent = await dsa.httpCall('POST', sendObject, { retryDelay: 1 });
 
-      assert.equal(await sent, 1, 'should succeed on final attempt');
+      assert.equal(sent.statusCode, 200, 'should succeed on final attempt');
     });
 
     // ---------- Failure ----------
@@ -123,9 +123,9 @@ describe('DelaySendArray', () => {
         .reply(500, { failure: '¯\\_(ツ)_/¯' });
 
       let dsa = new DelayedSendArray('http://localhost:3000/api/v2', clusterID);
-      let sent = dsa.httpCall('POST', sendObject, { retryDelay: 1, maxAttempts: maxAttempts });
+      let sent = await dsa.httpCall('POST', sendObject, { retryDelay: 1, maxAttempts: maxAttempts });
 
-      assert.deepEqual(await sent, 0, `should fail after ${maxAttempts}`);
+      assert.deepEqual(sent.statusCode, 500, `should fail after ${maxAttempts}`);
     });
 
     it('should fail and catch on request errors', async () => {
@@ -165,10 +165,10 @@ describe('DelaySendArray', () => {
 
       let dsa = new DelayedSendArray('http://localhost:3000/api/v2', clusterID);
       let spy = sinon.spy(dsa, 'httpCall');
-      let sending = dsa.send(sendObject);
-      assert.equal(sending, 1, 'should have added one object to send');
+      dsa.send(sendObject);
+      assert.equal(dsa.sendObject.length, 1, 'should have added one object to send');
       clock.next();
-      assert.equal(await spy.returnValues[0], 1, 'should have actually sent one object');
+      assert.equal((await spy.returnValues[0]).statusCode, 200, 'should have actually sent one object');
       spy.restore();
     });
 
@@ -183,10 +183,10 @@ describe('DelaySendArray', () => {
 
       let dsa = new DelayedSendArray('http://localhost:3000/api/v2', clusterID);
       let spy = sinon.spy(dsa, 'httpCall');
-      let sending = dsa.send(sendObject);
-      assert.equal(sending, 3, 'should have added 3 objects to send');
+      dsa.send(sendObject);
+      assert.equal(dsa.sendObject.length, 3, 'should have added 3 objects to send');
       clock.next();
-      assert.equal(await spy.returnValues[0], 3, 'should have actually sent three objects');
+      assert.equal((await spy.returnValues[0]).statusCode, 200, 'should have actually sent three objects');
       spy.restore();
     });
 
@@ -199,11 +199,12 @@ describe('DelaySendArray', () => {
         })
         .reply(200, { id: clusterID });
 
-      let dsa = new DelayedSendArray('http://localhost:3000/api/v2', clusterID, 3);
+      let dsa = new DelayedSendArray('http://localhost:3000/api/v2', clusterID, 3, true);
       let spy = sinon.spy(dsa, 'httpCall');
-      let sending = dsa.send(sendObject);
-      assert.equal(sending, 3, 'should have added 3 objects to send');
-      assert.equal(await spy.returnValues[0], 3, 'should have actually sent three objects');
+      dsa.send(sendObject);
+      assert.equal(dsa._sendPromises.length, 1, 'should have created 1 promise from send');
+      assert.equal(dsa.sendObject.length, 0, 'should have empty sendObject because max was hit');
+      assert.equal((await spy.returnValues[0]).statusCode, 200, 'should have actually sent three objects');
       spy.restore();
     });
 
@@ -242,8 +243,8 @@ describe('DelaySendArray', () => {
         .reply(400, { failed: 'failureBody' });
 
       let dsa = new DelayedSendArray('http://localhost:3000/api/v2', clusterID);
-      let sent = dsa.httpCall('POST', sendObject);
-      assert.deepEqual(await sent, 0, 'should have failed to send');
+      let sent = await dsa.httpCall('POST', sendObject);
+      assert.deepEqual(sent.statusCode, 400, 'should have failed to send');
     });
   });
 
