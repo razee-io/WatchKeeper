@@ -97,6 +97,7 @@ items:
         metadata:
           labels:
             app: watch-keeper
+            razee/watch-resource: "lite"
           name: watch-keeper
         spec:
           serviceAccountName: watch-keeper-sa
