@@ -64,7 +64,7 @@
     "dockerlint": "^0.3.9",
     "eslint": "^6.0.0",
     "jsonlint": "^1.6.3",
-    "markdownlint-cli": "^0.18.0",
+    "markdownlint-cli": "^0.19.0",
     "mocha": "^6.1.4",
     "mustache": "^3.0.1",
     "nock": "^11.5.0",
@@ -73,7 +73,7 @@
     "npm-watch": "^0.6.0",
     "nyc": "^14.1.1",
     "rewire": "^4.0.1",
-    "shellcheck": "^0.3.0",
+    "shellcheck": "^0.4.1",
     "sinon": "^7.2.2",
     "yaml-lint": "^1.2.4"
   }
