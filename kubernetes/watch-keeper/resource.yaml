@@ -11,7 +11,6 @@ items:
     metadata:
       name: razee
       labels:
-        razee/watch-resource: "lite"
         deploy.razee.io/mode: "EnsureExists"
         deploy.razee.io/Reconcile: "false"
       annotations:
@@ -85,7 +84,7 @@ items:
       name: watch-keeper
       namespace: razee
       labels:
-        razee/watch-resource: "detail"
+        razee/watch-resource: "lite"
     spec:
       replicas: 1
       revisionHistoryLimit: 0
@@ -98,6 +97,7 @@ items:
         metadata:
           labels:
             app: watch-keeper
+            razee/watch-resource: "lite"
           name: watch-keeper
         spec:
           serviceAccountName: watch-keeper-sa
