@@ -1,6 +1,7 @@
 # Watch-Keeper
 
-[![Build Status](https://travis-ci.com/razee-io/Watch-keeper.svg?branch=master)](https://travis-ci.com/razee-io/Watch-keeper) [![Greenkeeper badge](https://badges.greenkeeper.io/razee-io/Watch-keeper.svg)](https://greenkeeper.io/)
+[![Build Status](https://travis-ci.com/razee-io/Watch-keeper.svg?branch=master)](https://travis-ci.com/razee-io/Watch-keeper)
+[![Dependabot Status](https://api.dependabot.com/badges/status?host=github&repo=razee-io/razeedeploy-core)](https://dependabot.com)
 ![GitHub](https://img.shields.io/github/license/razee-io/Watch-keeper.svg?color=success)
 
 Watch-Keeper is a tool that inventories and reports back the resources running on your cluster. Watch-Keeper works with [RazeeDash](https://github.com/razee-io/Razeedash) to display information about your resources.
