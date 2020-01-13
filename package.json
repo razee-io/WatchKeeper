@@ -53,7 +53,7 @@
     "promise-retry": "^1.1.1",
     "request": "^2.88.0",
     "request-promise-native": "^1.0.5",
-    "requestretry": "^4.0.2",
+    "requestretry": "^4.1.0",
     "touch": "^3.1.0",
     "valid-url": "^1.0.9"
   },
