@@ -34,7 +34,7 @@
   "license": "Apache-2.0",
   "dependencies": {
     "@kubernetes/client-node": "^0.11.0",
-    "@razee/kubernetes-util": "0.0.7",
+    "@razee/kubernetes-util": "0.0.9",
     "JSONStream": "^1.3.5",
     "agentkeepalive": "^4.1.0",
     "bunyan": "^1.8.12",
