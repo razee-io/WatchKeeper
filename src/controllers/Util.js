@@ -144,7 +144,7 @@ module.exports = class Util {
         result.kind = objectPath.get(o, 'kind');
         result.apiVersion = objectPath.get(o, 'apiVersion');
         result.metadata = objectPath.get(o, 'metadata');
-        result.status = objectPath.get(o, 'status');
+        objectPath.has(o, 'status') ? objectPath.set(result, 'status', objectPath.get(o, 'status')) : undefined;
         o = result;
       }
 
