@@ -64,4 +64,5 @@ typings/
 dev/
 dev-envvars.sh
 test.js
-limit-poll/
+limit-poll
+non-namespaced

@@ -128,7 +128,7 @@ module.exports = class Util {
   }
 
   // prepObject2Send - strip/redact attributes and apply razeehash code if needed
-  static prepObject2Send(o) {
+  static prepObject2Send(o, level = 'lite') {
     if (Array.isArray(o)) {
       o.forEach(Util.prepObject2Send);
     } else if (Array.isArray(o.items)) {
@@ -136,6 +136,18 @@ module.exports = class Util {
     } else if (o.object) {
       Util.prepObject2Send(o.object);
     } else {
+      let labelLevel = objectPath.get(o, ['metadata', 'labels', 'razee/watch-resource'], level);
+      if (labelLevel == 'debug') {
+        return o;
+      } else if (!Util.detailSynonyms().split(',').includes(labelLevel)) { // if labelLevel isnt in detailSynonyms, then treat as lite
+        let result = {};
+        result.kind = objectPath.get(o, 'kind');
+        result.apiVersion = objectPath.get(o, 'apiVersion');
+        result.metadata = objectPath.get(o, 'metadata');
+        result.status = objectPath.get(o, 'status');
+        o = result;
+      }
+
       objectPath.del(o, ['metadata', 'annotations', 'kubectl.kubernetes.io/last-applied-configuration']);
       objectPath.del(o, ['metadata', 'annotations', 'kapitan.razee.io/last-applied-configuration']);
       objectPath.del(o, ['metadata', 'annotations', 'deploy.razee.io/last-applied-configuration']);
@@ -143,6 +155,8 @@ module.exports = class Util {
         let data = objectPath.get(o, 'data', {});
         let keys = Object.keys(data);
         keys.map(key => objectPath.set(o, ['data', key], 'REDACTED'));
+      } else if (objectPath.get(o, 'kind') === 'Node') { // nodes
+        objectPath.del(o, ['status', 'images']);
       } else if (objectPath.get(o, ['spec', 'template', 'spec', 'containers'])) { // most workloads.. ie Deployment, DaemonSet, StatefulSet, Job
         Util.clearContainerEnvs(objectPath.get(o, ['spec', 'template', 'spec', 'containers'], []));
       } else if (objectPath.get(o, ['spec', 'containers'])) { // pod

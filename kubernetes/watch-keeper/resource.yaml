@@ -73,7 +73,14 @@ items:
       policyTypes:
       - Ingress
       ingress: []
-
+  - apiVersion: v1
+    kind: ConfigMap
+    metadata:
+      name: watch-keeper-limit-poll
+  - apiVersion: v1
+    kind: ConfigMap
+    metadata:
+      name: watch-keeper-non-namespaced
   - apiVersion: apps/v1
     kind: Deployment
     metadata:
@@ -146,9 +153,14 @@ items:
             volumeMounts:
             - mountPath: /usr/src/app/limit-poll
               name: limit-poll
+            - mountPath: /usr/src/app/non-namespaced
+              name: non-namespaced
           volumes:
           - configMap:
               defaultMode: 420
               name: watch-keeper-limit-poll
-              optional: true
             name: limit-poll
+          - configMap:
+              defaultMode: 420
+              name: watch-keeper-non-namespaced
+            name: non-namespaced
