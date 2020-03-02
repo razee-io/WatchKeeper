@@ -25,7 +25,7 @@ const RazeedashSender = require('../razeedash/Sender');
 var util;
 
 
-function createPolledResource(resourceList, resourceFormatter) {
+function createPolledResource(resourceList, resFormatter) {
   var resources = [];
   if (resourceList && resourceList.items && resourceList.items.length > 0) {
     let kind = resourceList.kind.substring(0, resourceList.kind.length - 4); //prune 'List' from the list kind to get the resource kind
@@ -33,7 +33,7 @@ function createPolledResource(resourceList, resourceFormatter) {
     resourceList.items.map(resource => {
       resource.kind = resource.kind || kind;
       resource.apiVersion = resource.apiVersion || apiVersion;
-      resource = resourceFormatter(resource);
+      resource = resFormatter(resource);
       if (resource) {
         let o = {
           type: 'POLLED',
@@ -49,8 +49,6 @@ function createPolledResource(resourceList, resourceFormatter) {
 
 async function handleSelector(metaResources, razeedashSender, selector, formatter) {
   let success = true;
-  // eslint-disable-next-line require-atomic-updates
-  util = util || await Util.fetch();
   try {
     let next = undefined;
     selector.limit = selector.limit || 500;
@@ -104,21 +102,43 @@ async function handleWatchedNamespaces(metaResources, razeedashSender, selector,
   return success;
 }
 
-function liteResourceFormatter(o) {
-  let result = {};
-  result.kind = o.kind;
-  result.apiVersion = o.apiVersion;
-  result.metadata = objectPath.get(o, 'metadata');
-  if (objectPath.has(o, 'status')) {
-    result.status = objectPath.get(o, 'status');
+async function handleNonNamespaced(metaResources, razeedashSender, selector, formatter) {
+  let success = true;
+
+  let nonNsedKrms = metaResources.filter(krm => {
+    return !krm.namespaced;
+  });
+
+  if (nonNsedKrms.length == 0) {
+    return success;
   }
-  Util.prepObject2Send(result);
-  return result;
+
+  try {
+    let next = undefined;
+    selector.limit = selector.limit || 500;
+    do {
+      let gr = await kc.getResourcesPaged(nonNsedKrms, selector, next);
+      next = gr.next;
+      gr.resources.map((r) => {
+        if (r.statusCode === 200) {
+          let o = createPolledResource(r.object, formatter);
+          if (o.length > 0) {
+            razeedashSender.send(o);
+          }
+        }
+      });
+    } while (next);
+  } catch (e) {
+    util.error('Could not handle non-namespaced.', e);
+    success = false;
+  }
+  return success;
 }
 
-function detailedResourceFormatter(o) {
-  Util.prepObject2Send(o);
-  return o;
+function resourceFormatter(o, level) {
+  // prep object to send based on razee/watch-resource label. if label doesnt exist use level.
+  let res = Util.prepObject2Send(o, level);
+  return res;
 }
 
 async function readJsonFile(path) {
@@ -208,27 +228,26 @@ async function poll() {
     util.error(`Error querying Kubernetes resources supporting 'get' verb. ${e}`);
     return false;
   }
-  // must be run asynchronously, sequentially, and in order of declining detail
-  // Send singlely labeled unaltered resource
-  success = success && await handleSelector(metaResources, razeedashSender, { labelSelector: 'razee/watch-resource in (debug)', limit: 500 },
-    (o) => Util.hasLabel(o, 'razee/watch-resource') ? o : undefined);
+  // must be run sequentially in order of declining detail. Razeedash sender keeps track of what it has sent,
+  // and only sends the first instance.. so we want to send the most detailed things first.
 
-  // Send singlely labeled detailed resource
-  success = success && await handleSelector(metaResources, razeedashSender, { labelSelector: `razee/watch-resource in (true,${Util.detailSynonyms()})`, limit: 500 },
-    (o) => Util.hasLabel(o, 'razee/watch-resource') ? detailedResourceFormatter(o) : undefined);
+  // Send singlely labeled resources
+  success = success && await handleSelector(metaResources, razeedashSender, { labelSelector: `razee/watch-resource in (debug,true,${Util.liteSynonyms()},${Util.detailSynonyms()}})`, limit: 500 },
+    (o) => Util.hasLabel(o, 'razee/watch-resource') ? resourceFormatter(o) : undefined);
 
   // For now we think its a bad idea to allow a whole ns to be detail tagged.
-  // Send all resources detailed within the labeled namespace
-  // success = success && await handleWatchedNamespaces(metaResources, razeedashSender, { labelSelector: `razee/watch-resource in (${Util.detailSynonyms()})`, limit: 500 },
-  //   (o) => objectPath.has(o, 'metadata.namespace') ? detailedResourceFormatter(o) : undefined);
+  // Send all resources lite within labeled namespaces
+  success = success && await handleWatchedNamespaces(metaResources, razeedashSender, { labelSelector: `razee/watch-resource in (debug,true,${Util.liteSynonyms()},${Util.detailSynonyms()})`, limit: 500 },
+    (o) => objectPath.has(o, 'metadata.namespace') ? resourceFormatter(o, 'lite') : undefined);
 
-  // Send singlely labeled lite resource
-  success = success && await handleSelector(metaResources, razeedashSender, { labelSelector: `razee/watch-resource in (${Util.liteSynonyms()})`, limit: 500 },
-    (o) => Util.hasLabel(o, 'razee/watch-resource') ? liteResourceFormatter(o) : undefined);
-
-  // Send all resources lite within the labeled namespace
-  success = success && await handleWatchedNamespaces(metaResources, razeedashSender, { labelSelector: `razee/watch-resource in (true,${Util.liteSynonyms()},${Util.detailSynonyms()})`, limit: 500 },
-    (o) => objectPath.has(o, 'metadata.namespace') ? liteResourceFormatter(o) : undefined);
+  // Send all non-namespaced resources
+  if (await fs.pathExists('non-namespaced/poll')) {
+    let nonNsPoll = (await fs.readFile('non-namespaced/poll', 'utf8')).trim();
+    if (nonNsPoll != 'false') {
+      success = success && await handleNonNamespaced(metaResources, razeedashSender, { limit: 500 },
+        (o) => !objectPath.has(o, 'metadata.namespace') ? resourceFormatter(o, nonNsPoll) : undefined);
+    }
+  }
 
   if (success) {
     try {

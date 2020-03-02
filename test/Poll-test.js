@@ -67,7 +67,7 @@ describe('Poll', () => {
   describe('#createPolledResource', () => {
     it('success', () => {
       let createPolledResource = Poll.__get__('createPolledResource');
-      let liteResourceFormatter = Poll.__get__('liteResourceFormatter');
+      let resourceFormatter = Poll.__get__('resourceFormatter');
       let given = {
         'kind': 'EndpointsList',
         'apiVersion': 'v1',
@@ -117,15 +117,15 @@ describe('Poll', () => {
           }
         }
       }];
-      let actual = createPolledResource(given, liteResourceFormatter);
+      let actual = createPolledResource(given, resourceFormatter);
       assert.isTrue(deepEqual(actual, expected), JSON.stringify(actual));
     });
     it('empty', () => {
       let createPolledResource = Poll.__get__('createPolledResource');
-      let liteResourceFormatter = Poll.__get__('liteResourceFormatter');
+      let resourceFormatter = Poll.__get__('resourceFormatter');
       let given = { 'kind': 'APIServiceList', 'apiVersion': 'apiregistration.k8s.io/v1', 'metadata': { 'selfLink': '/apis/apiregistration.k8s.io/v1/apiservices', 'resourceVersion': '14403119' }, 'items': [] };
       let expected = [];
-      let actual = createPolledResource(given, liteResourceFormatter);
+      let actual = createPolledResource(given, resourceFormatter);
       assert.isTrue(deepEqual(actual, expected), JSON.stringify(actual));
     });
   });
@@ -134,7 +134,7 @@ describe('Poll', () => {
     it('success', async () => {
       // --- Given ---
       let selector = { 'labelSelector': 'razee/watch-resource in (true,heavy,detail,detailed)', 'limit': 500 };
-      let liteResourceFormatter = Poll.__get__('liteResourceFormatter');
+      let resourceFormatter = Poll.__get__('resourceFormatter');
       // --- Mocks ---
       // Util
       let util = new Util(TEST_RAZEEDASH_URL, 'good');
@@ -184,7 +184,7 @@ describe('Poll', () => {
       });
       // Test
       let handleSelection = Poll.__get__('handleSelector');
-      let result = await handleSelection(metaResources, fakeSender, selector, liteResourceFormatter);
+      let result = await handleSelection(metaResources, fakeSender, selector, resourceFormatter);
       revertPoll();
 
       assert.isTrue(result);
@@ -193,7 +193,7 @@ describe('Poll', () => {
     it('failed', async () => {
       // --- Given ---
       let selector = { 'labelSelector': 'razee/watch-resource in (true,heavy,detail,detailed)', 'limit': 500 };
-      let liteResourceFormatter = Poll.__get__('liteResourceFormatter');
+      let resourceFormatter = Poll.__get__('resourceFormatter');
       // --- Mocks ---
       // Util
       let util = new Util(TEST_RAZEEDASH_URL, 'good');
@@ -214,7 +214,7 @@ describe('Poll', () => {
       });
       // Test
       let handleSelection = Poll.__get__('handleSelector');
-      let result = await handleSelection(metaResources, fakeSender, selector, liteResourceFormatter);
+      let result = await handleSelection(metaResources, fakeSender, selector, resourceFormatter);
       revertPoll();
 
       assert.isFalse(result);
@@ -225,7 +225,7 @@ describe('Poll', () => {
     it('success', async () => {
       // --- Given ---
       let selector = { 'labelSelector': 'razee/watch-resource in (heavy,detail,detailed)', 'limit': 500 };
-      let liteResourceFormatter = Poll.__get__('liteResourceFormatter');
+      let resourceFormatter = Poll.__get__('resourceFormatter');
       // --- Mocks ---
       // Util
       let util = new Util(TEST_RAZEEDASH_URL, 'good');
@@ -263,7 +263,7 @@ describe('Poll', () => {
       });
       // Test
       let handleWatchedNamespaces = Poll.__get__('handleWatchedNamespaces');
-      let result = await handleWatchedNamespaces(metaResources, fakeSender, selector, liteResourceFormatter);
+      let result = await handleWatchedNamespaces(metaResources, fakeSender, selector, resourceFormatter);
       revertPoll();
 
       assert.isTrue(result);
@@ -272,7 +272,7 @@ describe('Poll', () => {
     it('failed', async () => {
       // --- Given ---
       let selector = { 'labelSelector': 'razee/watch-resource in (true,heavy,detail,detailed)', 'limit': 500 };
-      let liteResourceFormatter = Poll.__get__('liteResourceFormatter');
+      let resourceFormatter = Poll.__get__('resourceFormatter');
       // --- Mocks ---
       // Util
       let util = new Util(TEST_RAZEEDASH_URL, 'good');
@@ -293,18 +293,18 @@ describe('Poll', () => {
       });
       // Test
       let handleWatchedNamespaces = Poll.__get__('handleWatchedNamespaces');
-      let result = await handleWatchedNamespaces(metaResources, fakeSender, selector, liteResourceFormatter);
+      let result = await handleWatchedNamespaces(metaResources, fakeSender, selector, resourceFormatter);
       revertPoll();
 
       assert.isFalse(result);
     });
   });
-  describe('#liteResourceFormatter', () => {
+  describe('#resourceFormatter', () => {
     it('success', () => {
       let given = { 'metadata': { 'status': 'somestatus', 'name': 'kubernetes', 'namespace': 'default', 'selfLink': '/api/v1/namespaces/default/services/kubernetes', 'uid': '7c75c135-fca7-11e8-9f10-3a7d3a0f8cf2', 'resourceVersion': '10732560', 'creationTimestamp': '2018-12-10T18:14:51Z', 'labels': { 'component': 'apiserver', 'provider': 'kubernetes', 'razee/watch-resource': 'lite' } }, 'spec': { 'ports': [{ 'name': 'https', 'protocol': 'TCP', 'port': 443, 'targetPort': 2040 }], 'clusterIP': '172.21.0.1', 'type': 'ClusterIP', 'sessionAffinity': 'None' }, 'status': { 'loadBalancer': {} }, 'kind': 'Service', 'apiVersion': 'v1' };
       let expected = { 'metadata': { 'status': 'somestatus', 'name': 'kubernetes', 'namespace': 'default', 'selfLink': '/api/v1/namespaces/default/services/kubernetes', 'uid': '7c75c135-fca7-11e8-9f10-3a7d3a0f8cf2', 'resourceVersion': '10732560', 'creationTimestamp': '2018-12-10T18:14:51Z', 'labels': { 'component': 'apiserver', 'provider': 'kubernetes', 'razee/watch-resource': 'lite' } }, 'status': { 'loadBalancer': {} }, 'kind': 'Service', 'apiVersion': 'v1' };
-      let liteResourceFormatter = Poll.__get__('liteResourceFormatter');
-      let actual = liteResourceFormatter(given);
+      let resourceFormatter = Poll.__get__('resourceFormatter');
+      let actual = resourceFormatter(given);
       assert.isTrue(deepEqual(actual, expected), JSON.stringify(actual));
     });
   });
@@ -312,7 +312,7 @@ describe('Poll', () => {
     it('success', () => {
       let given = { 'metadata': { 'name': 'tiller-deploy', 'namespace': 'kube-system', 'selfLink': '/apis/apps/v1/namespaces/kube-system/deployments/tiller-deploy', 'uid': '348fe4de-fcb5-11e8-b9aa-96c5680c03b2', 'resourceVersion': '14840672', 'generation': 1, 'creationTimestamp': '2018-12-10T19:53:03Z', 'labels': { 'app': 'helm', 'name': 'tiller', 'razee/watch-resource': 'detailed' }, 'annotations': { 'deployment.kubernetes.io/revision': '1' } }, 'spec': { 'replicas': 1, 'selector': { 'matchLabels': { 'app': 'helm', 'name': 'tiller' } }, 'template': { 'metadata': { 'creationTimestamp': null, 'labels': { 'app': 'helm', 'name': 'tiller' } }, 'spec': { 'containers': [{ 'name': 'tiller', 'image': 'gcr.io/kubernetes-helm/tiller:v2.12.0', 'ports': [{ 'name': 'tiller', 'containerPort': 44134, 'protocol': 'TCP' }, { 'name': 'http', 'containerPort': 44135, 'protocol': 'TCP' }], 'env': [{ 'name': 'TILLER_NAMESPACE', 'value': 'kube-system' }, { 'name': 'TILLER_HISTORY_MAX', 'value': '0' }], 'resources': {}, 'livenessProbe': { 'httpGet': { 'path': '/liveness', 'port': 44135, 'scheme': 'HTTP' }, 'initialDelaySeconds': 1, 'timeoutSeconds': 1, 'periodSeconds': 10, 'successThreshold': 1, 'failureThreshold': 3 }, 'readinessProbe': { 'httpGet': { 'path': '/readiness', 'port': 44135, 'scheme': 'HTTP' }, 'initialDelaySeconds': 1, 'timeoutSeconds': 1, 'periodSeconds': 10, 'successThreshold': 1, 'failureThreshold': 3 }, 'terminationMessagePath': '/dev/termination-log', 'terminationMessagePolicy': 'File', 'imagePullPolicy': 'IfNotPresent' }], 'restartPolicy': 'Always', 'terminationGracePeriodSeconds': 30, 'dnsPolicy': 'ClusterFirst', 'serviceAccountName': 'tiller', 'serviceAccount': 'tiller', 'automountServiceAccountToken': true, 'securityContext': {}, 'schedulerName': 'default-scheduler' } }, 'strategy': { 'type': 'RollingUpdate', 'rollingUpdate': { 'maxUnavailable': 1, 'maxSurge': 1 } }, 'revisionHistoryLimit': 10, 'progressDeadlineSeconds': 600 }, 'status': { 'observedGeneration': 1, 'replicas': 1, 'updatedReplicas': 1, 'readyReplicas': 1, 'availableReplicas': 1, 'conditions': [{ 'type': 'Available', 'status': 'True', 'lastUpdateTime': '2018-12-10T19:53:03Z', 'lastTransitionTime': '2018-12-10T19:53:03Z', 'reason': 'MinimumReplicasAvailable', 'message': 'Deployment has minimum availability.' }, { 'type': 'Progressing', 'status': 'True', 'lastUpdateTime': '2018-12-10T19:53:18Z', 'lastTransitionTime': '2018-12-10T19:53:03Z', 'reason': 'NewReplicaSetAvailable', 'message': 'ReplicaSet \'tiller-deploy-8586bc5c8b\' has successfully progressed.' }] }, 'kind': 'Deployment', 'apiVersion': 'apps/v1' };
       let expected = { 'metadata': { 'name': 'tiller-deploy', 'namespace': 'kube-system', 'selfLink': '/apis/apps/v1/namespaces/kube-system/deployments/tiller-deploy', 'uid': '348fe4de-fcb5-11e8-b9aa-96c5680c03b2', 'resourceVersion': '14840672', 'generation': 1, 'creationTimestamp': '2018-12-10T19:53:03Z', 'labels': { 'app': 'helm', 'name': 'tiller', 'razee/watch-resource': 'detailed' }, 'annotations': { 'deployment.kubernetes.io/revision': '1' } }, 'spec': { 'replicas': 1, 'selector': { 'matchLabels': { 'app': 'helm', 'name': 'tiller' } }, 'template': { 'metadata': { 'creationTimestamp': null, 'labels': { 'app': 'helm', 'name': 'tiller' } }, 'spec': { 'containers': [{ 'name': 'tiller', 'image': 'gcr.io/kubernetes-helm/tiller:v2.12.0', 'ports': [{ 'name': 'tiller', 'containerPort': 44134, 'protocol': 'TCP' }, { 'name': 'http', 'containerPort': 44135, 'protocol': 'TCP' }], 'env': [{ 'name': 'TILLER_NAMESPACE', 'value': 'REDACTED' }, { 'name': 'TILLER_HISTORY_MAX', 'value': 'REDACTED' }], 'resources': {}, 'livenessProbe': { 'httpGet': { 'path': '/liveness', 'port': 44135, 'scheme': 'HTTP' }, 'initialDelaySeconds': 1, 'timeoutSeconds': 1, 'periodSeconds': 10, 'successThreshold': 1, 'failureThreshold': 3 }, 'readinessProbe': { 'httpGet': { 'path': '/readiness', 'port': 44135, 'scheme': 'HTTP' }, 'initialDelaySeconds': 1, 'timeoutSeconds': 1, 'periodSeconds': 10, 'successThreshold': 1, 'failureThreshold': 3 }, 'terminationMessagePath': '/dev/termination-log', 'terminationMessagePolicy': 'File', 'imagePullPolicy': 'IfNotPresent' }], 'restartPolicy': 'Always', 'terminationGracePeriodSeconds': 30, 'dnsPolicy': 'ClusterFirst', 'serviceAccountName': 'tiller', 'serviceAccount': 'tiller', 'automountServiceAccountToken': true, 'securityContext': {}, 'schedulerName': 'default-scheduler' } }, 'strategy': { 'type': 'RollingUpdate', 'rollingUpdate': { 'maxUnavailable': 1, 'maxSurge': 1 } }, 'revisionHistoryLimit': 10, 'progressDeadlineSeconds': 600 }, 'status': { 'observedGeneration': 1, 'replicas': 1, 'updatedReplicas': 1, 'readyReplicas': 1, 'availableReplicas': 1, 'conditions': [{ 'type': 'Available', 'status': 'True', 'lastUpdateTime': '2018-12-10T19:53:03Z', 'lastTransitionTime': '2018-12-10T19:53:03Z', 'reason': 'MinimumReplicasAvailable', 'message': 'Deployment has minimum availability.' }, { 'type': 'Progressing', 'status': 'True', 'lastUpdateTime': '2018-12-10T19:53:18Z', 'lastTransitionTime': '2018-12-10T19:53:03Z', 'reason': 'NewReplicaSetAvailable', 'message': 'ReplicaSet \'tiller-deploy-8586bc5c8b\' has successfully progressed.' }] }, 'kind': 'Deployment', 'apiVersion': 'apps/v1' };
-      let detailedResourceFormatter = Poll.__get__('detailedResourceFormatter');
+      let detailedResourceFormatter = Poll.__get__('resourceFormatter');
       let actual = detailedResourceFormatter(given);
       assert.isTrue(deepEqual(actual, expected), JSON.stringify(actual));
     });
@@ -488,7 +488,9 @@ describe('Poll', () => {
           return Promise.resolve(true);
         }, 'handleWatchedNamespaces': async () => {
           return Promise.resolve(true);
-        },
+        }, 'handleNonNamespaced': async () => {
+          return Promise.resolve(true);
+        }
       });
       let actual = await Poll.poll();
       assert.isTrue(actual, 'should return true');

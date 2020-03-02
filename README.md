@@ -29,6 +29,7 @@ Watch-Keeper is a tool that inventories and reports back the resources running o
 1. Watches: this is where watch-keeper gets its name. Watch-keeper creates watches on any resource with the label `razee/watch-resource=<level>`, and reports to razeedash whenever a change occurs.
 1. Polling: any resource with the `razee/watch-resource=<level>` label is reported. This is useful for resources that are not watchable.
 1. Namespaces: you can gather info from a cluster by labeling a namespace with `razee/watch-resource=<level>`. This will collect and report all data within the labeled namespace at the desired `<level>`. See [white/black lists](#whiteblack-lists) to limit what is collected.
+1. Non-Namespaced Resources: you can gather info about resources that are not bound to a namespace by adding the key `poll` to the `watch-keeper-non-namespaced` ConfigMap. See [Non-Namespaced Resources](#non-namespaced-resources) for more info.
 
 - Ex. `kubectl label cm my-cm razee/watch-resource=lite`
 
@@ -43,6 +44,16 @@ Watch-Keeper is a tool that inventories and reports back the resources running o
 1. `<levels>` must be lower case
 1. Labeling namespaces, especially using the detail or debug level collections, can gather much more data than anticipated resulting in delays in data reporting.
 1. Similarly,  delays can occur when reporting on a namespace with lots of resources (> thousand).
+
+### Non-Namespaced Resources
+
+In order to avoid having to label each individual non-namespaced resource (eg. nodes, namespaces, customresourcedefinitions),
+we allow polling of all non-namespaced resource. This mechanism is similar to how our namespace resource collection works,
+where you can label a namespace and we collect all the resources within that namespace for you; you can think of this like you are labeling the `non-namespaced-resources` namespace.
+
+Also similar to how you can label a namespace, there may be resources that you do not want to collect (eg. storageclass), so
+you should use [white/black lists](#whiteblack-lists) to limit what is collected. Note: using the white/black list will
+affect all resources polled, namespaced and non namespace.
 
 ### White/Black Lists
 

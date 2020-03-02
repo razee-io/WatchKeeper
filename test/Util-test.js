@@ -253,20 +253,21 @@ describe('Util', () => {
       assert.equal(JSON.stringify(result), '{"object":' + TEST_POD_STRINGFY_RESULT + '}');
     });
     it('redact Secret', () => {
-      let result = Util.prepObject2Send({ kind: 'Secret', data: { a: 'a', b: 'b' } });
+      let result = Util.prepObject2Send({ kind: 'Secret', metadata: { labels: { 'razee/watch-resource': 'detail' } }, data: { a: 'a', b: 'b' } });
+      console.dir(result, { depth: null });
       assert.equal(result.data.a, 'REDACTED');
       assert.equal(result.data.b, 'REDACTED');
     });
     it('redact spec.template.spec.containers', () => {
-      let result = Util.prepObject2Send({ spec: { template: { spec: { containers: { env: [{ key: 'a', value: 'secret stuff' }] } } } } });
+      let result = Util.prepObject2Send({ metadata: { labels: { 'razee/watch-resource': 'detail' } }, spec: { template: { spec: { containers: { env: [{ key: 'a', value: 'secret stuff' }] } } } } });
       assert.equal(result.spec.template.spec.containers.env[0].value, 'REDACTED');
     });
     it('redact spec.containers', () => {
-      let result = Util.prepObject2Send({ spec: { containers: { env: [{ key: 'a', value: 'secret stuff' }] } } });
+      let result = Util.prepObject2Send({ metadata: { labels: { 'razee/watch-resource': 'detail' } }, spec: { containers: { env: [{ key: 'a', value: 'secret stuff' }] } } });
       assert.equal(result.spec.containers.env[0].value, 'REDACTED');
     });
     it('redact spec.jobTemplate.spec.template.spec.containers', () => {
-      let result = Util.prepObject2Send({ spec: { jobTemplate: { spec: { template: { spec: { containers: { env: [{ key: 'a', value: 'secret stuff' }] } } } } } } });
+      let result = Util.prepObject2Send({ metadata: { labels: { 'razee/watch-resource': 'detail' } }, spec: { jobTemplate: { spec: { template: { spec: { containers: { env: [{ key: 'a', value: 'secret stuff' }] } } } } } } });
       assert.equal(result.spec.jobTemplate.spec.template.spec.containers.env[0].value, 'REDACTED');
     });
   });
