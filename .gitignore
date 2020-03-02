@@ -62,7 +62,5 @@ typings/
 
 ########### Custom ignores ###########
 dev/
-dev-envvars.sh
-test.js
-limit-poll
-non-namespaced
+limit-poll/
+non-namespaced/
