@@ -53,7 +53,17 @@ where you can label a namespace and we collect all the resources within that nam
 
 Also similar to how you can label a namespace, there may be resources that you do not want to collect (eg. storageclass), so
 you should use [white/black lists](#whiteblack-lists) to limit what is collected. Note: using the white/black list will
-affect all resources polled, namespaced and non namespace.
+affect all resources polled, namespaced and non-namespace.
+
+```yaml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: watch-keeper-non-namespaced
+  namespace: <watch-keeper ns>
+data:
+  poll: lite
+```
 
 ### White/Black Lists
 
