@@ -21,14 +21,14 @@ var _watchObjects = {};
 
 module.exports = function WatchManager() {
   // private
-  let _saveWatch = function (wm, startWatch = true) {
+  let _saveWatch = function (wm, startWatch = true, qs) {
     let selfLink = wm.selfLink;
     _removeWatch(selfLink);
     _watchObjects[selfLink] = wm;
     if (startWatch) {
       _watchObjects[selfLink].watch();
     }
-    log.info(`Watch added: ${selfLink}`);
+    log.info(`Watch added: ${selfLink} ${JSON.stringify(qs)}`);
     return _watchObjects[selfLink];
   };
 
@@ -38,7 +38,7 @@ module.exports = function WatchManager() {
       return w;
     }
     var wm = new Watchman(options, objectHandler);
-    return _saveWatch(wm, startWatch);
+    return _saveWatch(wm, startWatch, options.requestOptions.qs);
   };
 
   let _startWatch = function (selfLink) {
