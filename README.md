@@ -107,7 +107,7 @@ labeled to be watched will still be watched, regardless of the white/black list.
 
 - To create your white/black list, the ConfigMap will specify the kind of list
 you want as the first key, and the rest of the ConfigMap entries become the white/black list.
-- The white/black list itself is a JSON string:
+- The white/black list itself are the ConfigMap entries:
   - The keys will be `apiVersion_kind` (where any `/` is replaced with an `_`).
   - The value will be `'true'`.
 
