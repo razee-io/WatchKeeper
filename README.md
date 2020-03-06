@@ -28,8 +28,9 @@ Watch-Keeper is a tool that inventories and reports back the resources running o
 
 1. Watches: this is where watch-keeper gets its name. Watch-keeper creates watches on any resource with the label `razee/watch-resource=<level>`, and reports to razeedash whenever a change occurs.
 1. Polling: any resource with the `razee/watch-resource=<level>` label is reported. This is useful for resources that are not watchable.
-1. Namespaces: you can gather info from a cluster by labeling a namespace with `razee/watch-resource=<level>`. This will collect and report all data within the labeled namespace at the desired `<level>`. See [white/black lists](#whiteblack-lists) to limit what is collected.
-1. Non-Namespaced Resources: you can gather info about resources that are not bound to a namespace by adding the key `poll` to the `watch-keeper-non-namespaced` ConfigMap. See [Non-Namespaced Resources](#non-namespaced-resources) for more info.
+1. Namespaces: you can gather info from a cluster by labeling a namespace with `razee/watch-resource=<level>`. This will collect and report all data within the labeled namespace at the desired `<level>`. Info is only gathered on the polling cycle. See [white/black lists](#whiteblack-lists) to limit what is collected.
+1. Non-Namespaced Resources: you can gather info about resources that are not bound to a namespace by adding the key `poll` to the `watch-keeper-non-namespaced` ConfigMap. Info is only gathered on the polling cycle. See [white/black lists](#whiteblack-lists) to limit what is collected. See [Non-Namespaced Resources](#non-namespaced-resources) for more info.
+1. Watch by Resource: this allows you to watch and see immediate updates on any resource kind. This can be useful to watch for changes on non-namespaced resource, such as nodes or namespaces, without having to label each resource individually. This can also be useful to watch a single resource type, such as deployments, across the whole cluster. See [Watch By Resource](#watch-by-resource) for more info.
 
 - Ex. `kubectl label cm my-cm razee/watch-resource=lite`
 
@@ -44,6 +45,31 @@ Watch-Keeper is a tool that inventories and reports back the resources running o
 1. `<levels>` must be lower case
 1. Labeling namespaces, especially using the detail or debug level collections, can gather much more data than anticipated resulting in delays in data reporting.
 1. Similarly,  delays can occur when reporting on a namespace with lots of resources (> thousand).
+
+### Watch By Resource
+
+In order to avoid having to label each individual resource, we allow watching by resource kind. Note: [white/black lists](#whiteblack-lists) do not affect watching.
+
+To watch a resource kind, add it to the `watch-keeper-non-namespaced` ConfigMap in the form `apiVersion_kind` (where any `/` is replaced with an `_`).
+
+```yaml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: watch-keeper-non-namespaced
+  namespace: <watch-keeper ns>
+data:
+  # 'poll' is optional. Use when you want to poll all non-namespaced resources.
+  poll: lite
+
+  # resources to watch
+  v1_node: detail
+  v1_namespace: lite
+  apps_v1_deployment: lite
+  v1_configmap: detail
+  # ... etc.
+
+```
 
 ### Non-Namespaced Resources
 
@@ -73,17 +99,17 @@ You can white or black list resources by creating a ConfigMap named
 - When creating the ConfigMap for the first time, you will need to restart the
 Watch-Keeper pods so that it can pick up the volume mount.
 - If both a whitelist and blacklist are specified, only the whitelist will be used.
-- The white/black list is employed during the **Polling** and **Namespace**
+- The white/black list is employed during the **Polling**, **Namespace** and **Non-Namespaced**
 [collection methods](#Collection-Methods). Any individual resource specifically
 labeled to be watched will still be watched, regardless of the white/black list.
 
 #### Creating a White/Black List
 
 - To create your white/black list, the ConfigMap will specify the kind of list
-you want as the key, and the white/black list as a JSON string for the value.
+you want as the first key, and the rest of the ConfigMap entries become the white/black list.
 - The white/black list itself is a JSON string:
-  - The keys will be the `apiVersion` of the resource you want to add.
-  - The value will be and array of the `kind`s of resources you want to add.
+  - The keys will be `apiVersion_kind` (where any `/` is replaced with an `_`).
+  - The value will be `'true'`.
 
 ```yaml
 apiVersion: v1
@@ -92,11 +118,15 @@ metadata:
   name: watch-keeper-limit-poll
   namespace: <watch-keeper ns>
 data:
-  whitelist.json: |
-    {
-      "v1": ["Pod", "Service"],
-      "apps/v1": ["Scale", "Deployment", "DaemonSet", "ReplicaSet", "Pod"]
-    }
+  # Type of list
+  whitelist: 'true'
+
+  # Resources affected
+  v1_node: 'true'
+  v1_namespace: 'true'
+  apps_v1_deployment: 'true'
+  v1_configmap: 'true'
+  # ... etc.
 ```
 
 ## Feature Intervals
