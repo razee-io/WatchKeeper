@@ -75,15 +75,18 @@ describe('Watch', () => {
         }
       });
       let mockWatchManager = {
-        ensureWatch: (options, objectHandler) => { 
+        ensureWatch: (options, objectHandler) => {
           return objectHandler(TEST_POD);
         }
       };
       let mockKubeClass = {
-        getKubeResourcesMeta: () => { 
+        getKubeResourcesMeta: () => {
           return Promise.resolve([{
             '_path': '/api/v1',
             'uri': () => '/api/v1/endpoints/watch',
+            'path': '/api/v1',
+            'kind': 'Endpoints',
+            'name': 'endpoints',
             '_resourceMeta': {
               'name': 'endpoints',
               'singularName': '',
@@ -95,7 +98,7 @@ describe('Watch', () => {
           }]);
         },
         // eslint-disable-next-line no-unused-vars
-        getResource: async (resourceMeta, queryParms) => { 
+        getResource: async (resourceMeta, queryParms) => {
           return Promise.resolve({
             'resource-metadata': {
               '_path': '/api/v1',
@@ -171,7 +174,7 @@ describe('Watch', () => {
         getClusterMeta: () => { return {}; }
       });
       let mockWatchManager = {
-        ensureWatch: (options, objectHandler) => { 
+        ensureWatch: (options, objectHandler) => {
           return objectHandler(TEST_POD);
         }
       };
@@ -180,6 +183,9 @@ describe('Watch', () => {
           return Promise.resolve([{
             '_path': '/api/v1',
             'uri': () => '/api/v1/endpoints/watch',
+            'path': '/api/v1',
+            'kind': 'Endpoints',
+            'name': 'endpoints',
             '_resourceMeta': {
               'name': 'endpoints',
               'singularName': '',
@@ -224,6 +230,9 @@ describe('Watch', () => {
           return Promise.resolve([{
             '_path': '/api/v1',
             'uri': () => '/api/v1/endpoints/watch',
+            'path': '/api/v1',
+            'kind': 'Endpoints',
+            'name': 'endpoints',
             '_resourceMeta': {
               'name': 'endpoints',
               'singularName': '',
@@ -290,6 +299,9 @@ describe('Watch', () => {
           return Promise.resolve([{
             '_path': '/api/v1',
             'uri': () => '/api/v1/endpoints/watch',
+            'path': '/api/v1',
+            'kind': 'Endpoints',
+            'name': 'endpoints',
             '_resourceMeta': {
               'name': 'endpoints',
               'singularName': '',
