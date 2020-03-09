@@ -254,7 +254,7 @@ describe('Util', () => {
     });
     it('redact Secret', () => {
       let result = Util.prepObject2Send({ kind: 'Secret', metadata: { labels: { 'razee/watch-resource': 'detail' } }, data: { a: 'a', b: 'b' } });
-      console.dir(result, { depth: null });
+      // console.dir(result, { depth: null });
       assert.equal(result.data.a, 'REDACTED');
       assert.equal(result.data.b, 'REDACTED');
     });
