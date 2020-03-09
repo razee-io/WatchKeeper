@@ -124,11 +124,9 @@ data:
 
 ### White/Black Lists
 
-You can white or black list resources by creating a ConfigMap named
+You can white or black list resources by modifying the ConfigMap named
 `watch-keeper-limit-poll`, in the namespace your Watch-Keeper is running.
 
-- When creating the ConfigMap for the first time, you will need to restart the
-Watch-Keeper pods so that it can pick up the volume mount.
 - If both a whitelist and blacklist are specified, only the whitelist will be used.
 - The white/black list is employed during the **Polling**, **Namespace** and **Non-Namespaced**
 [collection methods](#Collection-Methods). Any individual resource specifically
