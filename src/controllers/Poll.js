@@ -188,7 +188,7 @@ function flattenJsonListObj(jsonObj) {
   let apiVersions = Object.keys(jsonObj);
   for (let av of apiVersions) {
     let avStr = av.replace(/\//g, '_');
-    jsonObj[av].forEach(el => fileList[`${avStr.toLowerCase()}_${el.toLowerCase()}`] = 'true');
+    jsonObj[av].forEach(el => fileList[`${avStr.toLowerCase()}_${el.replace(/\//g, '_').toLowerCase()}`] = 'true');
   }
   return fileList;
 }
@@ -213,14 +213,16 @@ async function selectiveListTrim(metaResources) {
   let result = [];
   metaResources.map(krm => {
     let apiVersion = krm.path.replace(/\/(api)s?\//, '').replace(/\//g, '_');
+    let kind = krm.kind.replace(/\//g, '_');
+    let name = krm.name.replace(/\//g, '_');
 
     if (!krm.name.endsWith('/status')) {
       if (whitelist) {
-        if (objIncludes(whitelist, `${apiVersion}_${krm.kind}`, `${apiVersion}_${krm.name}`).value === 'true') {
+        if (objIncludes(whitelist, `${apiVersion}_${kind}`, `${apiVersion}_${name}`).value === 'true') {
           result.push(krm);
         }
       } else if (blacklist) {
-        if (!(objIncludes(blacklist, `${apiVersion}_${krm.kind}`, `${apiVersion}_${krm.name}`).value === 'true')) {
+        if (!(objIncludes(blacklist, `${apiVersion}_${kind}`, `${apiVersion}_${name}`).value === 'true')) {
           result.push(krm);
         }
       }
@@ -234,7 +236,6 @@ async function selectiveListTrim(metaResources) {
 // should save time for the rest of the calls
 async function trimMetaResources(metaResources) {
   metaResources = await selectiveListTrim(metaResources);
-  console.dir(metaResources.map(krm => krm.uri()), { depth: null });
 
   // eslint-disable-next-line require-atomic-updates
   util = util || await Util.fetch();

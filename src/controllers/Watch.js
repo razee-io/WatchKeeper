@@ -63,7 +63,10 @@ async function watch() {
     for (var i = 0; i < resourcesMeta.length; i++) {
       let krm = resourcesMeta[i];
       let apiVersion = krm.path.replace(/\/(api)s?\//, '').replace(/\//g, '_');
-      let detailLevel = objIncludes(clusterWideWatch, `${apiVersion}_${krm.kind}`, `${apiVersion}_${krm.name}`).value;
+      let kind = krm.kind.replace(/\//g, '_');
+      let name = krm.name.replace(/\//g, '_');
+
+      let detailLevel = objIncludes(clusterWideWatch, `${apiVersion}_${kind}`, `${apiVersion}_${name}`).value;
       if (detailLevel) {
         createWatch(krm, {}, detailLevel);
       } else {
