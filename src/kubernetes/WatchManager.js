@@ -16,29 +16,33 @@
 
 const { Watchman } = require('@razee/kubernetes-util');
 const log = require('../bunyan-api').createLogger('WatchManager');
+const objectPath = require('object-path');
+const hash = require('object-hash');
 
 var _watchObjects = {};
 
 module.exports = function WatchManager() {
   // private
-  let _saveWatch = function (wm, startWatch = true) {
+  let _saveWatch = function (wm, querySelector, startWatch = true) {
     let selfLink = wm.selfLink;
     _removeWatch(selfLink);
-    _watchObjects[selfLink] = wm;
+    _watchObjects[selfLink] = { selfLink: wm.selfLink, watchman: wm, querySelectorHash: hash(querySelector) };
     if (startWatch) {
-      _watchObjects[selfLink].watch();
+      wm.watch();
     }
-    log.info(`Watch added: ${selfLink}`);
+    log.info(`Watch added: ${selfLink} ${JSON.stringify(querySelector)}`);
     return _watchObjects[selfLink];
   };
 
-  let _ensureWatch = function (options, objectHandler, startWatch = true) {
-    let w = _getWatch(options.watchUri);
-    if (w) {
+  let _ensureWatch = function (options, objectHandler, globalWatch = false, startWatch = true) {
+    let querySelector = objectPath.get(options, 'requestOptions.qs', {});
+    let selfLink = options.watchUri;
+    let w = _getWatch(selfLink);
+    if (w && (!globalWatch || (globalWatch && w.querySelectorHash == hash(querySelector)))) {
       return w;
     }
     var wm = new Watchman(options, objectHandler);
-    return _saveWatch(wm, startWatch);
+    return _saveWatch(wm, querySelector, startWatch);
   };
 
   let _startWatch = function (selfLink) {
@@ -46,7 +50,7 @@ module.exports = function WatchManager() {
   };
 
   let _removeWatch = function (selfLink) {
-    let w = _getWatch(selfLink);
+    let w = objectPath.get(_getWatch(selfLink), 'watchman');
     if (w) {
       w.end();
       delete _watchObjects[selfLink];
@@ -60,7 +64,7 @@ module.exports = function WatchManager() {
   };
 
   let _reWatch = function (selfLink) {
-    let w = _getWatch(selfLink);
+    let w = objectPath.get(_getWatch(selfLink), 'watchman');
     if (w) {
       w.watch();
     }

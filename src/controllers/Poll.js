@@ -141,48 +141,89 @@ function resourceFormatter(o, level) {
   return res;
 }
 
-async function readJsonFile(path) {
-  if (await fs.pathExists(path)) {
+async function readWBList() {
+  if (await fs.pathExists('limit-poll/whitelist') && (await fs.readFile('limit-poll/whitelist', 'utf8')).trim() === 'true') {
+    let wlist = await walk('limit-poll', ['whitelist.json', 'whitelist', 'blacklist.json', 'blacklist']);
+    return { whitelist: wlist };
+
+  } else if (await fs.pathExists('limit-poll/blacklist') && (await fs.readFile('limit-poll/blacklist', 'utf8')).trim() === 'true') {
+    let blist = await walk('limit-poll', ['whitelist.json', 'whitelist', 'blacklist.json', 'blacklist']);
+    return { blacklist: blist };
+
+  } else if (await fs.pathExists('limit-poll/whitelist.json')) {
     try {
-      return await fs.readJson(path);
+      let wlistJson = await fs.readJson('limit-poll/whitelist.json');
+      let flattenedList = flattenJsonListObj(wlistJson);
+      return { whitelist: flattenedList };
+    } catch (e) {
+      log.error(e);
+    }
+
+  } else if (await fs.pathExists('limit-poll/blacklist.json')) {
+    try {
+      let blistJson = await fs.readJson('limit-poll/blacklist.json');
+      let flattenedList = flattenJsonListObj(blistJson);
+      return { blacklist: flattenedList };
     } catch (e) {
       log.error(e);
     }
   }
-  return;
+  return {};
 }
 
-function listContains(list, ...search) {
-  for (var i = 0; i < list.length; i++) {
-    for (var j = 0; j < search.length; j++) {
-      if (list[i].toLowerCase() == search[j].toLowerCase()) {
-        return true;
-      }
+async function walk(dir, excludeList = []) {
+  let filelist = {};
+  var path = path || require('path');
+  let dirContents = await fs.readdir(dir);
+  for (const file of dirContents) {
+    if (!fs.statSync(path.join(dir, file)).isDirectory() && !excludeList.includes(file.toLowerCase())) {
+      objectPath.set(filelist, [file], (await fs.readFile(path.join(dir, file), 'utf8')).trim());
     }
-
   }
-  return false;
+  return filelist;
 }
 
-async function selectiveListTrim(metaResources, whitelist, blacklist) {
+function flattenJsonListObj(jsonObj) {
+  let fileList = {};
+  let apiVersions = Object.keys(jsonObj);
+  for (let av of apiVersions) {
+    let avStr = av.replace(/\//g, '_');
+    jsonObj[av].forEach(el => fileList[`${avStr.toLowerCase()}_${el.replace(/\//g, '_').toLowerCase()}`] = 'true');
+  }
+  return fileList;
+}
+
+function objIncludes(obj, ...searchStrs) {
+  searchStrs = searchStrs.map(el => el.toLowerCase());
+  let keys = Object.keys(obj);
+
+  let key = keys.find(el => searchStrs.includes(el.toLowerCase()));
+  if (key) {
+    return { key: key, value: obj[key] };
+  }
+  return {};
+}
+
+async function selectiveListTrim(metaResources) {
+  let { whitelist, blacklist } = await readWBList();
   if (!whitelist && !blacklist) {
     return metaResources;
   }
 
   let result = [];
-  metaResources.map(mr => {
-    let apiVersion = mr.path.replace(/\/(api)s?\//, '');
-    let kind = mr.kind;
-    let name = mr.name;
+  metaResources.map(krm => {
+    let apiVersion = krm.path.replace(/\/(api)s?\//, '').replace(/\//g, '_');
+    let kind = krm.kind.replace(/\//g, '_');
+    let name = krm.name.replace(/\//g, '_');
 
-    if (!name.endsWith('/status')) {
+    if (!krm.name.endsWith('/status')) {
       if (whitelist) {
-        if (Array.isArray(whitelist[apiVersion]) && listContains(whitelist[apiVersion], kind, name)) {
-          result.push(mr);
+        if (objIncludes(whitelist, `${apiVersion}_${kind}`, `${apiVersion}_${name}`).value === 'true') {
+          result.push(krm);
         }
       } else if (blacklist) {
-        if (!(Array.isArray(blacklist[apiVersion]) && listContains(blacklist[apiVersion], kind, name))) {
-          result.push(mr);
+        if (!(objIncludes(blacklist, `${apiVersion}_${kind}`, `${apiVersion}_${name}`).value === 'true')) {
+          result.push(krm);
         }
       }
     }
@@ -194,7 +235,7 @@ async function selectiveListTrim(metaResources, whitelist, blacklist) {
 // doesnt have any resources on the system. This takes a while up front, but
 // should save time for the rest of the calls
 async function trimMetaResources(metaResources) {
-  metaResources = await selectiveListTrim(metaResources, await readJsonFile('limit-poll/whitelist.json'), await readJsonFile('limit-poll/blacklist.json'));
+  metaResources = await selectiveListTrim(metaResources);
 
   // eslint-disable-next-line require-atomic-updates
   util = util || await Util.fetch();
@@ -224,9 +265,15 @@ async function poll() {
   try {
     metaResources = await kc.getKubeResourcesMeta('get');
     metaResources = await trimMetaResources(metaResources);
+    if (metaResources.length < 1) {
+      log.info('No resources found to poll (either due to no resources being labeled or white/black list configuration)');
+      log.info('Finished Polling Resources ============');
+      return success;
+    }
   } catch (e) {
     util.error(`Error querying Kubernetes resources supporting 'get' verb. ${e}`);
-    return false;
+    success = false;
+    return success;
   }
   // must be run sequentially in order of declining detail. Razeedash sender keeps track of what it has sent,
   // and only sends the first instance.. so we want to send the most detailed things first.
