@@ -40,9 +40,9 @@ function createWatch(watchableKrm, querySelector = {}, detailLevel, globalWatch 
     watchUri: watchableKrm.uri({ watch: true })
   };
   options.requestOptions.qs = querySelector;
-  WatchManager.ensureWatch(options, (data) => {
-    Util.prepObject2Send(data, detailLevel);
-    util.dsa.send(data);
+  WatchManager.ensureWatch(options, (eventObj) => {
+    let preppedEventObj = Util.prepObject2Send(eventObj, detailLevel);
+    util.dsa.send(preppedEventObj);
   }, globalWatch);
 }
 

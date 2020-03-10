@@ -130,11 +130,13 @@ module.exports = class Util {
   // prepObject2Send - strip/redact attributes and apply razeehash code if needed
   static prepObject2Send(o, level = 'lite') {
     if (Array.isArray(o)) {
-      o.forEach(Util.prepObject2Send);
+      return o.map(el => Util.prepObject2Send(el, level));
     } else if (Array.isArray(o.items)) {
-      o.items.forEach(Util.prepObject2Send);
+      o.items = o.items.map(el => Util.prepObject2Send(el, level));
+      return o;
     } else if (o.object) {
-      Util.prepObject2Send(o.object);
+      o.object = Util.prepObject2Send(o.object, level);
+      return o;
     } else {
       let labelLevel = objectPath.get(o, ['metadata', 'labels', 'razee/watch-resource'], level);
       if (labelLevel == 'debug') {
