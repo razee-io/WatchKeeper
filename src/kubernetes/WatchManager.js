@@ -28,19 +28,17 @@ module.exports = function WatchManager() {
     _removeWatch(selfLink);
     _watchObjects[selfLink] = { selfLink: wm.selfLink, watchman: wm, querySelectorHash: hash(querySelector) };
     if (startWatch) {
-      let wm = objectPath.get(_watchObjects, [selfLink, 'watchman']);
       wm.watch();
     }
     log.info(`Watch added: ${selfLink} ${JSON.stringify(querySelector)}`);
     return _watchObjects[selfLink];
   };
 
-  let _ensureWatch = function (options, objectHandler, force = false, startWatch = true) {
+  let _ensureWatch = function (options, objectHandler, globalWatch = false, startWatch = true) {
     let querySelector = objectPath.get(options, 'requestOptions.qs', {});
     let selfLink = options.watchUri;
     let w = _getWatch(selfLink);
-    if (w && (!force || (force && w.querySelectorHash == hash(querySelector)))) {
-      console.log(`using existing watch.. force=${force} hash=${w.querySelectorHash == hash(querySelector)}`);
+    if (w && (!globalWatch || (globalWatch && w.querySelectorHash == hash(querySelector)))) {
       return w;
     }
     var wm = new Watchman(options, objectHandler);

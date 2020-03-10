@@ -33,7 +33,7 @@ async function validateWatches(watchableKrm, itemsLength, resourceContinue) {
   }
 }
 
-function createWatch(watchableKrm, querySelector = {}, detailLevel, force = false) {
+function createWatch(watchableKrm, querySelector = {}, detailLevel, globalWatch = false) {
   let options = {
     logger: require('../bunyan-api').createLogger('Watchman'),
     requestOptions: KubeApiConfig(),
@@ -43,7 +43,7 @@ function createWatch(watchableKrm, querySelector = {}, detailLevel, force = fals
   WatchManager.ensureWatch(options, (data) => {
     Util.prepObject2Send(data, detailLevel);
     util.dsa.send(data);
-  }, force);
+  }, globalWatch);
 }
 
 function removeAllWatches() {
@@ -68,8 +68,9 @@ async function watch() {
 
       let detailLevel = objIncludes(clusterWideWatch, `${apiVersion}_${kind}`, `${apiVersion}_${name}`).value;
       if (detailLevel) {
-        let force = true;
-        createWatch(krm, {}, detailLevel, force);
+        let globalWatch = true;
+        let qs = {};
+        createWatch(krm, qs, detailLevel, globalWatch);
       } else {
         let resource = await kc.getResource(resourcesMeta[i], { labelSelector: `razee/watch-resource in (true,debug,${Util.liteSynonyms()},${Util.detailSynonyms()})`, limit: 500 });
         if (resource.statusCode === 200) {
