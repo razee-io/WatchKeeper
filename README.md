@@ -77,7 +77,16 @@ In order to avoid having to label each individual resource, we allow watching by
 resource kind. Note: [white/black lists](#whiteblack-lists) do not affect watching.
 
 To watch a resource kind, add it to the `watch-keeper-non-namespaced` ConfigMap
-in the form `apiVersion_kind` (where any `/` is replaced with an `_`).
+in the form `apiVersion_kind` (where any `/` is replaced with an `_`), with the
+value being the [collection levels](#collection-levels) at which you want to watch
+at.
+
+Note: When modifying the `watch-keeper-non-namespaced` ConfigMap after the pod
+has started, it will take up to `VALIDATE_INTERVAL` minutes (default 10m) to start
+watching a resource newly added to the ConfigMap, and up to `CLEAN_START_INTERVAL`
+minutes (default 1440m) when changing the collection levels (ie. `lite` to `detail`).
+To get watch-keeper to pick up the changes immediately, kill the watch-keeper
+pod to force a restart.
 
 ```yaml
 apiVersion: v1
