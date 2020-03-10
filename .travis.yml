@@ -37,8 +37,7 @@ deploy:
   - provider: releases
     file: /tmp/resource.yaml
     skip_cleanup: true
-    api_key:
-      secure: "${GITHUB_TOKEN}"
+    api_key: "${GITHUB_TOKEN}"
     on:
       tags: true
       condition: ${TRAVIS_TAG} =~ ^[0-9]+\.[0-9]+\.[0-9]+$
