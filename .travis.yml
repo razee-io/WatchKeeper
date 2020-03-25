@@ -14,6 +14,7 @@ script:
   - if [ -n "${TRAVIS_TAG}" ]; then docker tag quay.io/razee/watch-keeper:${TRAVIS_COMMIT} quay.io/razee/watch-keeper:${TRAVIS_TAG}; fi
   - docker images
   - ./build/process-template.sh kubernetes/watch-keeper/resource.yaml >/tmp/resource.yaml
+  - ./build/process-template.sh kubernetes/watch-keeper/rbac.yaml >/tmp/rbac.yaml
 
 before_deploy:
   - docker login -u="${QUAY_ID}" -p="${QUAY_TOKEN}" quay.io
@@ -35,7 +36,9 @@ deploy:
       tags: true
       condition: ${TRAVIS_TAG} =~ ^[0-9]+\.[0-9]+\.[0-9]+$
   - provider: releases
-    file: /tmp/resource.yaml
+    file:
+      - "/tmp/resource.yaml"
+      - "/tmp/rbac.yaml"
     skip_cleanup: true
     api_key: "${GITHUB_TOKEN}"
     name: "${TRAVIS_TAG}"

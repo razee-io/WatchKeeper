@@ -1,0 +1,76 @@
+apiVersion: v1
+kind: List
+metadata:
+  name: watch-keeper-deployment
+  annotations:
+    version: "{{TRAVIS_COMMIT}}"
+type: array
+items:
+  - apiVersion: v1
+    kind: Namespace
+    metadata:
+      name: razeedeploy
+      labels:
+        deploy.razee.io/mode: "EnsureExists"
+        deploy.razee.io/Reconcile: "false"
+      annotations:
+        razee.io/git-repo: "{{{GIT_REMOTE}}}"
+        razee.io/commit-sha: "{{TRAVIS_COMMIT}}"
+
+  - apiVersion: rbac.authorization.k8s.io/v1
+    kind: ClusterRole
+    metadata:
+      name: cluster-reader
+      annotations:
+        razee.io/git-repo: "{{{GIT_REMOTE}}}"
+        razee.io/commit-sha: "{{TRAVIS_COMMIT}}"
+    rules:
+    - apiGroups:
+      - '*'
+      resources:
+      - '*'
+      verbs: ["get", "list", "watch"]
+    - nonResourceURLs:
+      - '*'
+      verbs: ["get", "list", "watch"]
+
+  - apiVersion: v1
+    kind: ServiceAccount
+    metadata:
+      name: watch-keeper-sa
+      namespace: razeedeploy
+      annotations:
+        razee.io/git-repo: "{{{GIT_REMOTE}}}"
+        razee.io/commit-sha: "{{TRAVIS_COMMIT}}"
+
+  - apiVersion: rbac.authorization.k8s.io/v1
+    kind: ClusterRoleBinding
+    metadata:
+      name: watch-keeper-rb
+      annotations:
+        razee.io/git-repo: "{{{GIT_REMOTE}}}"
+        razee.io/commit-sha: "{{TRAVIS_COMMIT}}"
+    roleRef:
+      apiGroup: rbac.authorization.k8s.io
+      kind: ClusterRole
+      name: cluster-reader
+    subjects:
+    - kind: ServiceAccount
+      name: watch-keeper-sa
+      namespace: razeedeploy
+
+  - kind: NetworkPolicy
+    apiVersion: networking.k8s.io/v1
+    metadata:
+      name: watch-keeper-deny-ingress
+      namespace: razeedeploy
+      annotations:
+        razee.io/git-repo: "{{{GIT_REMOTE}}}"
+        razee.io/commit-sha: "{{TRAVIS_COMMIT}}"
+    spec:
+      podSelector:
+        matchLabels:
+          app: watch-keeper
+      policyTypes:
+      - Ingress
+      ingress: []
