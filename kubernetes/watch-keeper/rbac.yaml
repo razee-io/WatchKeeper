@@ -9,7 +9,7 @@ items:
   - apiVersion: v1
     kind: Namespace
     metadata:
-      name: razeedeploy
+      name: razee
       labels:
         deploy.razee.io/mode: "EnsureExists"
         deploy.razee.io/Reconcile: "false"
@@ -38,7 +38,7 @@ items:
     kind: ServiceAccount
     metadata:
       name: watch-keeper-sa
-      namespace: razeedeploy
+      namespace: razee
       annotations:
         razee.io/git-repo: "{{{GIT_REMOTE}}}"
         razee.io/commit-sha: "{{TRAVIS_COMMIT}}"
@@ -57,13 +57,13 @@ items:
     subjects:
     - kind: ServiceAccount
       name: watch-keeper-sa
-      namespace: razeedeploy
+      namespace: razee
 
   - kind: NetworkPolicy
     apiVersion: networking.k8s.io/v1
     metadata:
       name: watch-keeper-deny-ingress
-      namespace: razeedeploy
+      namespace: razee
       annotations:
         razee.io/git-repo: "{{{GIT_REMOTE}}}"
         razee.io/commit-sha: "{{TRAVIS_COMMIT}}"
