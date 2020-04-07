@@ -258,7 +258,7 @@ async function poll() {
   // and only sends the first instance.. so we want to send the most detailed things first.
 
   // Send singlely labeled resources
-  success = success && await handleSelector(metaResources, razeedashSender, { labelSelector: `razee/watch-resource in (debug,true,${Util.liteSynonyms()},${Util.detailSynonyms()}})`, limit: 500 },
+  success = success && await handleSelector(metaResources, razeedashSender, { labelSelector: `razee/watch-resource in (debug,true,${Util.liteSynonyms()},${Util.detailSynonyms()})`, limit: 500 },
     (o) => Util.hasLabel(o, 'razee/watch-resource') ? resourceFormatter(o) : undefined);
 
   // For now we think its a bad idea to allow a whole ns to be detail tagged.
