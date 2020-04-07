@@ -151,18 +151,18 @@ async function readWBList() {
     let blist = await Util.walkConfigMap('watch-keeper-limit-poll', ['whitelist.json', 'whitelist', 'blacklist.json', 'blacklist']);
     return { blacklist: blist };
 
-  } else if (objectPath.has(limitPollConfigMap, 'data.whitelist.json')) {
+  } else if (objectPath.has(limitPollConfigMap, ['data', 'whitelist.json'])) {
     try {
-      let wlistJson = JSON.parse(objectPath.get(limitPollConfigMap, 'data.whitelist.json', '{}'));
+      let wlistJson = JSON.parse(objectPath.get(limitPollConfigMap, ['data', 'whitelist.json'], '{}'));
       let flattenedList = flattenJsonListObj(wlistJson);
       return { whitelist: flattenedList };
     } catch (e) {
       log.error(e);
     }
 
-  } else if (objectPath.has(limitPollConfigMap, 'data.blacklist.json')) {
+  } else if (objectPath.has(limitPollConfigMap, ['data', 'blacklist.json'])) {
     try {
-      let blistJson = JSON.parse(objectPath.get(limitPollConfigMap, 'data.blacklist.json', '{}'));
+      let blistJson = JSON.parse(objectPath.get(limitPollConfigMap, ['data', 'blacklist.json'], '{}'));
       let flattenedList = flattenJsonListObj(blistJson);
       return { blacklist: flattenedList };
     } catch (e) {
@@ -243,6 +243,7 @@ async function poll() {
   try {
     metaResources = await kc.getKubeResourcesMeta('get');
     metaResources = await trimMetaResources(metaResources);
+    log.debug(`Polling against resources: ${JSON.stringify(metaResources.map(mr => mr.uri()))}`);
     if (metaResources.length < 1) {
       log.info('No resources found to poll (either due to no resources being labeled or white/black list configuration)');
       log.info('Finished Polling Resources ============');
@@ -267,7 +268,7 @@ async function poll() {
 
   // Send all non-namespaced resources
   let configNs = process.env.CONFIG_NAMESPACE || process.env.NAMESPACE || 'kube-system';
-  let nonNsConfigMap = await Util.getConfigMap('watch-keeper-limit-poll', configNs);
+  let nonNsConfigMap = await Util.getConfigMap('watch-keeper-non-namespaced', configNs);
   if (objectPath.has(nonNsConfigMap, 'data.poll') && objectPath.get(nonNsConfigMap, 'data.poll') !== 'false') {
     success = success && await handleNonNamespaced(metaResources, razeedashSender, { limit: 500 },
       (o) => !objectPath.has(o, 'metadata.namespace') ? resourceFormatter(o, objectPath.get(nonNsConfigMap, 'data.poll')) : undefined);
