@@ -18,6 +18,9 @@ var rewire = require('rewire');
 const DataCollector = rewire('../src/controllers/DataCollector');
 const Watch = rewire('../src/controllers/Watch');
 const Util = rewire('../src/controllers/Util');
+const sinon = require('sinon');
+const UtilSinon = require('../src/controllers/Util');
+const sandbox = sinon.createSandbox();
 const nock = require('nock');
 const TEST_RAZEEDASH_URL = 'https://localhost:3000/api/v2';
 const TEST_POD = {
@@ -50,6 +53,11 @@ describe('Watch', () => {
       .reply(200, { success: '¯\\_(ツ)_/¯' })
       .post('/api/v2/clusters/good/messages')
       .reply(200, '{"level":"ERROR","message":"some error","data":{}}');
+
+    sandbox.stub(UtilSinon, 'getConfigMap').callsFake(() => { return Promise.resolve({ statusCode: 404, error: { message: 'not found' } }); });
+  });
+  afterEach(() => {
+    sandbox.restore();
   });
 
   describe('#removeAllWatches', () => {
