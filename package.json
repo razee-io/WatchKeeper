@@ -62,7 +62,7 @@
     "npm-watch": "^0.6.0",
     "nyc": "^15.0.0",
     "rewire": "^5.0.0",
-    "shellcheck": "^0.4.1",
+    "shellcheck": "^0.4.2",
     "sinon": "^9.0.1",
     "yaml-lint": "^1.2.4"
   }
