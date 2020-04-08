@@ -36,6 +36,10 @@ spec:
             valueFrom:
               fieldRef:
                 fieldPath: metadata.namespace
+          - name: CONFIG_NAMESPACE
+            valueFrom:
+              fieldRef:
+                fieldPath: metadata.namespace
           - name: RAZEEDASH_URL
             valueFrom:
               configMapKeyRef:
@@ -66,17 +70,3 @@ spec:
           periodSeconds: 300
           timeoutSeconds: 30
           failureThreshold: 1
-        volumeMounts:
-        - mountPath: /usr/src/app/limit-poll
-          name: limit-poll
-        - mountPath: /usr/src/app/non-namespaced
-          name: non-namespaced
-      volumes:
-      - configMap:
-          defaultMode: 420
-          name: watch-keeper-limit-poll
-        name: limit-poll
-      - configMap:
-          defaultMode: 420
-          name: watch-keeper-non-namespaced
-        name: non-namespaced

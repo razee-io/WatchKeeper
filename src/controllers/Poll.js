@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 const objectPath = require('object-path');
-const fs = require('fs-extra');
 
 const log = require('../bunyan-api').createLogger('Poll');
 
@@ -142,26 +141,28 @@ function resourceFormatter(o, level) {
 }
 
 async function readWBList() {
-  if (await fs.pathExists('limit-poll/whitelist') && (await fs.readFile('limit-poll/whitelist', 'utf8')).trim() === 'true') {
-    let wlist = await walk('limit-poll', ['whitelist.json', 'whitelist', 'blacklist.json', 'blacklist']);
+  let configNs = process.env.CONFIG_NAMESPACE || process.env.NAMESPACE || 'kube-system';
+  let limitPollConfigMap = await Util.getConfigMap('watch-keeper-limit-poll', configNs);
+  if (objectPath.has(limitPollConfigMap, 'data.whitelist') && objectPath.get(limitPollConfigMap, 'data.whitelist') === 'true') {
+    let wlist = await Util.walkConfigMap('watch-keeper-limit-poll', ['whitelist.json', 'whitelist', 'blacklist.json', 'blacklist']);
     return { whitelist: wlist };
 
-  } else if (await fs.pathExists('limit-poll/blacklist') && (await fs.readFile('limit-poll/blacklist', 'utf8')).trim() === 'true') {
-    let blist = await walk('limit-poll', ['whitelist.json', 'whitelist', 'blacklist.json', 'blacklist']);
+  } else if (objectPath.has(limitPollConfigMap, 'data.blacklist') && objectPath.get(limitPollConfigMap, 'data.blacklist') === 'true') {
+    let blist = await Util.walkConfigMap('watch-keeper-limit-poll', ['whitelist.json', 'whitelist', 'blacklist.json', 'blacklist']);
     return { blacklist: blist };
 
-  } else if (await fs.pathExists('limit-poll/whitelist.json')) {
+  } else if (objectPath.has(limitPollConfigMap, ['data', 'whitelist.json'])) {
     try {
-      let wlistJson = await fs.readJson('limit-poll/whitelist.json');
+      let wlistJson = JSON.parse(objectPath.get(limitPollConfigMap, ['data', 'whitelist.json'], '{}'));
       let flattenedList = flattenJsonListObj(wlistJson);
       return { whitelist: flattenedList };
     } catch (e) {
       log.error(e);
     }
 
-  } else if (await fs.pathExists('limit-poll/blacklist.json')) {
+  } else if (objectPath.has(limitPollConfigMap, ['data', 'blacklist.json'])) {
     try {
-      let blistJson = await fs.readJson('limit-poll/blacklist.json');
+      let blistJson = JSON.parse(objectPath.get(limitPollConfigMap, ['data', 'blacklist.json'], '{}'));
       let flattenedList = flattenJsonListObj(blistJson);
       return { blacklist: flattenedList };
     } catch (e) {
@@ -169,18 +170,6 @@ async function readWBList() {
     }
   }
   return {};
-}
-
-async function walk(dir, excludeList = []) {
-  let filelist = {};
-  var path = path || require('path');
-  let dirContents = await fs.readdir(dir);
-  for (const file of dirContents) {
-    if (!fs.statSync(path.join(dir, file)).isDirectory() && !excludeList.includes(file.toLowerCase())) {
-      objectPath.set(filelist, [file], (await fs.readFile(path.join(dir, file), 'utf8')).trim());
-    }
-  }
-  return filelist;
 }
 
 function flattenJsonListObj(jsonObj) {
@@ -191,17 +180,6 @@ function flattenJsonListObj(jsonObj) {
     jsonObj[av].forEach(el => fileList[`${avStr.toLowerCase()}_${el.replace(/\//g, '_').toLowerCase()}`] = 'true');
   }
   return fileList;
-}
-
-function objIncludes(obj, ...searchStrs) {
-  searchStrs = searchStrs.map(el => el.toLowerCase());
-  let keys = Object.keys(obj);
-
-  let key = keys.find(el => searchStrs.includes(el.toLowerCase()));
-  if (key) {
-    return { key: key, value: obj[key] };
-  }
-  return {};
 }
 
 async function selectiveListTrim(metaResources) {
@@ -218,11 +196,11 @@ async function selectiveListTrim(metaResources) {
 
     if (!krm.name.endsWith('/status')) {
       if (whitelist) {
-        if (objIncludes(whitelist, `${apiVersion}_${kind}`, `${apiVersion}_${name}`).value === 'true') {
+        if (Util.objIncludes(whitelist, `${apiVersion}_${kind}`, `${apiVersion}_${name}`).value === 'true') {
           result.push(krm);
         }
       } else if (blacklist) {
-        if (!(objIncludes(blacklist, `${apiVersion}_${kind}`, `${apiVersion}_${name}`).value === 'true')) {
+        if (!(Util.objIncludes(blacklist, `${apiVersion}_${kind}`, `${apiVersion}_${name}`).value === 'true')) {
           result.push(krm);
         }
       }
@@ -265,6 +243,7 @@ async function poll() {
   try {
     metaResources = await kc.getKubeResourcesMeta('get');
     metaResources = await trimMetaResources(metaResources);
+    log.debug(`Polling against resources: ${JSON.stringify(metaResources.map(mr => mr.uri()))}`);
     if (metaResources.length < 1) {
       log.info('No resources found to poll (either due to no resources being labeled or white/black list configuration)');
       log.info('Finished Polling Resources ============');
@@ -279,7 +258,7 @@ async function poll() {
   // and only sends the first instance.. so we want to send the most detailed things first.
 
   // Send singlely labeled resources
-  success = success && await handleSelector(metaResources, razeedashSender, { labelSelector: `razee/watch-resource in (debug,true,${Util.liteSynonyms()},${Util.detailSynonyms()}})`, limit: 500 },
+  success = success && await handleSelector(metaResources, razeedashSender, { labelSelector: `razee/watch-resource in (debug,true,${Util.liteSynonyms()},${Util.detailSynonyms()})`, limit: 500 },
     (o) => Util.hasLabel(o, 'razee/watch-resource') ? resourceFormatter(o) : undefined);
 
   // For now we think its a bad idea to allow a whole ns to be detail tagged.
@@ -288,12 +267,12 @@ async function poll() {
     (o) => objectPath.has(o, 'metadata.namespace') ? resourceFormatter(o, 'lite') : undefined);
 
   // Send all non-namespaced resources
-  if (await fs.pathExists('non-namespaced/poll')) {
-    let nonNsPoll = (await fs.readFile('non-namespaced/poll', 'utf8')).trim();
-    if (nonNsPoll != 'false') {
-      success = success && await handleNonNamespaced(metaResources, razeedashSender, { limit: 500 },
-        (o) => !objectPath.has(o, 'metadata.namespace') ? resourceFormatter(o, nonNsPoll) : undefined);
-    }
+  let configNs = process.env.CONFIG_NAMESPACE || process.env.NAMESPACE || 'kube-system';
+  let nonNsConfigMap = await Util.getConfigMap('watch-keeper-non-namespaced', configNs);
+  if (objectPath.has(nonNsConfigMap, 'data.poll') && objectPath.get(nonNsConfigMap, 'data.poll') !== 'false') {
+    success = success && await handleNonNamespaced(metaResources, razeedashSender, { limit: 500 },
+      (o) => !objectPath.has(o, 'metadata.namespace') ? resourceFormatter(o, objectPath.get(nonNsConfigMap, 'data.poll')) : undefined);
+
   }
 
   if (success) {

@@ -15,11 +15,12 @@
  */
 const objectPath = require('object-path');
 const hash = require('object-hash');
+const fs = require('fs-extra');
 
 const { KubeClass, KubeApiConfig } = require('@razee/kubernetes-util');
-var kc = new KubeClass(KubeApiConfig());
+const kc = new KubeClass(KubeApiConfig());
 const DataCollector = require('./DataCollector');
-var dc = new DataCollector(kc);
+const dc = new DataCollector(kc);
 
 const DelayedSendArray = require('../razeedash/DelayedSendArray');
 const Messenger = require('../razeedash/Messenger');
@@ -197,6 +198,54 @@ module.exports = class Util {
   static detailSynonyms() {
     let synonyms = ['heavy', 'detail', 'Detail', 'detailed'];
     return synonyms.toString();
+  }
+
+  static async walkDir(dir, excludeList = []) {
+    let filelist = {};
+    var path = path || require('path');
+    await fs.ensureDir(dir);
+    let dirContents = await fs.readdir(dir);
+    for (const file of dirContents) {
+      if (!fs.statSync(path.join(dir, file)).isDirectory() && !excludeList.includes(file.toLowerCase())) {
+        objectPath.set(filelist, [file], (await fs.readFile(path.join(dir, file), 'utf8')).trim());
+      }
+    }
+    return filelist;
+  }
+
+  static async walkConfigMap(configmap, excludeList = []) {
+    let filelist = {};
+    let configNs = process.env.CONFIG_NAMESPACE || process.env.NAMESPACE || 'kube-system';
+    let cmContents = (await this.getConfigMap(configmap, configNs)).data;
+    if (!cmContents) {
+      return filelist;
+    }
+    for (let [key, value] of Object.entries(cmContents)) {
+      if (!excludeList.includes(key.toLowerCase())) {
+        objectPath.set(filelist, [key], value);
+      }
+    }
+    return filelist;
+  }
+
+  static objIncludes(obj, ...searchStrs) {
+    searchStrs = searchStrs.map(el => el.toLowerCase());
+    let keys = Object.keys(obj);
+
+    let key = keys.find(el => searchStrs.includes(el.toLowerCase()));
+    if (key) {
+      return { key: key, value: obj[key] };
+    }
+    return {};
+  }
+
+  static async getConfigMap(name = '', namespace = 'default') {
+    let result = await kc.getResource({ uri: () => `/api/v1/namespaces/${namespace}/configmaps/${name}` });
+    if (result.statusCode === 200) {
+      return result.object;
+    } else {
+      return result;
+    }
   }
 
 };

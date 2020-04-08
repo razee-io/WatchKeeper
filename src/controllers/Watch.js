@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 const objectPath = require('object-path');
-const fs = require('fs-extra');
 
 const log = require('../bunyan-api').createLogger('Watch');
 const WatchManager = require('../kubernetes/WatchManager')();
@@ -55,8 +54,7 @@ async function watch() {
   let success = true;
   // eslint-disable-next-line require-atomic-updates
   util = util || await Util.fetch();
-  await fs.ensureDir('non-namespaced');
-  let clusterWideWatch = await walk('non-namespaced', ['poll']);
+  let clusterWideWatch = await Util.walkConfigMap('watch-keeper-non-namespaced', ['poll']);
   let resourcesMeta = await kc.getKubeResourcesMeta('watch');
 
   try {
@@ -66,7 +64,7 @@ async function watch() {
       let kind = krm.kind.replace(/\//g, '_');
       let name = krm.name.replace(/\//g, '_');
 
-      let detailLevel = objIncludes(clusterWideWatch, `${apiVersion}_${kind}`, `${apiVersion}_${name}`).value;
+      let detailLevel = Util.objIncludes(clusterWideWatch, `${apiVersion}_${kind}`, `${apiVersion}_${name}`).value;
       if (detailLevel) {
         let globalWatch = true;
         let qs = {};
@@ -83,29 +81,6 @@ async function watch() {
     success = false;
   }
   return success;
-}
-
-function objIncludes(obj, ...searchStrs) {
-  searchStrs = searchStrs.map(el => el.toLowerCase());
-  let keys = Object.keys(obj);
-
-  let key = keys.find(el => searchStrs.includes(el.toLowerCase()));
-  if (key) {
-    return { key: key, value: obj[key] };
-  }
-  return {};
-}
-
-async function walk(dir, excludeList = []) {
-  let filelist = {};
-  var path = path || require('path');
-  let dirContents = await fs.readdir(dir);
-  for (const file of dirContents) {
-    if (!fs.statSync(path.join(dir, file)).isDirectory() && !excludeList.includes(file.toLowerCase())) {
-      objectPath.set(filelist, [file], (await fs.readFile(path.join(dir, file), 'utf8')).trim());
-    }
-  }
-  return filelist;
 }
 
 module.exports = {

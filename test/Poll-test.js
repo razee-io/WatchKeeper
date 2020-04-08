@@ -19,7 +19,9 @@ const nock = require('nock');
 const rewire = require('rewire');
 const sinon = require('sinon');
 const Util = rewire('../src/controllers/Util');
+const UtilSinon = require('../src/controllers/Util');
 
+const sandbox = sinon.createSandbox();
 
 const log = require('../src/bunyan-api').createLogger('Poll-test');
 const TEST_RAZEEDASH_URL = 'https://localhost:3000/api/v2';
@@ -61,8 +63,13 @@ describe('Poll', () => {
       'info': mocklog,
       'error': mocklog
     });
+
+    sandbox.stub(UtilSinon, 'getConfigMap').callsFake(() => { return Promise.resolve({ statusCode: 404, error: { message: 'not found' } }); });
   });
-  afterEach(() => { revertUtil(); });
+  afterEach(() => {
+    revertUtil();
+    sandbox.restore();
+  });
 
   describe('#createPolledResource', () => {
     it('success', () => {
@@ -357,9 +364,13 @@ describe('Poll', () => {
         }
       };
       // Poll
+      let mockReadWBList = async (resourceMeta, selector) => { // eslint-disable-line no-unused-vars
+        return Promise.resolve({});
+      };
       var revertPoll = Poll.__set__({
         'util': util,
-        'kc': mockKubeClass
+        'kc': mockKubeClass,
+        'readWBList': mockReadWBList
       });
       // Test
       let given = [{
@@ -460,8 +471,12 @@ describe('Poll', () => {
           return 'good';
         }
       };
-      Util.__set__('dc', getClusterUid);
+
+      Util.__set__({
+        'dc': getClusterUid
+      });
       let util = await Util.fetch(TEST_RAZEEDASH_URL);
+
       // KubeClass
       let mockKubeClass = {
         getKubeResourcesMeta: async (verb) => { // eslint-disable-line no-unused-vars
@@ -483,7 +498,7 @@ describe('Poll', () => {
         'util': util,
         'kc': mockKubeClass,
         'trimMetaResources': async (resourceMeta) => { // eslint-disable-line no-unused-vars
-          return Promise.resolve([{ '_path': '/api/v1', '_resourceMeta': { 'name': 'namespaces', 'singularName': '', 'namespaced': false, 'kind': 'Namespace', 'verbs': ['create', 'delete', 'get', 'list', 'patch', 'update', 'watch'], 'shortNames': ['ns'] } }]);
+          return Promise.resolve([{ '_path': '/api/v1', 'uri': () => '/api/v1/namespaces', '_resourceMeta': { 'name': 'namespaces', 'singularName': '', 'namespaced': false, 'kind': 'Namespace', 'verbs': ['create', 'delete', 'get', 'list', 'patch', 'update', 'watch'], 'shortNames': ['ns'] } }]);
         }, 'handleSelector': async () => {
           return Promise.resolve(true);
         }, 'handleWatchedNamespaces': async () => {
