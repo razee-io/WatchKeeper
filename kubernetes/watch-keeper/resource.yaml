@@ -38,8 +38,16 @@ spec:
                 fieldPath: metadata.namespace
           - name: CONFIG_NAMESPACE
             valueFrom:
-              fieldRef:
-                fieldPath: metadata.namespace
+              configMapKeyRef:
+                name: watch-keeper-config
+                key: CONFIG_NAMESPACE
+                optional: true
+          - name: KUBECONFIG
+            valueFrom:
+              configMapKeyRef:
+                name: watch-keeper-config
+                key: KUBECONFIG
+                optional: true
           - name: RAZEEDASH_URL
             valueFrom:
               configMapKeyRef:
