@@ -48,7 +48,6 @@
     "valid-url": "^1.0.9"
   },
   "devDependencies": {
-    "audit-ci": "^2.5.1",
     "chai": "^4.2.0",
     "deep-equal": "^2.0.3",
     "dockerlint": "^0.3.9",
