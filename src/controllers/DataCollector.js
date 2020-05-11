@@ -25,7 +25,7 @@ module.exports = class DataCollector {
     if (this.clusterID) {
       return this.clusterID;
     }
-    let ns = process.env.NAMESPACE || 'kube-system';
+    let ns = process.env.CONFIG_NAMESPACE || process.env.NAMESPACE || 'kube-system';
     let ks = await this.kubeClass.getResource({ uri: () => `/api/v1/namespaces/${ns}` });
     this.clusterID = objectPath.get(ks.object, 'metadata.uid');
     return this.clusterID;
