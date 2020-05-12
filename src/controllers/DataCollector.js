@@ -24,6 +24,9 @@ module.exports = class DataCollector {
   async getClusterUid() {
     if (this.clusterID) {
       return this.clusterID;
+    } else if (process.env.CLUSTER_ID_OVERRIDE) {
+      this.clusterID = process.env.CLUSTER_ID_OVERRIDE;
+      return this.clusterID;
     }
     let ns = process.env.CONFIG_NAMESPACE || process.env.NAMESPACE || 'kube-system';
     let ks = await this.kubeClass.getResource({ uri: () => `/api/v1/namespaces/${ns}` });

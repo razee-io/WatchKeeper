@@ -42,6 +42,12 @@ spec:
                 name: watch-keeper-config
                 key: CONFIG_NAMESPACE
                 optional: true
+          - name: CLUSTER_ID_OVERRIDE
+            valueFrom:
+              configMapKeyRef:
+                name: watch-keeper-config
+                key: CLUSTER_ID_OVERRIDE
+                optional: true
           - name: KUBECONFIG
             valueFrom:
               configMapKeyRef:
