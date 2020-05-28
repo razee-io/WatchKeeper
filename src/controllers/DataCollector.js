@@ -45,6 +45,9 @@ module.exports = class DataCollector {
 
   async getClusterMeta() {
     let customMeta = {};
+    if (process.env.DEFAULT_CLUSTER_NAME) {
+      Object.assign(customMeta, { name: process.env.DEFAULT_CLUSTER_NAME });
+    }
     let cml = await this.kubeClass.getResource({ uri: () => '/api/v1/configmaps' }, { labelSelector: 'razee/cluster-metadata=true' });
     cml.object.items.map(cm => {
       Object.assign(customMeta, cm.data);
