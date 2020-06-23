@@ -370,7 +370,7 @@ describe('Poll', () => {
       var revertPoll = Poll.__set__({
         'util': util,
         'kc': mockKubeClass,
-        'readWBList': mockReadWBList
+        'readIEList': mockReadWBList
       });
       // Test
       let given = [{

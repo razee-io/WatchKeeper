@@ -40,10 +40,10 @@ This is useful for resources that are not watchable.
 1. Namespaces: you can gather info from a cluster by labeling a namespace with
 `razee/watch-resource=<level>`. This will collect and report all data within the
 labeled namespace at the desired `<level>`. Info is only gathered on the polling
-cycle. See [white/black lists](#whiteblack-lists) to limit what is collected.
+cycle. See [include/exclude lists](#includeexclude-lists) to limit what is collected.
 1. Non-Namespaced Resources: you can gather info about resources that are not bound
 to a namespace by adding the key `poll` to the `watch-keeper-non-namespaced` ConfigMap.
-Info is only gathered on the polling cycle. See [white/black lists](#whiteblack-lists)
+Info is only gathered on the polling cycle. See [include/exclude lists](#includeexclude-lists)
 to limit what is collected. See [Non-Namespaced Resources](#non-namespaced-resources)
 for more info.
 1. Watch by Resource: this allows you to watch and see immediate updates on any
@@ -74,7 +74,8 @@ can gather much more data than anticipated resulting in delays in data reporting
 ### Watch By Resource
 
 In order to avoid having to label each individual resource, we allow watching by
-resource kind. Note: [white/black lists](#whiteblack-lists) do not affect watching.
+resource kind. Note: [include/exclude lists](#includeexclude-lists) do not affect
+watching.
 
 To watch a resource kind, add it to the `watch-keeper-non-namespaced` ConfigMap
 in the form `apiVersion_kind` (where any `/` is replaced with an `_`), with the
@@ -110,16 +111,16 @@ data:
 ### Non-Namespaced Resources
 
 In order to avoid having to label each individual non-namespaced resource (eg. nodes,
-namespaces, customresourcedefinitions), we allow polling of all non-namespaced resource.
+namespaces, customresourcedefinitions), we allow polling of all non-namespaced resources.
 This mechanism is similar to how our namespace resource collection works, where
 you can label a namespace and we collect all the resources within that namespace
 for you; you can think of this like you are labeling the `non-namespaced-resources`
 namespace.
 
 Also similar to how you can label a namespace, there may be resources that you do
-not want to collect (eg. storageclass), so you should use [white/black lists](#whiteblack-lists)
-to limit what is collected. Note: using the white/black list will affect all resources
-polled, namespaced and non-namespace.
+not want to collect (eg. storageclass), so you should use [include/exclude lists](#includeexclude-lists)
+to limit what is collected. Note: using the include/exclude list will affect all
+resources polled, namespaced and non-namespace.
 
 ```yaml
 apiVersion: v1
@@ -131,22 +132,23 @@ data:
   poll: lite
 ```
 
-### White/Black Lists
+### Include/Exclude Lists
 
-You can white or black list resources by modifying the ConfigMap named
+You can include or exclude resources by modifying the ConfigMap named
 `watch-keeper-limit-poll`, in the namespace your Watch-Keeper is running.
 
-- If both a whitelist and blacklist are specified, only the whitelist will be used.
-- The white/black list is employed during the **Polling**, **Namespace** and **Non-Namespaced**
-[collection methods](#Collection-Methods). Any individual resource specifically
-labeled to be watched will still be watched, regardless of the white/black list.
-
-#### Creating a White/Black List
-
-- To create your white/black list, the ConfigMap will specify the kind of list
-you want as the first key, and the rest of the ConfigMap entries become the white/black
+- If both an `include` and `exclude` key are specified, only `include` will be used.
+- The include/exclude list is employed during the **Polling**, **Namespace** and
+**Non-Namespaced** [collection methods](#Collection-Methods). Any individual resource
+specifically labeled to be watched will still be watched, regardless of the include/exclude
 list.
-- The white/black list itself is created from the ConfigMap keys:
+
+#### Creating a Include/Exclude List
+
+- To create your include/exclude list, the ConfigMap will specify the kind of list
+you want as the first key, and the rest of the ConfigMap entries become the include/exclude
+list.
+- The include/exclude list itself is created from the ConfigMap keys:
   - The keys will be `apiVersion_kind` (where any `/` is replaced with an `_`).
   - The value must be `'true'`.
 
@@ -158,7 +160,7 @@ metadata:
   namespace: <watch-keeper ns>
 data:
   # Type of list (must be 'true')
-  whitelist: 'true'
+  include: 'true'
 
   # Resources affected (must be 'true')
   v1_node: 'true'
