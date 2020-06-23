@@ -111,7 +111,7 @@ data:
 ### Non-Namespaced Resources
 
 In order to avoid having to label each individual non-namespaced resource (eg. nodes,
-namespaces, customresourcedefinitions), we allow polling of all non-namespaced resource.
+namespaces, customresourcedefinitions), we allow polling of all non-namespaced resources.
 This mechanism is similar to how our namespace resource collection works, where
 you can label a namespace and we collect all the resources within that namespace
 for you; you can think of this like you are labeling the `non-namespaced-resources`
