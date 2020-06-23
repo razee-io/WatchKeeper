@@ -140,31 +140,33 @@ function resourceFormatter(o, level) {
   return res;
 }
 
-async function readWBList() {
+// include/exclude list
+async function readIEList() {
   let configNs = process.env.CONFIG_NAMESPACE || process.env.NAMESPACE || 'kube-system';
   let limitPollConfigMap = await Util.getConfigMap('watch-keeper-limit-poll', configNs);
-  if (objectPath.has(limitPollConfigMap, 'data.whitelist') && objectPath.get(limitPollConfigMap, 'data.whitelist') === 'true') {
-    let wlist = await Util.walkConfigMap('watch-keeper-limit-poll', ['whitelist.json', 'whitelist', 'blacklist.json', 'blacklist']);
-    return { whitelist: wlist };
+  if ((objectPath.has(limitPollConfigMap, 'data.include') && objectPath.get(limitPollConfigMap, 'data.include') === 'true') ||
+    (objectPath.has(limitPollConfigMap, 'data.whitelist') && objectPath.get(limitPollConfigMap, 'data.whitelist') === 'true')) {
+    let includeList = await Util.walkConfigMap('watch-keeper-limit-poll', ['include', 'whitelist.json', 'whitelist', 'exclude', 'blacklist.json', 'blacklist']);
+    return { include: includeList };
 
-  } else if (objectPath.has(limitPollConfigMap, 'data.blacklist') && objectPath.get(limitPollConfigMap, 'data.blacklist') === 'true') {
-    let blist = await Util.walkConfigMap('watch-keeper-limit-poll', ['whitelist.json', 'whitelist', 'blacklist.json', 'blacklist']);
-    return { blacklist: blist };
+  } else if ((objectPath.has(limitPollConfigMap, 'data.exclude') && objectPath.get(limitPollConfigMap, 'data.exclude') === 'true') ||
+    (objectPath.has(limitPollConfigMap, 'data.blacklist') && objectPath.get(limitPollConfigMap, 'data.blacklist') === 'true')) {
+    let excludeList = await Util.walkConfigMap('watch-keeper-limit-poll', ['include', 'whitelist.json', 'whitelist', 'exclude', 'blacklist.json', 'blacklist']);
+    return { exclude: excludeList };
 
   } else if (objectPath.has(limitPollConfigMap, ['data', 'whitelist.json'])) {
     try {
       let wlistJson = JSON.parse(objectPath.get(limitPollConfigMap, ['data', 'whitelist.json'], '{}'));
       let flattenedList = flattenJsonListObj(wlistJson);
-      return { whitelist: flattenedList };
+      return { include: flattenedList };
     } catch (e) {
       log.error(e);
     }
-
   } else if (objectPath.has(limitPollConfigMap, ['data', 'blacklist.json'])) {
     try {
       let blistJson = JSON.parse(objectPath.get(limitPollConfigMap, ['data', 'blacklist.json'], '{}'));
       let flattenedList = flattenJsonListObj(blistJson);
-      return { blacklist: flattenedList };
+      return { exclude: flattenedList };
     } catch (e) {
       log.error(e);
     }
@@ -183,8 +185,8 @@ function flattenJsonListObj(jsonObj) {
 }
 
 async function selectiveListTrim(metaResources) {
-  let { whitelist, blacklist } = await readWBList();
-  if (!whitelist && !blacklist) {
+  let { include, exclude } = await readIEList();
+  if (!include && !exclude) {
     return metaResources;
   }
 
@@ -195,12 +197,12 @@ async function selectiveListTrim(metaResources) {
     let name = krm.name.replace(/\//g, '_');
 
     if (!krm.name.endsWith('/status')) {
-      if (whitelist) {
-        if (Util.objIncludes(whitelist, `${apiVersion}_${kind}`, `${apiVersion}_${name}`).value === 'true') {
+      if (include) {
+        if (Util.objIncludes(include, `${apiVersion}_${kind}`, `${apiVersion}_${name}`).value === 'true') {
           result.push(krm);
         }
-      } else if (blacklist) {
-        if (!(Util.objIncludes(blacklist, `${apiVersion}_${kind}`, `${apiVersion}_${name}`).value === 'true')) {
+      } else if (exclude) {
+        if (!(Util.objIncludes(exclude, `${apiVersion}_${kind}`, `${apiVersion}_${name}`).value === 'true')) {
           result.push(krm);
         }
       }
@@ -245,7 +247,7 @@ async function poll() {
     metaResources = await trimMetaResources(metaResources);
     log.debug(`Polling against resources: ${JSON.stringify(metaResources.map(mr => mr.uri()))}`);
     if (metaResources.length < 1) {
-      log.info('No resources found to poll (either due to no resources being labeled or white/black list configuration)');
+      log.info('No resources found to poll (either due to no resources being labeled or include/exclude list configuration)');
       log.info('Finished Polling Resources ============');
       return success;
     }
