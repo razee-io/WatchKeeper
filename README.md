@@ -120,8 +120,7 @@ namespace.
 Also similar to how you can label a namespace, there may be resources that you do
 not want to collect (eg. storageclass), so you should use [include/exclude lists](#includeexclude-lists)
 to limit what is collected. Note: using the include/exclude list will affect all
-resources
-polled, namespaced and non-namespace.
+resources polled, namespaced and non-namespace.
 
 ```yaml
 apiVersion: v1
