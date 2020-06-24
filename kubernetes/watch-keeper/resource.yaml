@@ -26,50 +26,10 @@ spec:
       serviceAccountName: watch-keeper-sa
       containers:
       - env:
-          - name: START_DELAY_MAX
-            valueFrom:
-              configMapKeyRef:
-                name: watch-keeper-config
-                key: START_DELAY_MAX
-                optional: true
           - name: NAMESPACE
             valueFrom:
               fieldRef:
                 fieldPath: metadata.namespace
-          - name: CONFIG_NAMESPACE
-            valueFrom:
-              configMapKeyRef:
-                name: watch-keeper-config
-                key: CONFIG_NAMESPACE
-                optional: true
-          - name: CLUSTER_ID_OVERRIDE
-            valueFrom:
-              configMapKeyRef:
-                name: watch-keeper-config
-                key: CLUSTER_ID_OVERRIDE
-                optional: true
-          - name: DEFAULT_CLUSTER_NAME
-            valueFrom:
-              configMapKeyRef:
-                name: watch-keeper-config
-                key: DEFAULT_CLUSTER_NAME
-                optional: true
-          - name: KUBECONFIG
-            valueFrom:
-              configMapKeyRef:
-                name: watch-keeper-config
-                key: KUBECONFIG
-                optional: true
-          - name: RAZEEDASH_URL
-            valueFrom:
-              configMapKeyRef:
-                name: watch-keeper-config
-                key: RAZEEDASH_URL
-          - name: RAZEEDASH_ORG_KEY
-            valueFrom:
-              secretKeyRef:
-                name: watch-keeper-secret
-                key: RAZEEDASH_ORG_KEY
           - name: NODE_ENV
             value: "production"
         image: "quay.io/razee/watch-keeper:{{TRAVIS_TAG}}"
@@ -90,3 +50,33 @@ spec:
           periodSeconds: 300
           timeoutSeconds: 30
           failureThreshold: 1
+          volumeMounts:
+            - mountPath: /usr/src/app/envs/watch-keeper-config
+              name: watch-keeper-config
+            - mountPath: /usr/src/app/envs/watch-keeper-secret
+              name: watch-keeper-secret
+            - mountPath: /usr/src/app/envs/razee-identity-config
+              name: razee-identity-config
+            - mountPath: /usr/src/app/envs/razee-identity-secret
+              name: razee-identity-secret
+      volumes:
+        - name: watch-keeper-config
+          configMap:
+            name: watch-keeper-config
+            defaultMode: 0400
+            optional: true
+        - name: watch-keeper-secret
+          secret:
+            secretName: watch-keeper-secret
+            defaultMode: 0400
+            optional: true
+        - name: razee-identity-config
+          configMap:
+            name: razee-identity
+            defaultMode: 0400
+            optional: true
+        - name: razee-identity-secret
+          secret:
+            secretName: razee-identity
+            defaultMode: 0400
+            optional: true
