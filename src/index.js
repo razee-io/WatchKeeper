@@ -130,11 +130,6 @@ async function setEnvs() {
   if (await fs.pathExists('envs/watch-keeper-config/CONFIG_NAMESPACE')) {
     env.CONFIG_NAMESPACE = (await fs.readFile('envs/watch-keeper-config/CONFIG_NAMESPACE', 'utf8')).trim();
   }
-  if (await fs.pathExists('envs/watch-keeper-config/KUBECONFIG')) {
-    env.KUBECONFIG = (await fs.readFile('envs/watch-keeper-config/KUBECONFIG', 'utf8')).trim();
-  } else {
-    env.KUBECONFIG = '/etc/kubernetes/admin-kubeconfig';
-  }
   if (await fs.pathExists('envs/watch-keeper-config/VALIDATE_INTERVAL')) {
     env.VALIDATE_INTERVAL = (await fs.readFile('envs/watch-keeper-config/VALIDATE_INTERVAL', 'utf8')).trim();
   }

@@ -32,6 +32,12 @@ spec:
                 fieldPath: metadata.namespace
           - name: NODE_ENV
             value: "production"
+          - name: KUBECONFIG
+            valueFrom:
+              configMapKeyRef:
+                name: watch-keeper-config
+                key: KUBECONFIG
+                optional: true
         image: "quay.io/razee/watch-keeper:{{TRAVIS_TAG}}"
         imagePullPolicy: Always
         name: watch-keeper
@@ -51,14 +57,14 @@ spec:
           timeoutSeconds: 30
           failureThreshold: 1
         volumeMounts:
-          - mountPath: /usr/src/app/envs/watch-keeper-config
-            name: watch-keeper-config
-          - mountPath: /usr/src/app/envs/watch-keeper-secret
-            name: watch-keeper-secret
-          - mountPath: /usr/src/app/envs/razee-identity-config
-            name: razee-identity-config
-          - mountPath: /usr/src/app/envs/razee-identity-secret
-            name: razee-identity-secret
+          - name: watch-keeper-config
+            mountPath: /usr/src/app/envs/watch-keeper-config
+          - name: watch-keeper-secret
+            mountPath: /usr/src/app/envs/watch-keeper-secret
+          - name: razee-identity-config
+            mountPath: /usr/src/app/envs/razee-identity-config
+          - name: razee-identity-secret
+            mountPath: /usr/src/app/envs/razee-identity-secret
       volumes:
         - name: watch-keeper-config
           configMap:
