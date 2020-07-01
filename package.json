@@ -53,7 +53,7 @@
     "dockerlint": "^0.3.9",
     "eslint": "^7.3.1",
     "jsonlint": "^1.6.3",
-    "markdownlint-cli": "^0.23.1",
+    "markdownlint-cli": "^0.23.2",
     "mocha": "^8.0.1",
     "mustache": "^4.0.1",
     "nock": "^13.0.1",
