@@ -60,12 +60,13 @@ async function handleSelector(metaResources, razeedashSender, selector, formatte
           if (o.length > 0) {
             razeedashSender.send(o);
           }
-        } else if (r.statusCode !== 403 && r.statusCode !== 404 && r.statusCode !== 405) {
-          util.error(`Could not get resource '${r['resource-metadata'].uri()}' : ${JSON.stringify(r.error)}`);
-          success = false;
-        } else { // allow these error codes to happen
+        } else if (r.statusCode === 403 || r.statusCode === 404 || r.statusCode === 405) {
           // 403 Forbidden, 404 NotFound, 405 MethodNotAllowed
+          // These statusCodes are expected. Processing should continue.
           log.debug(`Could not get resource '${r['resource-metadata'].uri()}' : ${JSON.stringify(r.error)}`);
+        } else { // Unexpected status code. Error out of this flow.
+          util.error(`Could not get resource '${r['resource-metadata'].uri()}'`, r.error);
+          success = false;
         }
       });
     } while (next);
@@ -130,12 +131,13 @@ async function handleNonNamespaced(metaResources, razeedashSender, selector, for
           if (o.length > 0) {
             razeedashSender.send(o);
           }
-        } else if (r.statusCode !== 403 && r.statusCode !== 404 && r.statusCode !== 405) {
-          util.error(`Could not get resource '${r['resource-metadata'].uri()}' : ${JSON.stringify(r.error)}`);
-          success = false;
-        } else { // allow these error codes to happen
+        } else if (r.statusCode === 403 || r.statusCode === 404 || r.statusCode === 405) {
           // 403 Forbidden, 404 NotFound, 405 MethodNotAllowed
+          // These statusCodes are expected. Processing should continue.
           log.debug(`Could not get resource '${r['resource-metadata'].uri()}' : ${JSON.stringify(r.error)}`);
+        } else { // Unexpected status code. Error out of this flow.
+          util.error(`Could not get resource '${r['resource-metadata'].uri()}'`, r.error);
+          success = false;
         }
       });
     } while (next);
@@ -242,11 +244,12 @@ async function trimMetaResources(metaResources) {
         if (objectPath.get(resource, 'object.items', []).length > 0 || (cont !== undefined && cont !== '')) {
           result.push(metaResources[i]);
         }
-      } else if (resource.statusCode !== 403 && resource.statusCode !== 404 && resource.statusCode !== 405) {
-        throw `Could not get resource '${resource['resource-metadata'].uri()}' : ${JSON.stringify(resource.error)}`;
-      } else { // allow these error codes to happen
+      } else if (resource.statusCode === 403 || resource.statusCode === 404 || resource.statusCode === 405) {
         // 403 Forbidden, 404 NotFound, 405 MethodNotAllowed
+        // These statusCodes are expected. Processing should continue.
         log.debug(`Could not get resource '${resource['resource-metadata'].uri()}' : ${JSON.stringify(resource.error)}`);
+      } else { // Unexpected status code. Error out of this flow.
+        throw `Could not get resource '${resource['resource-metadata'].uri()}' : ${JSON.stringify(resource.error)}`;
       }
     }
   }
