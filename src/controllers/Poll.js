@@ -60,6 +60,13 @@ async function handleSelector(metaResources, razeedashSender, selector, formatte
           if (o.length > 0) {
             razeedashSender.send(o);
           }
+        } else if (r.statusCode === 403 || r.statusCode === 404 || r.statusCode === 405) {
+          // 403 Forbidden, 404 NotFound, 405 MethodNotAllowed
+          // These statusCodes are expected. Processing should continue.
+          log.debug(`Could not get resource '${r['resource-metadata'].uri()}' : ${JSON.stringify(r.error)}`);
+        } else { // Unexpected status code. Error out of this flow.
+          util.error(`Could not get resource '${r['resource-metadata'].uri()}'`, r.error);
+          success = false;
         }
       });
     } while (next);
@@ -124,6 +131,13 @@ async function handleNonNamespaced(metaResources, razeedashSender, selector, for
           if (o.length > 0) {
             razeedashSender.send(o);
           }
+        } else if (r.statusCode === 403 || r.statusCode === 404 || r.statusCode === 405) {
+          // 403 Forbidden, 404 NotFound, 405 MethodNotAllowed
+          // These statusCodes are expected. Processing should continue.
+          log.debug(`Could not get resource '${r['resource-metadata'].uri()}' : ${JSON.stringify(r.error)}`);
+        } else { // Unexpected status code. Error out of this flow.
+          util.error(`Could not get resource '${r['resource-metadata'].uri()}'`, r.error);
+          success = false;
         }
       });
     } while (next);
@@ -215,6 +229,7 @@ async function selectiveListTrim(metaResources) {
 // doesnt have any resources on the system. This takes a while up front, but
 // should save time for the rest of the calls
 async function trimMetaResources(metaResources) {
+  log.debug('- Trimming metaResources starting -');
   metaResources = await selectiveListTrim(metaResources);
 
   // eslint-disable-next-line require-atomic-updates
@@ -224,13 +239,21 @@ async function trimMetaResources(metaResources) {
   for (var i = 0; i < metaResources.length; i++) {
     if (!metaResources[i].name.endsWith('/status')) { // call to /status returns same data as call to plain endpoint. so no need to make call
       let resource = await kc.getResource(metaResources[i], selector);
-
       let cont = objectPath.get(resource, 'object.metadata.continue');
-      if (resource.statusCode === 200 && (objectPath.get(resource, 'object.items', []).length > 0 || (cont !== undefined && cont !== ''))) {
-        result.push(metaResources[i]);
+      if (resource.statusCode === 200) {
+        if (objectPath.get(resource, 'object.items', []).length > 0 || (cont !== undefined && cont !== '')) {
+          result.push(metaResources[i]);
+        }
+      } else if (resource.statusCode === 403 || resource.statusCode === 404 || resource.statusCode === 405) {
+        // 403 Forbidden, 404 NotFound, 405 MethodNotAllowed
+        // These statusCodes are expected. Processing should continue.
+        log.debug(`Could not get resource '${resource['resource-metadata'].uri()}' : ${JSON.stringify(resource.error)}`);
+      } else { // Unexpected status code. Error out of this flow.
+        throw `Could not get resource '${resource['resource-metadata'].uri()}' : ${JSON.stringify(resource.error)}`;
       }
     }
   }
+  log.debug('- Trimming metaResources complete -');
   return result;
 }
 
@@ -252,7 +275,7 @@ async function poll() {
       return success;
     }
   } catch (e) {
-    util.error(`Error querying Kubernetes resources supporting 'get' verb. ${e}`);
+    util.error('Error querying Kubernetes resources supporting \'get\' verb.', e);
     success = false;
     return success;
   }
