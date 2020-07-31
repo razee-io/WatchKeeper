@@ -3,22 +3,8 @@
   "version": "0.0.1",
   "description": "Observe Kubernetes changes",
   "main": "src/index.js",
-  "watch": {
-    "test": {
-      "patterns": [
-        "src",
-        "test"
-      ],
-      "extensions": "js",
-      "quiet": true,
-      "legacyWatch": true,
-      "delay": 2500,
-      "runOnChangeOnly": true
-    }
-  },
   "scripts": {
     "start": "node src/index.js",
-    "watch": "npm-watch",
     "test": "KUBECONFIG=./testdata/kubeconfig.yaml nyc --all --reporter=html --reporter=text mocha ",
     "test:debug": "KUBECONFIG=./testdata/kubeconfig.yaml mocha --inspect-brk",
     "check-coverage": "KUBECONFIG=./testdata/kubeconfig.yaml nyc check-coverage --statements 35 --branches 20 --functions 25 --lines 35",
@@ -59,7 +45,6 @@
     "nock": "^13.0.3",
     "npm-check-updates": "^7.0.2",
     "npm-run-all": "^4.1.5",
-    "npm-watch": "^0.6.0",
     "nyc": "^15.1.0",
     "rewire": "^5.0.0",
     "shellcheck": "^0.4.4",
