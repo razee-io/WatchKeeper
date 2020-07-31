@@ -25,8 +25,9 @@ spec:
     spec:
       serviceAccountName: watch-keeper-sa
       securityContext:
-        runAsUser: "{{{NODE_USER_ID}}}"
-        runAsGroup: "{{{NODE_GROUP_ID}}}"
+        runAsUser: {{{NODE_USER_ID}}}
+        runAsGroup: {{{NODE_GROUP_ID}}}
+        fsGroup: {{{NODE_GROUP_ID}}}
       containers:
         - env:
             - name: NAMESPACE
@@ -59,6 +60,7 @@ spec:
             periodSeconds: 300
             timeoutSeconds: 30
             failureThreshold: 1
+            successThreshold: 1
           volumeMounts:
             - name: watch-keeper-config
               mountPath: /usr/src/app/envs/watch-keeper-config
@@ -72,20 +74,20 @@ spec:
         - name: watch-keeper-config
           configMap:
             name: watch-keeper-config
-            defaultMode: 0400
+            defaultMode: 0420
             optional: true
         - name: watch-keeper-secret
           secret:
             secretName: watch-keeper-secret
-            defaultMode: 0400
+            defaultMode: 0420
             optional: true
         - name: razee-identity-config
           configMap:
             name: razee-identity
-            defaultMode: 0400
+            defaultMode: 0420
             optional: true
         - name: razee-identity-secret
           secret:
             secretName: razee-identity
-            defaultMode: 0400
+            defaultMode: 0420
             optional: true
