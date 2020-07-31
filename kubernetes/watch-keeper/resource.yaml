@@ -74,20 +74,20 @@ spec:
         - name: watch-keeper-config
           configMap:
             name: watch-keeper-config
-            defaultMode: 0420
+            defaultMode: 0400
             optional: true
         - name: watch-keeper-secret
           secret:
             secretName: watch-keeper-secret
-            defaultMode: 0420
+            defaultMode: 0400
             optional: true
         - name: razee-identity-config
           configMap:
             name: razee-identity
-            defaultMode: 0420
+            defaultMode: 0400
             optional: true
         - name: razee-identity-secret
           secret:
             secretName: razee-identity
-            defaultMode: 0420
+            defaultMode: 0400
             optional: true
