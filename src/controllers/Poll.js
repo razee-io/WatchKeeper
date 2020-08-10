@@ -90,7 +90,8 @@ async function handleWatchedNamespaces(metaResources, razeedashSender, selector,
     do {
       let gr = await kc.getResourcesPaged([resourceMeta], selector, next);
       next = gr.next;
-      let namespaces = gr.resources[0].object.items.map(resource => {
+      const resources = objectPath.get(gr, 'resources.0.object.items', []);
+      let namespaces = resources.map(resource => {
         return objectPath.get(resource, 'metadata.name');
       });
       gr = undefined;

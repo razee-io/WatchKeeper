@@ -123,7 +123,7 @@ describe('DataCollector', () => {
     });
 
     // ---------- Failure ----------
-    it('should return any errors to caller', async () => {
+    it('should return {} when get cm label:cluster-metadata=true fails', async () => {
       let kc = {
         'getResource': async () => {
           throw Error('you are doomed');
@@ -131,8 +131,8 @@ describe('DataCollector', () => {
       };
       let dc = new DataCollector(kc);
       try {
-        await dc.getClusterMeta();
-        throw Error('should not continue after failed to get getClusterMeta');
+        const cm = await dc.getClusterMeta();
+        assert.deepEqual({}, cm);
       } catch (e) {
         assert.equal(e.message, 'you are doomed', 'should get error from call to getResource()');
       }

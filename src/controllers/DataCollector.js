@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 const objectPath = require('object-path');
+const log = require('../bunyan-api').createLogger('DataCollector');
 
 module.exports = class DataCollector {
 
@@ -48,13 +49,20 @@ module.exports = class DataCollector {
     if (process.env.DEFAULT_CLUSTER_NAME) {
       Object.assign(customMeta, { name: process.env.DEFAULT_CLUSTER_NAME });
     }
-    let cml = await this.kubeClass.getResource({ uri: () => '/api/v1/configmaps' }, { labelSelector: 'razee/cluster-metadata=true' });
-    cml.object.items.map(cm => {
-      Object.assign(customMeta, cm.data);
-    });
-
-    let kubeVersion = await this.getKubeVersion();
-    Object.assign(customMeta, kubeVersion);
+    try {
+      let cml = await this.kubeClass.getResource({ uri: () => '/api/v1/configmaps' }, { labelSelector: 'razee/cluster-metadata=true' });
+      cml.object.items.map(cm => {
+        Object.assign(customMeta, cm.data);
+      });
+    } catch(e) {
+      log.debug(e, 'Could not get cm/label:razee/cluster-metadata=true');
+    }
+    try {
+      let kubeVersion = await this.getKubeVersion();
+      Object.assign(customMeta, kubeVersion);
+    } catch (e){
+      log.error(e, 'Could not get kubeVersion');
+    }
 
     return customMeta;
   }
