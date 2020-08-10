@@ -3,22 +3,8 @@
   "version": "0.0.1",
   "description": "Observe Kubernetes changes",
   "main": "src/index.js",
-  "watch": {
-    "test": {
-      "patterns": [
-        "src",
-        "test"
-      ],
-      "extensions": "js",
-      "quiet": true,
-      "legacyWatch": true,
-      "delay": 2500,
-      "runOnChangeOnly": true
-    }
-  },
   "scripts": {
     "start": "node src/index.js",
-    "watch": "npm-watch",
     "test": "KUBECONFIG=./testdata/kubeconfig.yaml nyc --all --reporter=html --reporter=text mocha ",
     "test:debug": "KUBECONFIG=./testdata/kubeconfig.yaml mocha --inspect-brk",
     "check-coverage": "KUBECONFIG=./testdata/kubeconfig.yaml nyc check-coverage --statements 35 --branches 20 --functions 25 --lines 35",
@@ -42,7 +28,7 @@
     "object-hash": "^2.0.3",
     "object-path": "^0.11.4",
     "promise-retry": "^2.0.1",
-    "request-promise-native": "^1.0.8",
+    "request-promise-native": "^1.0.9",
     "requestretry": "^4.1.1",
     "touch": "^3.1.0",
     "valid-url": "^1.0.9"
@@ -54,11 +40,11 @@
     "eslint": "^7.5.0",
     "jsonlint": "^1.6.3",
     "markdownlint-cli": "^0.23.2",
-    "mocha": "^8.0.1",
+    "mocha": "^8.1.0",
     "mustache": "^4.0.1",
     "nock": "^13.0.3",
+    "npm-check-updates": "^7.0.2",
     "npm-run-all": "^4.1.5",
-    "npm-watch": "^0.6.0",
     "nyc": "^15.1.0",
     "rewire": "^5.0.0",
     "shellcheck": "^0.4.4",
