@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 const objectPath = require('object-path');
 
 const log = require('../bunyan-api').createLogger('Watch');

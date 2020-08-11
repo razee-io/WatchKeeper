@@ -24,11 +24,13 @@ const watchController = require('./controllers/Watch');
 const pollController = require('./controllers/Poll');
 
 
-
 async function main() {
-  let validateInterval = parseInt(process.env.VALIDATE_INTERVAL || 10); // how many minutes until validate correct watches are being tracked
-  let pollInterval = parseInt(process.env.POLL_INTERVAL || 60); // how many minutes until poll all watched resources and namespaces and send to razee
-  let cleanStartInterval = parseInt(process.env.CLEAN_START_INTERVAL || 1440); // how many minutes until wiping/re-create all watches and restart interval count
+  log.debug('Begin main processing');
+  const HOURLY=60;
+  const DAILY=24*HOURLY;
+  const validateInterval = parseInt(process.env.VALIDATE_INTERVAL || 10); // how many minutes until validate correct watches are being tracked
+  const pollInterval = parseInt(process.env.POLL_INTERVAL || HOURLY); // how many minutes until poll all watched resources and namespaces and send to razee
+  const cleanStartInterval = parseInt(process.env.CLEAN_START_INTERVAL || DAILY); // how many minutes until wiping/re-create all watches and restart interval count
 
   if (cleanStartInterval < pollInterval || pollInterval < validateInterval) {
     log.warn(`Intervals should follow: CLEAN_START_INTERVAL(${cleanStartInterval}) > POLL_INTERVAL(${pollInterval}) > VALIDATE_INTERVAL(${validateInterval})`);
@@ -36,31 +38,36 @@ async function main() {
 
   touch('/tmp/healthy');
   await watchController.watch();
-  pollController.poll();
+  await pollController.poll();
 
   let interval = 0;
   setInterval(async () => {
     ++interval;
     log.info(`Starting Next Interval: ${interval} ============`);
-    touch('/tmp/healthy');
 
-    if ((interval / cleanStartInterval) % 1 == 0) {
-      // wiping/re-create all watches and restart interval count
-      log.info('Running Clean Start ============');
-      interval = 0;
-      watchController.removeAllWatches();
-      watchController.watch();
-    } else if ((interval / validateInterval) % 1 == 0) {
-      // validate correct watches are being tracked
-      watchController.watch();
-    }
+    try {
+      if ((interval / cleanStartInterval) % 1 == 0) {
+        // wiping/re-create all watches and restart interval count
+        log.info('Running Clean Start ============');
+        interval = 0;
+        watchController.removeAllWatches();
+        await watchController.watch();
+      } else if ((interval / validateInterval) % 1 == 0) {
+        // validate correct watches are being tracked
+        await watchController.watch();
+      }
 
-    let refresh = await util.heartbeat();
-    if (refresh || ((interval / pollInterval) % 1 == 0)) {
-      // poll all watched resources and namespaces and send to razee
-      pollController.poll();
+      let refresh = await util.heartbeat();
+      if (refresh || ((interval / pollInterval) % 1 == 0)) {
+        // poll all watched resources and namespaces and send to razee
+        await pollController.poll();
+      }
+      touch('/tmp/healthy');
+    } catch(e){
+      log.error(e,'Unexpected exception while reinforcing.');
     }
   }, 60000);
+  return true;
 }
 
 
@@ -86,13 +93,8 @@ async function init() {
     util.error('Error fetching custom cluster metadata on startup.', e);
     return Promise.reject(e);
   }
-  main();
-  return true;
+  return await main();
 }
-promiseRetry({ retries: 5 },
-  retry => {
-    return init().catch(retry);
-  }).catch(err => log.error(`Failed to init watch-keeper | ${err}`));
 
 async function setEnvs() {
   const env = process.env;
@@ -103,7 +105,7 @@ async function setEnvs() {
   } else if (await fs.pathExists('envs/razee-identity-config/RAZEE_API')) {
     let razeeApi = (await fs.readFile('envs/razee-identity-config/RAZEE_API', 'utf8')).trim();
     env.RAZEEDASH_URL = `${razeeApi.replace(/\/+$/, '')}/api/v2`;
-  } else {
+  } else if (env.RAZEEDASH_URL === undefined){
     log.error('failed to find Razee url to post data to. exiting(1)');
     process.exit(1);
   }
@@ -143,3 +145,14 @@ async function setEnvs() {
     env.LOG_LEVEL = (await fs.readFile('envs/watch-keeper-config/LOG_LEVEL', 'utf8')).trim();
   }
 }
+
+process.on('unhandledRejection', (reason) => {
+  log.error(reason, 'Unhandled promise rejection.');
+  process.exit(1);
+});
+
+// Entry
+promiseRetry({ retries: 5 },
+  retry => {
+    return init().catch(retry);
+  }).catch(err => log.error(err, 'Failed to init watch-keeper'));
