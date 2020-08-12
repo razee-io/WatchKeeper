@@ -56,7 +56,18 @@ async function watch() {
   // eslint-disable-next-line require-atomic-updates
   util = util || await Util.fetch();
   let clusterWideWatch = await Util.walkConfigMap('watch-keeper-non-namespaced', ['poll']);
-  let resourcesMeta = await kc.getKubeResourcesMeta('watch');
+  let resourcesMeta;
+  try {
+    resourcesMeta = await kc.getKubeResourcesMeta('watch');
+    if(process.env.LOG_LEVEL === 'debug'){
+      resourcesMeta.forEach((el) => {
+        log.debug(`${el.path}#${el._resourceMeta.kind}`);
+      });
+    }
+  } catch(e){
+    log.error(e, 'Error getting kc.getKubeResourcesMeta("watch")');
+  }
+
 
   try {
     for (var i = 0; i < resourcesMeta.length; i++) {
@@ -74,6 +85,9 @@ async function watch() {
         let resource = await kc.getResource(resourcesMeta[i], { labelSelector: `razee/watch-resource in (true,debug,${Util.liteSynonyms()},${Util.detailSynonyms()})`, limit: 500 });
         if (resource.statusCode === 200) {
           await validateWatches(resourcesMeta[i], objectPath.get(resource, 'object.items.length', 0), objectPath.get(resource, 'object.metadata.continue'));
+        } else {
+          const uri = `${resource['resource-metadata']._path}/${resource['resource-metadata'].kind}`;
+          log.debug(`Could not get resource ${uri}.status=${resource.statusCode}`);
         }
       }
     }

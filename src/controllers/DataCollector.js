@@ -51,7 +51,8 @@ module.exports = class DataCollector {
     }
     try {
       let cml = await this.kubeClass.getResource({ uri: () => '/api/v1/configmaps' }, { labelSelector: 'razee/cluster-metadata=true' });
-      cml.object.items.map(cm => {
+      const items = objectPath.get(cml, 'object.items', []);
+      items.forEach(cm => {
         Object.assign(customMeta, cm.data);
       });
     } catch(e) {

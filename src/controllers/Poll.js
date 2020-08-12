@@ -63,8 +63,9 @@ async function handleSelector(metaResources, razeedashSender, selector, formatte
         } else if (r.statusCode === 403 || r.statusCode === 404 || r.statusCode === 405) {
           // 403 Forbidden, 404 NotFound, 405 MethodNotAllowed
           // These statusCodes are expected. Processing should continue.
-          log.debug(`Could not get resource '${r['resource-metadata'].uri()}' : ${JSON.stringify(r.error)}`);
-        } else { // Unexpected status code. Error out of this flow.
+          const uri = `${r['resource-metadata']._path}/${r['resource-metadata'].kind}`;
+          log.debug(`Could not get resource ${uri}. status=${r.statusCode}`);
+        } else { // Unexpected status code. Post error to razee. Error out of this flow.
           util.error(`Could not get resource '${r['resource-metadata'].uri()}'`, r.error);
           success = false;
         }
@@ -135,7 +136,8 @@ async function handleNonNamespaced(metaResources, razeedashSender, selector, for
         } else if (r.statusCode === 403 || r.statusCode === 404 || r.statusCode === 405) {
           // 403 Forbidden, 404 NotFound, 405 MethodNotAllowed
           // These statusCodes are expected. Processing should continue.
-          log.debug(`Could not get resource '${r['resource-metadata'].uri()}' : ${JSON.stringify(r.error)}`);
+          const uri = `${r['resource-metadata']._path}/${r['resource-metadata'].kind}`;
+          log.debug(`Could not get resource ${uri}.status=${r.statusCode}`);
         } else { // Unexpected status code. Error out of this flow.
           util.error(`Could not get resource '${r['resource-metadata'].uri()}'`, r.error);
           success = false;
@@ -248,7 +250,8 @@ async function trimMetaResources(metaResources) {
       } else if (resource.statusCode === 403 || resource.statusCode === 404 || resource.statusCode === 405) {
         // 403 Forbidden, 404 NotFound, 405 MethodNotAllowed
         // These statusCodes are expected. Processing should continue.
-        log.debug(`Could not get resource '${resource['resource-metadata'].uri()}' : ${JSON.stringify(resource.error)}`);
+        const uri = `${resource['resource-metadata']._path}/${resource['resource-metadata'].kind}`;
+        log.debug(`Could not get resource ${uri}. Status=${resource.statusCode}`);
       } else { // Unexpected status code. Error out of this flow.
         throw `Could not get resource '${resource['resource-metadata'].uri()}' : ${JSON.stringify(resource.error)}`;
       }

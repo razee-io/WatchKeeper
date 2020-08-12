@@ -37,8 +37,17 @@ async function main() {
   }
 
   touch('/tmp/healthy');
-  await watchController.watch();
-  await pollController.poll();
+  try {
+    await watchController.watch();
+  } catch(e){
+    log.error(e,'Failed watchController.watch()');
+  }
+  try {
+    await pollController.poll();
+  } catch(e){
+    log.error(e,'Failed pollController.poll()');
+  }
+
 
   let interval = 0;
   setInterval(async () => {
