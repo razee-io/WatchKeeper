@@ -148,7 +148,6 @@ async function setEnvs() {
 
 process.on('unhandledRejection', (reason) => {
   log.error(reason, 'Unhandled promise rejection.');
-  process.exit(1);
 });
 
 // Entry
