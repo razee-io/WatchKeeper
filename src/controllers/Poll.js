@@ -17,7 +17,7 @@ const objectPath = require('object-path');
 
 const log = require('../bunyan-api').createLogger('Poll');
 
-const { KubeClass, KubeApiConfig } = require('@razee/kubernetes-util');
+const { KubeClass, KubeApiConfig, KubeResourceMeta } = require('@razee/kubernetes-util');
 const kc = new KubeClass(KubeApiConfig());
 const Util = require('./Util');
 const RazeedashSender = require('../razeedash/Sender');
@@ -76,6 +76,30 @@ async function handleSelector(metaResources, razeedashSender, selector, formatte
     success = false;
   }
   return success;
+}
+
+async function getNamespaces() {
+  let result = [];
+  const resourceMeta = {
+    uri: () => '/api/v1/namespaces'
+  };
+  try {
+    let next = undefined;
+    const selector = {limit: 500};
+    do {
+      let gr = await kc.getResourcesPaged([resourceMeta], selector, next);
+      next = gr.next;
+      const resources = objectPath.get(gr, 'resources.0.object.items', []);
+      const namespaces = resources.map(resource => {
+        return objectPath.get(resource, 'metadata.name');
+      });
+      result = result.concat(namespaces);
+      gr = undefined;
+    } while (next);
+  } catch (e) {
+    log.error(e, 'Failed to get namespaces');
+  }
+  return result;
 }
 
 
@@ -237,20 +261,35 @@ async function trimMetaResources(metaResources) {
 
   // eslint-disable-next-line require-atomic-updates
   util = util || await Util.fetch();
-  let selector = { limit: 500 };
+  const selector = { limit: 500 };
   let result = [];
+  const namespaces = await getNamespaces();
   for (var i = 0; i < metaResources.length; i++) {
-    if (!metaResources[i].name.endsWith('/status')) { // call to /status returns same data as call to plain endpoint. so no need to make call
-      let resource = await kc.getResource(metaResources[i], selector);
-      let cont = objectPath.get(resource, 'object.metadata.continue');
+    const metaResource=metaResources[i];
+    if (!metaResource.name.endsWith('/status')) { // call to /status returns same data as call to plain endpoint. so no need to make call
+      const resource = await kc.getResource(metaResource, selector);
       if (resource.statusCode === 200) {
+        const cont = objectPath.get(resource, 'object.metadata.continue');
         if (objectPath.get(resource, 'object.items', []).length > 0 || (cont !== undefined && cont !== '')) {
-          result.push(metaResources[i]);
+          result.push(metaResource);
         }
-      } else if (resource.statusCode === 403 || resource.statusCode === 404 || resource.statusCode === 405) {
-        // 403 Forbidden, 404 NotFound, 405 MethodNotAllowed
-        // These statusCodes are expected. Processing should continue.
-        const uri = `${resource['resource-metadata']._path}/${resource['resource-metadata'].kind}`;
+      } else if (resource.statusCode === 403) {
+        // 403 Forbidden is expected when the role permissions prohibit access.
+        // If listing a resource across all namespaces is forbidden, we must check each separately.
+        const metaResourcePath = metaResource.path;
+        if(!metaResource.namespaced || metaResourcePath.includes('namespaces')) {
+          const uri = `${metaResourcePath}/${resource['resource-metadata'].kind}`;
+          log.debug(`Could not get resource ${uri}. Status=${resource.statusCode}`);
+        } else {
+          namespaces.forEach((namespace) => {
+            const path=`${metaResourcePath}/namespaces/${namespace}`;
+            const namespacedKrm=new KubeResourceMeta(path,metaResource.resourceMeta,metaResource.kubeApiConfig);
+            metaResources.push(namespacedKrm);
+          });
+        }
+      } else if (resource.statusCode === 404 || resource.statusCode === 405) {
+        // 404 NotFound, 405 MethodNotAllowed. These statusCodes are expected. Processing should continue.
+        const uri = `${resource['resource-metadata'].path}/${resource['resource-metadata'].kind}`;
         log.debug(`Could not get resource ${uri}. Status=${resource.statusCode}`);
       } else { // Unexpected status code. Error out of this flow.
         throw `Could not get resource '${resource['resource-metadata'].uri()}' : ${JSON.stringify(resource.error)}`;
