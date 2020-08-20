@@ -161,7 +161,7 @@ async function handleNonNamespaced(metaResources, razeedashSender, selector, for
         } else if (r.statusCode === 403 || r.statusCode === 404 || r.statusCode === 405) {
           // 403 Forbidden, 404 NotFound, 405 MethodNotAllowed
           // These statusCodes are expected. Processing should continue.
-          const uri = `${r['resource-metadata']._path}/${r['resource-metadata'].kind}`;
+          const uri = `${r['resource-metadata'].path}/${r['resource-metadata'].kind}`;
           log.debug(`Could not get resource ${uri}.status=${r.statusCode}`);
         } else { // Unexpected status code. Error out of this flow.
           util.error(`Could not get resource '${r['resource-metadata'].uri()}'`, r.error);

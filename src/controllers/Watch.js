@@ -86,7 +86,7 @@ async function watch() {
         if (resource.statusCode === 200) {
           await validateWatches(resourcesMeta[i], objectPath.get(resource, 'object.items.length', 0), objectPath.get(resource, 'object.metadata.continue'));
         } else {
-          const uri = `${resource['resource-metadata']._path}/${resource['resource-metadata'].kind}`;
+          const uri = `${resource['resource-metadata'].path}/${resource['resource-metadata'].kind}`;
           log.debug(`Could not get resource ${uri}.status=${resource.statusCode}`);
         }
       }
