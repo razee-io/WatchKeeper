@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 const objectPath = require('object-path');
+const moment = require('moment');
 
 const log = require('../bunyan-api').createLogger('Poll');
 
@@ -302,11 +303,12 @@ async function trimMetaResources(metaResources) {
 
 
 async function poll() {
+  const startTime = new Date();
   let metaResources;
   let success = true;
   // eslint-disable-next-line require-atomic-updates
   util = util || await Util.fetch();
-  log.info('Polling Resources ============');
+  log.info('============ Polling Resources ============');
   let razeedashSender = new RazeedashSender(util.clusterID);
   try {
     metaResources = await kc.getKubeResourcesMeta('get');
@@ -314,7 +316,9 @@ async function poll() {
     log.debug(`Polling against resources: ${JSON.stringify(metaResources.map(mr => mr.uri()))}`);
     if (metaResources.length < 1) {
       log.info('No resources found to poll (either due to no resources being labeled or include/exclude list configuration)');
-      log.info('Finished Polling Resources ============');
+      const now=new Date();
+      const duration = moment.duration(now-startTime);
+      log.info(`============ Finished Polling Resources in ${duration.asSeconds()}s ============`);
       return success;
     }
   } catch (e) {
@@ -352,7 +356,9 @@ async function poll() {
   } else {
     log.error('Encountered error while polling. Not sending SYNC.');
   }
-  log.info('Finished Polling Resources ============');
+  const now=new Date();
+  const duration = moment.duration(now-startTime);
+  log.info(`============ Finished Polling Resources in ${duration.asSeconds()}s ============`);
   return success;
 }
 
