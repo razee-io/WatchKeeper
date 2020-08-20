@@ -259,7 +259,7 @@ async function selectiveListTrim(metaResources) {
 async function trimMetaResources(metaResources) {
   log.debug('- Trimming metaResources starting -');
   metaResources = await selectiveListTrim(metaResources);
-
+  let namespaceLengthWarningIssued=false;
   // eslint-disable-next-line require-atomic-updates
   util = util || await Util.fetch();
   const selector = { limit: 500 };
@@ -282,11 +282,15 @@ async function trimMetaResources(metaResources) {
           const uri = `${metaResourcePath}/${resource['resource-metadata'].kind}`;
           log.debug(`Could not get resource ${uri}. Status=${resource.statusCode}`);
         } else {
-          namespaces.forEach((namespace) => {
-            const path=`${metaResourcePath}/namespaces/${namespace}`;
-            const namespacedKrm=new KubeResourceMeta(path,metaResource.resourceMeta,metaResource.kubeApiConfig);
+          if(!namespaceLengthWarningIssued && namespaces.length>250){
+            util.warn('Found more than 250 namespaces. Limiting namespaces queried.');
+            namespaceLengthWarningIssued=true;
+          }
+          for (let j = 0; j < namespaces.length && j < 250; i++) {
+            const path = `${metaResourcePath}/namespaces/${namespaces[j]}`;
+            const namespacedKrm = new KubeResourceMeta(path, metaResource.resourceMeta, metaResource.kubeApiConfig);
             metaResources.push(namespacedKrm);
-          });
+          }
         }
       } else if (resource.statusCode === 404 || resource.statusCode === 405) {
         // 404 NotFound, 405 MethodNotAllowed. These statusCodes are expected. Processing should continue.
