@@ -36,7 +36,8 @@ function createWatch(watchableKrm, querySelector = {}, detailLevel, globalWatch 
   let options = {
     logger: require('../bunyan-api').createLogger('Watchman'),
     requestOptions: KubeApiConfig(),
-    watchUri: watchableKrm.uri({ watch: true })
+    watchUri: watchableKrm.uri({ watch: true }),
+    kubeResourceMeta: watchableKrm
   };
   options.requestOptions.qs = querySelector;
   WatchManager.ensureWatch(options, (eventObj) => {
@@ -77,7 +78,7 @@ async function watch() {
       }
     }
   } catch (e) {
-    util.error(`Could not validate watches. ${e}`);
+    util.error('Could not validate watches.', e);
     success = false;
   }
   return success;

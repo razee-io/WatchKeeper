@@ -78,7 +78,7 @@ module.exports = class RazeedashSender {
     resourceArrays.forEach((a) => {
       a.forEach((e) => {
         if (e) {
-          let selfLink = objectPath.get(e, 'object.metadata.selfLink');
+          let selfLink = objectPath.get(e, 'object.metadata.annotations.selfLink');
           if (selfLink && !this._sentSelflinks[selfLink]) {
             this._sentSelflinks[selfLink] = true;
             result.push(e);
