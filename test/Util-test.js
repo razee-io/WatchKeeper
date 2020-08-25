@@ -218,26 +218,6 @@ describe('Util', () => {
     });
   });
   // ===========================================================================
-  describe('addHash', () => {
-    // ---------- Success ----------
-    it('handles an object with array of "items"', () => {
-      let result = Util.addHash({ items: [{ type: 'gismo' }] });
-      assert.equal(JSON.stringify(result), '{"items":[{"type":"gismo","razeehash":"e181ea047cdac260b67e1f538c77622b553ad744"}]}');
-    });
-    it('handles an array', () => {
-      let result = Util.addHash([{ type: 'gismo' }]);
-      assert.equal(JSON.stringify(result), '[{"type":"gismo","razeehash":"e181ea047cdac260b67e1f538c77622b553ad744"}]');
-    });
-    it('handles an object', () => {
-      let result = Util.addHash({ type: 'gismo' });
-      assert.equal(JSON.stringify(result), '{"type":"gismo","razeehash":"e181ea047cdac260b67e1f538c77622b553ad744"}');
-    });
-    it('object does not have type attr then it should not get razeehash attr', () => {
-      let result = Util.addHash({ stuff: 'gismo' });
-      assert.equal(JSON.stringify(result), '{"stuff":"gismo"}');
-    });
-  });
-  // ===========================================================================
   describe('prepObject2Send', () => {
     // ---------- Success ----------
     it('handles an object with array of "items"', () => {
