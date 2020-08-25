@@ -41,7 +41,7 @@ function createWatch(watchableKrm, querySelector = {}, detailLevel, globalWatch 
   options.requestOptions.qs = querySelector;
   WatchManager.ensureWatch(options, (eventObj) => {
     let metadata = { name: objectPath.get(eventObj, 'object.metadata.name'), namespace: objectPath.get(eventObj, 'object.metadata.namespace') };
-    objectPath.set(eventObj, 'object.metadata.annotations.selfLink', this._kubeResourceMeta.uri(metadata));
+    objectPath.set(eventObj, 'object.metadata.annotations.selfLink', watchableKrm.uri(metadata));
 
     let preppedEventObj = Util.prepObject2Send(eventObj, detailLevel);
     util.dsa.send(preppedEventObj);
