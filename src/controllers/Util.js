@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 const objectPath = require('object-path');
-const hash = require('object-hash');
 const fs = require('fs-extra');
 
 const { KubeClass, KubeApiConfig } = require('@razee/kubernetes-util');
