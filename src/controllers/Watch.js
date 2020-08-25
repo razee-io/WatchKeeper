@@ -36,11 +36,13 @@ function createWatch(watchableKrm, querySelector = {}, detailLevel, globalWatch 
   let options = {
     logger: require('../bunyan-api').createLogger('Watchman'),
     requestOptions: KubeApiConfig(),
-    watchUri: watchableKrm.uri({ watch: true }),
-    kubeResourceMeta: watchableKrm
+    watchUri: watchableKrm.uri({ watch: true })
   };
   options.requestOptions.qs = querySelector;
   WatchManager.ensureWatch(options, (eventObj) => {
+    let metadata = { name: objectPath.get(eventObj, 'object.metadata.name'), namespace: objectPath.get(eventObj, 'object.metadata.namespace') };
+    objectPath.set(eventObj, 'object.metadata.annotations.selfLink', this._kubeResourceMeta.uri(metadata));
+
     let preppedEventObj = Util.prepObject2Send(eventObj, detailLevel);
     util.dsa.send(preppedEventObj);
   }, globalWatch);
