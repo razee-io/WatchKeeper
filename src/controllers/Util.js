@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 const objectPath = require('object-path');
-const hash = require('object-hash');
 const fs = require('fs-extra');
 
 const { KubeClass, KubeApiConfig } = require('@razee/kubernetes-util');
@@ -113,21 +112,6 @@ module.exports = class Util {
     return util[razeedashUrl];
   }
 
-  // addHash - will add object hash to attribute 'razeehash' if
-  static addHash(o) {
-    if (Array.isArray(o)) {
-      o.forEach(Util.addHash);
-    } else if (Array.isArray(o.items)) {
-      o.items.forEach(Util.addHash);
-    } else {
-      let hashCode = hash(o);
-      if (objectPath.has(o, 'type')) {
-        objectPath.set(o, 'razeehash', hashCode);
-      }
-    }
-    return o;
-  }
-
   // prepObject2Send - strip/redact attributes and apply razeehash code if needed
   static prepObject2Send(o, level = 'lite') {
     if (Array.isArray(o)) {
@@ -167,7 +151,6 @@ module.exports = class Util {
       } else if (objectPath.get(o, ['spec', 'jobTemplate', 'spec', 'template', 'spec', 'containers'])) { // cronJob
         Util.clearContainerEnvs(objectPath.get(o, ['spec', 'jobTemplate', 'spec', 'template', 'spec', 'containers'], []));
       }
-      Util.addHash(o);
     }
     return o;
   }

@@ -24,7 +24,6 @@ const testResource = {
     metadata: {
       name: 'kubernetes-dashboard',
       namespace: 'kube-system',
-      selfLink: '/api/v1/namespaces/kube-system/endpoints/kubernetes-dashboard',
       uid: 'b3156476-fca8-11e8-9f10-3a7d3a0f8cf2',
       resourceVersion: '10739693',
       creationTimestamp: '2018-12-10T18:23:32Z',
@@ -33,6 +32,9 @@ const testResource = {
         'k8s-app': 'kubernetes-dashboard',
         'kubernetes.io/cluster-service': 'true',
         'razee/watch-resource': 'lite'
+      },
+      annotations: {
+        selfLink: '/api/v1/namespaces/kube-system/endpoints/kubernetes-dashboard',
       }
     }
   }
@@ -43,7 +45,6 @@ const otherResource = {
     metadata: {
       name: 'hello-world',
       namespace: 'kube-system',
-      selfLink: '/api/v1/namespaces/kube-system/endpoints/hello-world',
       uid: 'b3156476-fca8-11e8-9f10-3xxxxxxxx2',
       resourceVersion: '10739693',
       creationTimestamp: '2018-12-10T18:23:32Z',
@@ -52,6 +53,9 @@ const otherResource = {
         'k8s-app': 'hello-world',
         'kubernetes.io/cluster-service': 'true',
         'razee/watch-resource': 'lite'
+      },
+      annotations: {
+        selfLink: '/api/v1/namespaces/kube-system/endpoints/hello-world',
       }
     }
   }
