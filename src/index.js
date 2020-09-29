@@ -89,6 +89,11 @@ async function init() {
   main();
   return true;
 }
+
+process.on('unhandledRejection', (reason) => {
+  log.error(reason, 'Unhandled promise rejection.');
+});
+
 promiseRetry({ retries: 5 },
   retry => {
     return init().catch(retry);
