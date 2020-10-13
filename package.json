@@ -37,7 +37,7 @@
     "chai": "^4.2.0",
     "deep-equal": "^2.0.3",
     "dockerlint": "^0.3.9",
-    "eslint": "^7.10.0",
+    "eslint": "^7.11.0",
     "jsonlint": "^1.6.3",
     "markdownlint-cli": "^0.23.2",
     "mocha": "^8.1.3",
