@@ -1,8 +1,9 @@
 {
-  "name": "watch-keeper",
-  "version": "0.0.1",
+  "name": "@razee/watchkeeper",
+  "version": "0.0.0-dev",
   "description": "Observe Kubernetes changes",
-  "main": "src/index.js",
+  "main": "./src/index.js",
+  "bin": "./bin/watchkeeper",
   "scripts": {
     "start": "node src/index.js",
     "test": "KUBECONFIG=./testdata/kubeconfig.yaml nyc --all --reporter=html --reporter=text mocha ",
