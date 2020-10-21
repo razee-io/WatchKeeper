@@ -90,14 +90,31 @@ async function init() {
   return true;
 }
 
-process.on('unhandledRejection', (reason) => {
-  log.error(reason, 'Unhandled promise rejection.');
-});
+function createEventListeners() {
+  process.on('SIGTERM', () => {
+    log.info('recieved SIGTERM. not handling at this time.');
+  });
+  process.on('unhandledRejection', (reason) => {
+    log.error('recieved unhandledRejection', reason);
+  });
+  process.on('beforeExit', (code) => {
+    log.info(`No work found. exiting with code: ${code}`);
+  });
 
-promiseRetry({ retries: 5 },
-  retry => {
-    return init().catch(retry);
-  }).catch(err => log.error(`Failed to init watch-keeper | ${err}`));
+}
+
+async function run() {
+  try {
+    createEventListeners();
+    await promiseRetry({ retries: 5 },
+      retry => {
+        return init().catch(retry);
+      });
+  } catch (error) {
+    log.error('Failed to init watchkeeper', error);
+  }
+
+}
 
 async function setEnvs() {
   const env = process.env;
@@ -148,3 +165,7 @@ async function setEnvs() {
     env.LOG_LEVEL = (await fs.readFile('envs/watch-keeper-config/LOG_LEVEL', 'utf8')).trim();
   }
 }
+
+module.exports = {
+  run
+};
