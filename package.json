@@ -17,6 +17,21 @@
     "shlint": "shellcheck build/*.sh",
     "markdownlint": "node_modules/.bin/markdownlint *.md"
   },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/razee-io/WatchKeeper.git"
+  },
+  "contributors": [
+    {
+      "name": "Alex Lewitt"
+    },
+    {
+      "name": "Adam King"
+    }
+  ],
+  "publishConfig": {
+    "access": "public"
+  },
   "author": "",
   "license": "Apache-2.0",
   "dependencies": {
