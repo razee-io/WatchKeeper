@@ -12,7 +12,7 @@ services:
 script:
   # Audit npm packages. Fail build whan a PR audit fails, otherwise report the vulnerability and proceed.
   - if [ "${TRAVIS_PULL_REQUEST}" != "false" ]; then npm audit; else npm audit || true; fi
-  - npm run lint
+  - if [[ "$TRAVIS_CPU_ARCH" != "ppc64le" ]]; then npm run lint; else npm run lint-ppc64le; fi
   - npm test
   - docker build --rm -t "quay.io/razee/watch-keeper:${TRAVIS_COMMIT}" .
   - if [ -n "${TRAVIS_TAG}" ]; then docker tag quay.io/razee/watch-keeper:${TRAVIS_COMMIT} quay.io/razee/watch-keeper:${TRAVIS_TAG}; fi
