@@ -5,7 +5,9 @@ node_js:
 services:
   - docker
 
-
+before_install:
+  - echo "$DOCKERHUB_TOKEN" | docker login -u "icdevops" --password-stdin
+  
 jobs:
   include:
    - stage: building images
