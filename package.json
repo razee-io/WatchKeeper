@@ -71,7 +71,7 @@
     "eslint": "^7.21.0",
     "jsonlint": "^1.6.3",
     "markdownlint-cli": "^0.26.0",
-    "mocha": "^8.3.0",
+    "mocha": "^8.3.1",
     "mustache": "^4.1.0",
     "nock": "^13.0.10",
     "npm-check-updates": "^11.1.9",
