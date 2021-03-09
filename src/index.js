@@ -34,7 +34,7 @@ async function main() {
     log.warn(`Intervals should follow: CLEAN_START_INTERVAL(${cleanStartInterval}) > POLL_INTERVAL(${pollInterval}) > VALIDATE_INTERVAL(${validateInterval})`);
   }
 
-  touch('/tmp/healthy');
+  touch('/tmp/liveness');
   await watchController.watch();
   pollController.poll();
 
@@ -42,7 +42,7 @@ async function main() {
   setInterval(async () => {
     ++interval;
     log.info(`Starting Next Interval: ${interval} ============`);
-    touch('/tmp/healthy');
+    touch('/tmp/liveness');
 
     if ((interval / cleanStartInterval) % 1 == 0) {
       // wiping/re-create all watches and restart interval count
