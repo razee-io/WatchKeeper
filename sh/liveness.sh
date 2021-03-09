@@ -16,7 +16,7 @@
 ################################################################################
 
 
-HEALTH_FILE=/tmp/healthy
+HEALTH_FILE=/tmp/liveness
 
 findFile=$(find "${HEALTH_FILE}" -mmin -3 2>/dev/null)
 if [ $? -ne 0 ]; then
