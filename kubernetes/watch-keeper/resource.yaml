@@ -35,7 +35,7 @@ spec:
                 fieldRef:
                   fieldPath: metadata.namespace
             - name: USER_AGENT_NAME
-              value: razee.io/watch-keeper
+              value: razee-io/watch-keeper
             - name: USER_AGENT_VERSION
               value: "{{{TRAVIS_TAG}}}"
             - name: NODE_ENV
