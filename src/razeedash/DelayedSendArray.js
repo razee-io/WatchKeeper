@@ -122,7 +122,7 @@ module.exports = class DelayedSendArray {
       retryDelay: options.retryDelay || 3000, // (default) wait for 3s before trying again
       retryStrategy: options.retryStrategy || requestretry.RetryStrategies.HTTPOrNetworkError // (default) retry on 5xx or network errors
     }).then(function (response) {
-      if (response.statusCode >= 200 && response.statusCode<300) {
+      if (response.statusCode >= 200 && response.statusCode < 300) {
         let numSent = Array.isArray(data) ? data.length : 1;
         log.info(`${httpMethod} ${numSent} resource(s) to ${url} successful. StatusCode: ${response.statusCode}`);
         return response;
