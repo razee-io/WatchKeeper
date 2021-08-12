@@ -36,7 +36,7 @@
   "license": "Apache-2.0",
   "dependencies": {
     "@kubernetes/client-node": "^0.15.0",
-    "@razee/kubernetes-util": "^0.2.4",
+    "@razee/kubernetes-util": "^0.2.5",
     "agentkeepalive": "^4.1.4",
     "bunyan": "^1.8.15",
     "fs-extra": "^10.0.0",
@@ -54,8 +54,8 @@
     "deep-equal": "^2.0.5",
     "dockerlint": "^0.3.9",
     "eslint": "^7.32.0",
-    "markdownlint-cli": "^0.27.1",
-    "mocha": "^9.0.2",
+    "markdownlint-cli": "^0.28.1",
+    "mocha": "^9.0.3",
     "mustache": "^4.2.0",
     "nock": "^13.1.1",
     "npm-check-updates": "^11.8.3",
@@ -63,7 +63,7 @@
     "nyc": "^15.1.0",
     "rewire": "^5.0.0",
     "shellcheck": "^1.0.0",
-    "sinon": "^11.1.1",
+    "sinon": "^11.1.2",
     "yaml-lint": "^1.2.4"
   }
 }
