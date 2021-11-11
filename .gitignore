@@ -65,3 +65,4 @@ dev/
 envs/
 limit-poll/
 non-namespaced/
+.npmrc
