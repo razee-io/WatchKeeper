@@ -16,7 +16,7 @@
 FROM node:lts-alpine as buildImg
 
 RUN apk update
-RUN apk --no-cache add gnupg python make curl
+RUN apk --no-cache add gnupg python3 make curl
 
 USER node
 WORKDIR /home/node
