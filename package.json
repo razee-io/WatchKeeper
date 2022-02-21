@@ -41,7 +41,7 @@
     "bunyan": "^1.8.15",
     "fs-extra": "^10.0.0",
     "JSONStream": "^1.3.5",
-    "object-hash": "^2.2.0",
+    "object-hash": "^3.0.0",
     "object-path": "^0.11.8",
     "promise-retry": "^2.0.1",
     "request-promise-native": "^1.0.9",
