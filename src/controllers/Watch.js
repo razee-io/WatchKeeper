@@ -19,7 +19,7 @@ const log = require('../bunyan-api').createLogger('Watch');
 const WatchManager = require('../kubernetes/WatchManager')();
 
 const { KubeClass, KubeApiConfig } = require('@razee/kubernetes-util');
-var kc = new KubeClass(KubeApiConfig());
+var kc = new KubeClass();
 const Util = require('./Util');
 var util;
 
@@ -35,9 +35,9 @@ async function validateWatches(watchableKrm, itemsLength, resourceContinue) {
 function createWatch(watchableKrm, querySelector = {}, detailLevel, globalWatch = false) {
   let options = {
     logger: require('../bunyan-api').createLogger('Watchman'),
-    requestOptions: KubeApiConfig(),
-    watchUri: watchableKrm.uri({ watch: true })
+    requestOptions: KubeApiConfig()
   };
+  options.requestOptions.uri = watchableKrm.uri({ watch: true });
   options.requestOptions.qs = querySelector;
   WatchManager.ensureWatch(options, (eventObj) => {
     let metadata = { name: objectPath.get(eventObj, 'object.metadata.name'), namespace: objectPath.get(eventObj, 'object.metadata.namespace') };

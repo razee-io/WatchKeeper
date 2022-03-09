@@ -17,8 +17,8 @@ const objectPath = require('object-path');
 
 const log = require('../bunyan-api').createLogger('Poll');
 
-const { KubeClass, KubeApiConfig } = require('@razee/kubernetes-util');
-const kc = new KubeClass(KubeApiConfig());
+const { KubeClass } = require('@razee/kubernetes-util');
+const kc = new KubeClass();
 const Util = require('./Util');
 const RazeedashSender = require('../razeedash/Sender');
 var util;
