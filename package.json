@@ -62,6 +62,6 @@
     "rewire": "^6.0.0",
     "shellcheck": "^1.1.0",
     "sinon": "^13.0.1",
-    "yaml-lint": "^1.2.4"
+    "yaml-lint": "^1.6.0"
   }
 }
