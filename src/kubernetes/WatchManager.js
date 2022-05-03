@@ -36,7 +36,7 @@ module.exports = function WatchManager() {
 
   let _ensureWatch = function (options, objectHandler, globalWatch = false, startWatch = true) {
     let querySelector = objectPath.get(options, 'requestOptions.qs', {});
-    let selfLink = options.watchUri;
+    let selfLink = options?.requestOptions?.uri;
     let w = _getWatch(selfLink);
     if (w && (!globalWatch || (globalWatch && w.querySelectorHash == hash(querySelector)))) {
       return w;

@@ -16,8 +16,8 @@
 const objectPath = require('object-path');
 const fs = require('fs-extra');
 
-const { KubeClass, KubeApiConfig } = require('@razee/kubernetes-util');
-const kc = new KubeClass(KubeApiConfig());
+const { KubeClass } = require('@razee/kubernetes-util');
+const kc = new KubeClass();
 const DataCollector = require('./DataCollector');
 const dc = new DataCollector(kc);
 
