@@ -35,10 +35,11 @@ async function validateWatches(watchableKrm, itemsLength, resourceContinue) {
 function createWatch(watchableKrm, querySelector = {}, detailLevel, globalWatch = false) {
   let options = {
     logger: require('../bunyan-api').createLogger('Watchman'),
-    requestOptions: {}
+    requestOptions: {
+      uri: watchableKrm.uri({ watch: true }),
+      qs: querySelector
+    }
   };
-  options.requestOptions.uri = watchableKrm.uri({ watch: true });
-  options.requestOptions.qs = querySelector;
   WatchManager.ensureWatch(options, (eventObj) => {
     let metadata = { name: objectPath.get(eventObj, 'object.metadata.name'), namespace: objectPath.get(eventObj, 'object.metadata.namespace') };
     objectPath.set(eventObj, 'object.metadata.annotations.selfLink', watchableKrm.uri(metadata));
