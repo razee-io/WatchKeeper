@@ -68,7 +68,7 @@ module.exports = class Messenger {
       method: 'POST',
       agent: this.agent,
       headers: {
-        'razee-org-key': Config.getOrgKey()
+        'razee-org-key': Config.orgKey
       },
       json: true,
       body: body,

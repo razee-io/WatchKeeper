@@ -52,7 +52,7 @@ module.exports = class Heartbeat {
       method: 'POST',
       agent: this.agent,
       headers: {
-        'razee-org-key': Config.getOrgKey()
+        'razee-org-key': Config.orgKey
       },
       json: true,
       body: customMeta,

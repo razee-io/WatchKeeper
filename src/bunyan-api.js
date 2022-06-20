@@ -22,7 +22,7 @@ module.exports = {
       return bunyan.createLogger({
         name: name || 'watch-keeper',
         streams: [{
-          level: (Config.getLogLevel() || 'info'),
+          level: (Config.logLevel || 'info'),
           stream: process.stdout // log LOG_LEVEL and above to stdout
         }],
         serializers: bunyan.stdSerializers

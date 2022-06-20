@@ -111,7 +111,7 @@ module.exports = class DelayedSendArray {
       method: httpMethod,
       agent: this.agent,
       headers: {
-        'razee-org-key': Config.getOrgKey(),
+        'razee-org-key': Config.orgKey,
         'poll-cycle': this._pollStarted
       },
       json: true,

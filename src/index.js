@@ -24,9 +24,9 @@ const watchController = require('./controllers/Watch');
 const pollController = require('./controllers/Poll');
 
 async function main() {
-  let validateInterval = parseInt(Config.getValidateInterval() || 10); // how many minutes until validate correct watches are being tracked
-  let pollInterval = parseInt(Config.getPollInterval() || 60); // how many minutes until poll all watched resources and namespaces and send to razee
-  let cleanStartInterval = parseInt(Config.getCleanStartInterval() || 1440); // how many minutes until wiping/re-create all watches and restart interval count
+  let validateInterval = parseInt(Config.validateInterval || 10); // how many minutes until validate correct watches are being tracked
+  let pollInterval = parseInt(Config.pollInterval || 60); // how many minutes until poll all watched resources and namespaces and send to razee
+  let cleanStartInterval = parseInt(Config.cleanStartInterval || 1440); // how many minutes until wiping/re-create all watches and restart interval count
 
   if (cleanStartInterval < pollInterval || pollInterval < validateInterval) {
     log.warn(`Intervals should follow: CLEAN_START_INTERVAL(${cleanStartInterval}) > POLL_INTERVAL(${pollInterval}) > VALIDATE_INTERVAL(${validateInterval})`);
@@ -63,20 +63,20 @@ async function main() {
 
 async function init() {
   try {
-    if (await Config.getRazeedashUrl() === '') {
+    if (Config.razeedashUrl === '') {
       log.error('failed to find Razee url to post data to. exiting(1)');
       process.exit(1);
     }
     util = await Util.fetch();
   } catch (e) {
     const Messenger = require('./razeedash/Messenger');
-    let msngr = new Messenger(Config.getRazeedashUrl() || 'http://localhost:3000/api/v2');
+    let msngr = new Messenger(Config.razeedashUrl || 'http://localhost:3000/api/v2');
     log.error('Error fetching clusterID on startup.', e);
     msngr.error('Error fetching clusterID on startup.', e);
     return Promise.reject(e);
   }
   try {
-    let startDelayMax = parseInt(Config.getStartDelaymax() || 10);
+    let startDelayMax = parseInt(Config.startDelayMax || 10);
     let startDelay = Math.floor(Math.random() * startDelayMax * 60000); // (0 to 1) * maxTimeout * in minutes
     log.info(`Staggering start by ${startDelay / 60000} minutes`);
     await new Promise(resolve => setTimeout(resolve, startDelay));

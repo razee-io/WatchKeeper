@@ -26,11 +26,11 @@ module.exports = class DataCollector {
   async getClusterUid() {
     if (this.clusterID) {
       return this.clusterID;
-    } else if (Config.getClusterId()) {
-      this.clusterID = Config.getClusterId();
+    } else if (Config.clusterId) {
+      this.clusterID = Config.clusterId;
       return this.clusterID;
     }
-    let ns = Config.getConfigNamespace() || process.env.NAMESPACE || 'kube-system';
+    let ns = Config.configNamespace || process.env.NAMESPACE || 'kube-system';
     let ks = await this.kubeClass.getResource({ uri: () => `/api/v1/namespaces/${ns}` });
     this.clusterID = objectPath.get(ks.object, 'metadata.uid');
     return this.clusterID;
@@ -47,8 +47,8 @@ module.exports = class DataCollector {
 
   async getClusterMeta() {
     let customMeta = {};
-    if (Config.getClusterName()) {
-      Object.assign(customMeta, { name: Config.getClusterName() });
+    if (Config.clusterName) {
+      Object.assign(customMeta, { name: Config.clusterName });
     }
     try {
       let cml = await this.kubeClass.getResource({ uri: () => '/api/v1/configmaps' }, { labelSelector: 'razee/cluster-metadata=true' });
