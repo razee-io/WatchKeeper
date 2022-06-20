@@ -14,6 +14,7 @@
 * limitations under the License.
 */
 const bunyan = require('bunyan');
+const Config = require('./Config');
 
 module.exports = {
   'createLogger': function (name) {
@@ -21,7 +22,7 @@ module.exports = {
       return bunyan.createLogger({
         name: name || 'watch-keeper',
         streams: [{
-          level: (process.env.LOG_LEVEL || 'info'),
+          level: (Config.getLogLevel() || 'info'),
           stream: process.stdout // log LOG_LEVEL and above to stdout
         }],
         serializers: bunyan.stdSerializers

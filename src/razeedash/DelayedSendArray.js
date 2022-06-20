@@ -18,7 +18,7 @@ var requestretry = require('requestretry');
 const HttpAgent = require('agentkeepalive');
 const HttpsAgent = require('agentkeepalive').HttpsAgent;
 const log = require('../bunyan-api').createLogger('DelayedSendArray');
-
+const Config = require('../Config');
 
 const httpsAgent = new HttpsAgent({
   keepAlive: true
@@ -26,7 +26,6 @@ const httpsAgent = new HttpsAgent({
 const httpAgent = new HttpAgent({
   keepAlive: true
 });
-
 
 const _queueObject = Symbol('queueObject');
 
@@ -112,7 +111,7 @@ module.exports = class DelayedSendArray {
       method: httpMethod,
       agent: this.agent,
       headers: {
-        'razee-org-key': process.env.RAZEEDASH_ORG_KEY,
+        'razee-org-key': Config.getOrgKey(),
         'poll-cycle': this._pollStarted
       },
       json: true,

@@ -20,6 +20,7 @@ const log = require('../bunyan-api').createLogger('Poll');
 const { KubeClass } = require('@razee/kubernetes-util');
 const kc = new KubeClass();
 const Util = require('./Util');
+const Config = require('../Config');
 const RazeedashSender = require('../razeedash/Sender');
 var util;
 
@@ -157,7 +158,7 @@ function resourceFormatter(o, level) {
 
 // include/exclude list
 async function readIEList() {
-  let configNs = process.env.CONFIG_NAMESPACE || process.env.NAMESPACE || 'kube-system';
+  let configNs = Config.getConfigNamespace() || process.env.NAMESPACE || 'kube-system';
   let limitPollConfigMap = await Util.getConfigMap('watch-keeper-limit-poll', configNs);
   if ((objectPath.has(limitPollConfigMap, 'data.include') && objectPath.get(limitPollConfigMap, 'data.include') === 'true') ||
     (objectPath.has(limitPollConfigMap, 'data.whitelist') && objectPath.get(limitPollConfigMap, 'data.whitelist') === 'true')) {
@@ -293,7 +294,7 @@ async function poll() {
     (o) => objectPath.has(o, 'metadata.namespace') ? resourceFormatter(o, 'lite') : undefined);
 
   // Send all non-namespaced resources
-  let configNs = process.env.CONFIG_NAMESPACE || process.env.NAMESPACE || 'kube-system';
+  let configNs = Config.getConfigNamespace() || process.env.NAMESPACE || 'kube-system';
   let nonNsConfigMap = await Util.getConfigMap('watch-keeper-non-namespaced', configNs);
   if (objectPath.has(nonNsConfigMap, 'data.poll') && objectPath.get(nonNsConfigMap, 'data.poll') !== 'false') {
     success = success && await handleNonNamespaced(metaResources, razeedashSender, { limit: 500 },

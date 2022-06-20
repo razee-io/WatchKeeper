@@ -15,6 +15,7 @@
  */
 const objectPath = require('object-path');
 const log = require('../bunyan-api').createLogger('DataCollector');
+const Config = require('../Config');
 
 module.exports = class DataCollector {
 
@@ -25,11 +26,11 @@ module.exports = class DataCollector {
   async getClusterUid() {
     if (this.clusterID) {
       return this.clusterID;
-    } else if (process.env.CLUSTER_ID_OVERRIDE) {
-      this.clusterID = process.env.CLUSTER_ID_OVERRIDE;
+    } else if (Config.getClusterId()) {
+      this.clusterID = Config.getClusterId();
       return this.clusterID;
     }
-    let ns = process.env.CONFIG_NAMESPACE || process.env.NAMESPACE || 'kube-system';
+    let ns = Config.getConfigNamespace() || process.env.NAMESPACE || 'kube-system';
     let ks = await this.kubeClass.getResource({ uri: () => `/api/v1/namespaces/${ns}` });
     this.clusterID = objectPath.get(ks.object, 'metadata.uid');
     return this.clusterID;
@@ -46,21 +47,21 @@ module.exports = class DataCollector {
 
   async getClusterMeta() {
     let customMeta = {};
-    if (process.env.DEFAULT_CLUSTER_NAME) {
-      Object.assign(customMeta, { name: process.env.DEFAULT_CLUSTER_NAME });
+    if (Config.getClusterName()) {
+      Object.assign(customMeta, { name: Config.getClusterName() });
     }
     try {
       let cml = await this.kubeClass.getResource({ uri: () => '/api/v1/configmaps' }, { labelSelector: 'razee/cluster-metadata=true' });
       cml.object.items.map(cm => {
         Object.assign(customMeta, cm.data);
       });
-    } catch(e) {
+    } catch (e) {
       log.debug(e, 'Could not get cm/label:razee/cluster-metadata=true');
     }
     try {
       let kubeVersion = await this.getKubeVersion();
       Object.assign(customMeta, kubeVersion);
-    } catch (e){
+    } catch (e) {
       log.error(e, 'Could not get kubeVersion');
     }
 

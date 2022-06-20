@@ -17,6 +17,7 @@ var requestretry = require('requestretry');
 const HttpAgent = require('agentkeepalive');
 const HttpsAgent = require('agentkeepalive').HttpsAgent;
 const validUrl = require('valid-url');
+const Config = require('../Config');
 
 const httpsAgent = new HttpsAgent({
   keepAlive: true
@@ -40,7 +41,6 @@ module.exports = class Messenger {
     }
   }
 
-
   error(msg, obj = {}) {
     return this.message('ERROR', msg, obj);
   }
@@ -52,7 +52,6 @@ module.exports = class Messenger {
   info(msg, obj = {}) {
     return this.message('INFO', msg, obj);
   }
-
 
   // lvl: level of message [error, warn, info, etc..]
   // msg: string
@@ -69,7 +68,7 @@ module.exports = class Messenger {
       method: 'POST',
       agent: this.agent,
       headers: {
-        'razee-org-key': process.env.RAZEEDASH_ORG_KEY
+        'razee-org-key': Config.getOrgKey()
       },
       json: true,
       body: body,

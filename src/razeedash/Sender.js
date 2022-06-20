@@ -25,7 +25,6 @@ module.exports = class RazeedashSender {
     this._sentSelflinks = {};
   }
 
-
   // public methods
   get maxItems() {
     return this._dsa.maxItems;
@@ -34,7 +33,6 @@ module.exports = class RazeedashSender {
   get resourceCount() {
     return Object.keys(this._sentSelflinks).length;
   }
-
 
   send(o) {
     log.debug('send', JSON.stringify(o));
@@ -45,7 +43,6 @@ module.exports = class RazeedashSender {
     let result = this._dsa.send(o);
     return result;
   }
-
 
   reset() {
     this._sentSelflinks = {};
@@ -88,7 +85,6 @@ module.exports = class RazeedashSender {
     });
     return result;
   }
-
 
   flush() {
     return this._dsa.flush();
