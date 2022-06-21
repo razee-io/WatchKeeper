@@ -16,7 +16,6 @@
 
 const fs = require('fs-extra');
 const chokidar = require('chokidar');
-const log = require('../bunyan-api').createLogger('Poll');
 
 module.exports = class Config {
   static razeedashUrlPath1 = 'envs/watch-keeper-config/RAZEEDASH_URL';
@@ -115,7 +114,7 @@ module.exports = class Config {
     }
   }
 
-  static {
+  static async init() {
     await this.readRazeedashUrl();
     await this.readOrgKey();
     await this.readClusterId();
@@ -127,31 +126,32 @@ module.exports = class Config {
     await this.readCleanStartInterval();
     await this.readLogLevel();
 
-    chokidar.watch('./envs/').on('all', (event, path) => {
+
+    chokidar.watch('./envs/', { ignoreInitial: true }).on('all', (event, path) => {
       if (event === 'add' || event === 'change') {
-        log.debug(`Configuration change detected: ${event} ${path}`);
+        // log.debug(`Configuration change detected: ${event} ${path}`);
         if (path === this.razeedashUrlPath1 || path === this.razeedashUrlPath2) {
-          await this.readRazeedashUrl();
+          this.readRazeedashUrl();
         }
 
         if (path === this.orgKeyPath1 || path === this.orgKeyPath2) {
-          await this.readOrgKey();
+          this.readOrgKey();
         }
 
         if (path === this.clusterIdPath1 || path === this.clusterIdPath2) {
-          await this.readClusterId();
+          this.readClusterId();
         }
 
         if (path === this.clusterNamePath1 || path === this.clusterNamePath2) {
-          await this.readClusterName();
+          this.readClusterName();
         }
 
         if (path === this.startDelayMaxPath) {
-          await this.readStartDelaymax();
+          this.readStartDelaymax();
         }
 
         if (path === this.configNamespacePath) {
-          await this.readConfigNamespace();
+          this.readConfigNamespace();
         }
 
         if (path === this.validateIntervalPath) {

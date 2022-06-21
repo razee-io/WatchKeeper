@@ -63,6 +63,7 @@ async function main() {
 
 async function init() {
   try {
+    await Config.init();
     if (Config.razeedashUrl === '') {
       log.error('failed to find Razee url to post data to. exiting(1)');
       process.exit(1);

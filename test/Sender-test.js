@@ -18,6 +18,8 @@ const sinon = require('sinon');
 const sandbox = sinon.createSandbox();
 const RazeedashSender = require('../src/razeedash/Sender');
 const DelayedSendArray = require('../src/razeedash/DelayedSendArray');
+const Config = require('../src/Config');
+
 const testResource = {
   type: 'POLLED',
   object: {
@@ -60,7 +62,7 @@ const otherResource = {
     }
   }
 };
-process.env.LOG_LEVEL = 'info';
+Config.logLevel = 'info';
 
 
 
