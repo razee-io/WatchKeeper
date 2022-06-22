@@ -34,20 +34,22 @@ module.exports = class Config {
   static cleanStartIntervalPath = 'envs/watch-keeper-config/CLEAN_START_INTERVAL';
   static logLevelPath = 'envs/watch-keeper-config/LOG_LEVEL';
 
-  static razeedashUrl = '';
-  static orgKey = '';
-  static clusterId = '';
-  static clusterName = '';
-  static startDelayMax = '';
-  static configNamespace = '';
-  static validateInterval = '';
-  static pollInterval = '';
-  static cleanStartInterval = '';
-  static logLevel = '';
+  static razeedashUrl = process.env.RAZEEDASH_URL;
+  static orgKey = process.env.RAZEEDASH_ORG_KEY;
+  static clusterId = process.env.CLUSTER_ID_OVERRIDE;
+  static clusterName = process.env.DEFAULT_CLUSTER_NAME;
+  static startDelayMax = process.env.START_DELAY_MAX;
+  static configNamespace = process.env.CONFIG_NAMESPACE;
+  static validateInterval = process.env.VALIDATE_INTERVAL;
+  static pollInterval = process.env.POLL_INTERVAL;
+  static cleanStartInterval = process.env.CLEAN_START_INTERVAL;
+  static logLevel = process.env.LOG_LEVEL;
+
+  static watcher;
 
   static async readRazeedashUrl() {
     if (await fs.pathExists(this.razeedashUrlPath1)) {
-      this.razeedashUrl = (await fs.readFile(this.razeedashUrlPath1, 'utf8')).trim();
+      this.razeedashUrl = ((await fs.readFile(this.razeedashUrlPath1, 'utf8')).trim() || this.razeedashUrl);
     } else if (await fs.pathExists(this.razeedashUrlPath2)) {
       let razeeApi = (await fs.readFile(this.razeedashUrlPath2, 'utf8')).trim();
       this.razeedashUrl = `${razeeApi.replace(/\/+$/, '')}/api/v2`;
@@ -56,61 +58,61 @@ module.exports = class Config {
 
   static async readOrgKey() {
     if (await fs.pathExists(this.orgKeyPath1)) {
-      this.orgKey = (await fs.readFile(this.orgKeyPath1, 'utf8')).trim();
+      this.orgKey = ((await fs.readFile(this.orgKeyPath1, 'utf8')).trim() || this.orgKey);
     } else if (await fs.pathExists(this.orgKeyPath2)) {
-      this.orgKey = (await fs.readFile(this.orgKeyPath2, 'utf8')).trim();
+      this.orgKey = ((await fs.readFile(this.orgKeyPath2, 'utf8')).trim() || this.orgKey);
     }
   }
 
   static async readClusterId() {
     if (await fs.pathExists(this.clusterIdPath1)) {
-      this.clusterId = (await fs.readFile(this.clusterIdPath1, 'utf8')).trim();
+      this.clusterId = ((await fs.readFile(this.clusterIdPath1, 'utf8')).trim() || this.clusterId);
     } else if (await fs.pathExists(this.clusterIdPath2)) {
-      this.clusterId = (await fs.readFile(this.clusterIdPath2, 'utf8')).trim();
+      this.clusterId = ((await fs.readFile(this.clusterIdPath2, 'utf8')).trim() || this.clusterId);
     }
   }
 
   static async readClusterName() {
     if (await fs.pathExists(this.clusterNamePath1)) {
-      this.clusterName = (await fs.readFile(this.clusterNamePath1, 'utf8')).trim();
+      this.clusterName = ((await fs.readFile(this.clusterNamePath1, 'utf8')).trim() || this.clusterName);
     } else if (await fs.pathExists(this.clusterNamePath2)) {
-      this.clusterName = (await fs.readFile(this.clusterNamePath2, 'utf8')).trim();
+      this.clusterName = ((await fs.readFile(this.clusterNamePath2, 'utf8')).trim() || this.clusterName);
     }
   }
 
   static async readStartDelaymax() {
     if (await fs.pathExists(this.startDelayMaxPath)) {
-      this.startDelayMax = (await fs.readFile(this.startDelayMaxPath, 'utf8')).trim();
+      this.startDelayMax = ((await fs.readFile(this.startDelayMaxPath, 'utf8')).trim() || this.startDelayMax);
     }
   }
 
   static async readConfigNamespace() {
     if (await fs.pathExists(this.configNamespacePath)) {
-      this.configNamespace = (await fs.readFile(this.configNamespacePath, 'utf8')).trim();
+      this.configNamespace = ((await fs.readFile(this.configNamespacePath, 'utf8')).trim() || this.configNamespace);
     }
   }
 
   static async readValidateInterval() {
     if (await fs.pathExists(this.validateIntervalPath)) {
-      this.validateInterval = (await fs.readFile(this.validateIntervalPath, 'utf8')).trim();
+      this.validateInterval = ((await fs.readFile(this.validateIntervalPath, 'utf8')).trim() || this.validateInterval);
     }
   }
 
   static async readPollInterval() {
     if (await fs.pathExists(this.pollIntervalPath)) {
-      this.pollInterval = (await fs.readFile(this.pollIntervalPath, 'utf8')).trim();
+      this.pollInterval = ((await fs.readFile(this.pollIntervalPath, 'utf8')).trim() || this.pollInterval);
     }
   }
 
   static async readCleanStartInterval() {
     if (await fs.pathExists(this.cleanStartIntervalPath)) {
-      this.cleanStartInterval = (await fs.readFile(this.cleanStartIntervalPath, 'utf8')).trim();
+      this.cleanStartInterval = ((await fs.readFile(this.cleanStartIntervalPath, 'utf8')).trim() || this.cleanStartInterval);
     }
   }
 
   static async readLogLevel() {
     if (await fs.pathExists(this.logLevelPath)) {
-      this.logLevel = (await fs.readFile(this.logLevelPath, 'utf8')).trim();
+      this.logLevel = ((await fs.readFile(this.logLevelPath, 'utf8')).trim() || this.logLevel);
     }
   }
 
@@ -125,11 +127,11 @@ module.exports = class Config {
     await this.readPollInterval();
     await this.readCleanStartInterval();
     await this.readLogLevel();
+  }
 
-
-    chokidar.watch('./envs/', { ignoreInitial: true }).on('all', (event, path) => {
+  static {
+    this.watcher = chokidar.watch('./envs/', { ignoreInitial: true }).on('all', (event, path) => {
       if (event === 'add' || event === 'change') {
-        // log.debug(`Configuration change detected: ${event} ${path}`);
         if (path === this.razeedashUrlPath1 || path === this.razeedashUrlPath2) {
           this.readRazeedashUrl();
         }

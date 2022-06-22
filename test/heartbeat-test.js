@@ -33,6 +33,7 @@ describe('Heartbeat', () => {
   after(() => {
     Config.orgKey = '';
     Config.logLevel = '';
+    Config.watcher.close();
   });
 
   // ===========================================================================

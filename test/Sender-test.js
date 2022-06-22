@@ -62,9 +62,8 @@ const otherResource = {
     }
   }
 };
+
 Config.logLevel = 'info';
-
-
 
 describe('Sender', () => {
   before(() => {});

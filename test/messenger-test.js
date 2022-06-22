@@ -32,6 +32,7 @@ describe('Messenger', () => {
   after(() => {
     Config.orgKey = '';
     Config.logLevel = '';
+    Config.watcher.close();
   });
 
   // ===========================================================================

@@ -20,6 +20,7 @@ describe('bunyan-api', function () {
   before(function () {});
   after(function () {
     delete require.cache[require.resolve('../src/bunyan-api')];
+    Config.watcher.close();
   });
 
   describe('#createLogger()', function () {
