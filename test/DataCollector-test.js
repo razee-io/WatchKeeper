@@ -15,7 +15,6 @@
  */
 const assert = require('chai').assert;
 
-// process.env.LOG_LEVEL = 'fatal';
 const DataCollector = require('../src/controllers/DataCollector');
 
 

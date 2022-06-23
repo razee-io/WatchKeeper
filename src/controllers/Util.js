@@ -25,6 +25,7 @@ const DelayedSendArray = require('../razeedash/DelayedSendArray');
 const Messenger = require('../razeedash/Messenger');
 const Heartbeat = require('../razeedash/Heartbeat');
 const log = require('../bunyan-api').createLogger('Util');
+const Config = require('../Config');
 
 var util = {};
 
@@ -32,7 +33,7 @@ module.exports = class Util {
 
   constructor(razeedashUrl, clusterID) {
     this._clusterID = clusterID;
-    this._url = razeedashUrl || process.env.RAZEEDASH_URL || 'http://localhost:3000/api/v2';
+    this._url = razeedashUrl || Config.razeedashUrl || 'http://localhost:3000/api/v2';
     this._dsa = new DelayedSendArray(this._url, clusterID);
     this._messenger = new Messenger(this._url, clusterID);
     this._heartbeat = new Heartbeat(this._url, clusterID);
@@ -198,7 +199,7 @@ module.exports = class Util {
 
   static async walkConfigMap(configmap, excludeList = []) {
     let filelist = {};
-    let configNs = process.env.CONFIG_NAMESPACE || process.env.NAMESPACE || 'kube-system';
+    let configNs = Config.configNamespace || process.env.NAMESPACE || 'kube-system';
     let cmContents = (await this.getConfigMap(configmap, configNs)).data;
     if (!cmContents) {
       return filelist;

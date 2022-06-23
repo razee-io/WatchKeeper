@@ -16,8 +16,8 @@
 const assert = require('chai').assert;
 const nock = require('nock');
 
-// process.env.LOG_LEVEL = 'fatal';
 const Messenger = require('../src/razeedash/Messenger');
+const Config = require('../src/Config');
 
 
 describe('Messenger', () => {
@@ -25,13 +25,14 @@ describe('Messenger', () => {
   const razeeOrgKey = 'orgApiKey-88888888-4444-4444-4444-121212121212';
 
   before(() => {
-    process.env.RAZEEDASH_ORG_KEY = razeeOrgKey;
+    Config.orgKey = razeeOrgKey;
   });
   beforeEach(() => {});
   afterEach(() => {});
   after(() => {
-    delete process.env.RAZEEDASH_ORG_KEY;
-    delete process.env.LOG_LEVEL;
+    Config.orgKey = '';
+    Config.logLevel = '';
+    Config.watcher.close();
   });
 
   // ===========================================================================

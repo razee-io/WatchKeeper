@@ -18,7 +18,7 @@ var request = require('request-promise-native');
 const HttpAgent = require('agentkeepalive');
 const HttpsAgent = require('agentkeepalive').HttpsAgent;
 const log = require('../bunyan-api').createLogger('Heartbeat');
-
+const Config = require('../Config');
 
 const httpsAgent = new HttpsAgent({
   keepAlive: true
@@ -52,7 +52,7 @@ module.exports = class Heartbeat {
       method: 'POST',
       agent: this.agent,
       headers: {
-        'razee-org-key': process.env.RAZEEDASH_ORG_KEY
+        'razee-org-key': Config.orgKey
       },
       json: true,
       body: customMeta,

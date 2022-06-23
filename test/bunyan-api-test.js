@@ -14,23 +14,25 @@
 * limitations under the License.
 */
 var assert = require('chai').assert;
+const Config = require('../src/Config');
 
 describe('bunyan-api', function () {
   before(function () {});
   after(function () {
     delete require.cache[require.resolve('../src/bunyan-api')];
+    Config.watcher.close();
   });
 
   describe('#createLogger()', function () {
     it('should create default logger when nothing specified', function () {
-      delete process.env.LOG_LEVEL;
+      Config.logLevel = '';
       var log = require('../src/bunyan-api').createLogger();
       assert.equal(log.streams[0].level, 30, 'should be at log level info(30)');
       assert.equal(log.fields.name, 'watch-keeper', 'should use default name \'watch-keeper\'');
     });
 
     it('should create logger with specified env var LOG_LEVEL=warn (40)', function () {
-      process.env.LOG_LEVEL = 'warn';
+      Config.logLevel = 'warn';
       var log = require('../src/bunyan-api').createLogger();
       assert.equal(log.streams[0].level, 40, 'should be at log level warn(40)');
     });
@@ -41,7 +43,7 @@ describe('bunyan-api', function () {
     });
 
     it('should create logger with log level info(30) when unknown LOG_LEVEL specified', function () {
-      process.env.LOG_LEVEL = 'unknownLevelName';
+      Config.logLevel= 'unknownLevelName';
       var log = require('../src/bunyan-api').createLogger();
       assert.equal(log.streams[0].level, 30, 'should be at log level info(30)');
     });

@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 const assert = require('chai').assert;
-//process.env.LOG_LEVEL = 'debug';
 var rewire = require('rewire');
 const Util = rewire('../src/controllers/Util');
 const DataCollector = rewire('../src/controllers/DataCollector');
