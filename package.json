@@ -54,7 +54,7 @@
     "chai": "^4.3.6",
     "deep-equal": "^2.0.5",
     "dockerlint": "^0.3.9",
-    "eslint": "^8.14.0",
+    "eslint": "^8.21.0",
     "mocha": "^10.0.0",
     "mustache": "^4.2.0",
     "nock": "^13.2.4",
