@@ -1,13 +1,13 @@
 language: node_js
 node_js:
-  - "lts/*"
+  - "16"
 
 services:
   - docker
 
 before_install:
   - echo "$DOCKERHUB_TOKEN" | docker login -u "icdevops" --password-stdin
-  
+
 jobs:
   include:
    - stage: building images
@@ -24,10 +24,10 @@ jobs:
        - docker images
        - ./build/process-template.sh kubernetes/watch-keeper/resource.yaml >/tmp/resource.yaml
        - ./build/process-template.sh kubernetes/watch-keeper/rbac.yaml >/tmp/rbac.yaml
-       
+
      before_deploy:
        - docker login -u="${QUAY_ID}" -p="${QUAY_TOKEN}" quay.io
-       
+
      deploy:
        # Deploy alpha builds
        - provider: script
@@ -57,10 +57,10 @@ jobs:
        - docker images
        - ./build/process-template.sh kubernetes/watch-keeper/resource.yaml >/tmp/resource.yaml
        - ./build/process-template.sh kubernetes/watch-keeper/rbac.yaml >/tmp/rbac.yaml
-       
+
      before_deploy:
        - docker login -u="${QUAY_ID}" -p="${QUAY_TOKEN}" quay.io
-       
+
      deploy:
        # Deploy alpha builds
        - provider: script
@@ -90,10 +90,10 @@ jobs:
        - docker images
        - ./build/process-template.sh kubernetes/watch-keeper/resource.yaml >/tmp/resource.yaml
        - ./build/process-template.sh kubernetes/watch-keeper/rbac.yaml >/tmp/rbac.yaml
-       
+
      before_deploy:
        - docker login -u="${QUAY_ID}" -p="${QUAY_TOKEN}" quay.io
-       
+
      deploy:
        # Deploy alpha builds
        - provider: script
@@ -117,8 +117,8 @@ jobs:
        - if [[ $TRAVIS_TAG =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then npm version --no-git-tag-version "${TRAVIS_TAG}"; fi
        - ./build/process-template.sh kubernetes/watch-keeper/resource.yaml >/tmp/resource.yaml
        - ./build/process-template.sh kubernetes/watch-keeper/rbac.yaml >/tmp/rbac.yaml
-       - export DOCKER_CLI_EXPERIMENTAL=enabled 
-       - sudo chown -R $USER:$USER /etc/docker/ 
+       - export DOCKER_CLI_EXPERIMENTAL=enabled
+       - sudo chown -R $USER:$USER /etc/docker/
        - |
          if [ -n "${TRAVIS_TAG}" ]; then
             docker manifest create quay.io/razee/watch-keeper:${TRAVIS_TAG} \
@@ -126,10 +126,10 @@ jobs:
             quay.io/razee/watch-keeper:${TRAVIS_TAG}-ppc64le \
             quay.io/razee/watch-keeper:${TRAVIS_TAG}-s390x
          fi
-       
+
      before_deploy:
        - docker login -u="${QUAY_ID}" -p="${QUAY_TOKEN}" quay.io
-     
+
      deploy:
        # Deploy alpha builds
        - provider: script
@@ -138,7 +138,7 @@ jobs:
          on:
            tags: true
            condition: ${TRAVIS_TAG} =~ ^[0-9]+\.[0-9]+\.[0-9]+_[0-9]{3}$
-     
+
        # Deploy released builds
        - provider: script
          script: docker manifest push "quay.io/razee/watch-keeper:${TRAVIS_TAG}"
@@ -163,4 +163,3 @@ jobs:
          on:
            tags: true
            condition: ${TRAVIS_TAG} =~ ^[0-9]+\.[0-9]+\.[0-9]+$
-
