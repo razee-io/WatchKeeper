@@ -139,7 +139,7 @@ You can include or exclude resources by modifying the ConfigMap named
 
 - If both an `include` and `exclude` key are specified, only `include` will be used.
 - The include/exclude list is employed during the **Polling**, **Namespace** and
-**Non-Namespaced** [collection methods](#Collection-Methods). Any individual resource
+**Non-Namespaced** [collection methods](#collection-methods). Any individual resource
 specifically labeled to be watched will still be watched, regardless of the include/exclude
 list.
 
