@@ -110,8 +110,8 @@ module.exports = class DelayedSendArray {
 
     // Log how many resources are being sent, and list any RemoteResources by selfLink
     const dArr = Array.isArray(data) ? data : [data];
-    const remoteResources = dArr.filter( d => objectPath.get( d, 'object.kind', '' ) == 'RemoteResource' ).map( d => objectPath.get( d, 'object.metadata.annotations.selfLink', 'no-selfLink' ) );
-    log.info(`${httpMethod} ${dArr.length} resource(s) to ${url} starting. RemoteResource(s): ${remoteResources.join( ', ' )}`);
+    const remoteResourceSelfLinks = dArr.filter( d => objectPath.get( d, 'object.kind', '' ) == 'RemoteResource' ).map( d => objectPath.get( d, 'object.metadata.annotations.selfLink', 'no-selfLink' ) );
+    log.info(`${httpMethod} ${dArr.length} resource(s) to ${url} starting. RemoteResource(s): ${remoteResourceSelfLinks.join( ', ' )}`);
 
     return requestretry({
       url: url,
