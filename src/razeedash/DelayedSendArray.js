@@ -1,5 +1,5 @@
 /**
- * Copyright 2019 IBM Corp. All Rights Reserved.
+ * Copyright 2019, 2022 IBM Corp. All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,8 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-var validUrl = require('valid-url');
-var requestretry = require('requestretry');
+const objectPath = require('object-path');
+const validUrl = require('valid-url');
+const requestretry = require('requestretry');
 const HttpAgent = require('agentkeepalive');
 const HttpsAgent = require('agentkeepalive').HttpsAgent;
 const log = require('../bunyan-api').createLogger('DelayedSendArray');
@@ -68,7 +69,7 @@ module.exports = class DelayedSendArray {
     if (o.constructor === {}.constructor) {
       this.sendObject.push(o);
     } else {
-      let type = typeof o;
+      const type = typeof o;
       throw `Type ${type} not supported.`;
     }
   }
@@ -94,10 +95,10 @@ module.exports = class DelayedSendArray {
     clearTimeout(this.flushTimeout);
     this.flushTimeout = undefined;
     if (this.sendObject.length > 0) {
-      let outBoundArray = this.sendObject;
+      const outBoundArray = this.sendObject;
       this.sendObject = [];
-      let httpMethod = 'POST';
-      let res = this.httpCall(httpMethod, outBoundArray);
+      const httpMethod = 'POST';
+      const res = this.httpCall(httpMethod, outBoundArray);
       if (this._trackSendPromises) {
         this._sendPromises.push(res);
       }
@@ -105,7 +106,12 @@ module.exports = class DelayedSendArray {
   }
 
   async httpCall(httpMethod, data, options = {}) {
-    let url = `${this.url}/clusters/${this._clusterID}/${options.endpoint || 'resources'}`;
+    const url = `${this.url}/clusters/${this._clusterID}/${options.endpoint || 'resources'}`;
+
+    const dArr = Array.isArray(data) ? data : [data];
+    const selfLinks = dArr.map( d => objectPath.get(e, 'object.metadata.annotations.selfLink', 'no-selfLink' ) );
+    log.info(`${httpMethod} ${dArr.length} resource(s) to ${url} starting. SelfLinks: ${selfLinks.join( ', ' )}`);
+
     return requestretry({
       url: url,
       method: httpMethod,
@@ -122,11 +128,10 @@ module.exports = class DelayedSendArray {
       retryStrategy: options.retryStrategy || requestretry.RetryStrategies.HTTPOrNetworkError // (default) retry on 5xx or network errors
     }).then(function (response) {
       if (response.statusCode >= 200 && response.statusCode < 300) {
-        let numSent = Array.isArray(data) ? data.length : 1;
-        log.info(`${httpMethod} ${numSent} resource(s) to ${url} successful. StatusCode: ${response.statusCode}`);
+        log.info(`${httpMethod} ${dArr.length} resource(s) to ${url} successful. StatusCode: ${response.statusCode}`);
         return response;
       } else {
-        log.error(`${httpMethod} to ${url} failed: ${response.statusCode}`);
+        log.error(`${httpMethod} ${dArr.length} resource(s) to ${url} failed. StatusCode: ${response.statusCode}`);
         return response;
       }
     }).catch(err => {
