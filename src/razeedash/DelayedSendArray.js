@@ -108,9 +108,10 @@ module.exports = class DelayedSendArray {
   async httpCall(httpMethod, data, options = {}) {
     const url = `${this.url}/clusters/${this._clusterID}/${options.endpoint || 'resources'}`;
 
+    // Log how many resources are being sent, and list any RemoteResources by selfLink
     const dArr = Array.isArray(data) ? data : [data];
-    const selfLinks = dArr.map( d => objectPath.get(e, 'object.metadata.annotations.selfLink', 'no-selfLink' ) );
-    log.info(`${httpMethod} ${dArr.length} resource(s) to ${url} starting. SelfLinks: ${selfLinks.join( ', ' )}`);
+    const remoteResources = dArr.filter( d => objectPath.get( d, 'object.kind', '' ) == 'RemoteResource' ).map( d => objectPath.get( d, 'object.metadata.annotations.selfLink', 'no-selfLink' ) );
+    log.info(`${httpMethod} ${dArr.length} resource(s) to ${url} starting. RemoteResource(s): ${remoteResources.join( ', ' )}`);
 
     return requestretry({
       url: url,
