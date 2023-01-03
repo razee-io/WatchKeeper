@@ -17,11 +17,12 @@ var objectPath = require('object-path');
 
 const DelayedSendArray = require('./DelayedSendArray');
 const log = require('../bunyan-api').createLogger('Sender');
+const Config = require('../Config');
 
 module.exports = class RazeedashSender {
 
   constructor(clusterID) {
-    this._dsa = new DelayedSendArray(process.env.RAZEEDASH_URL || 'http://localhost:3000/api/v2', clusterID, undefined, true);
+    this._dsa = new DelayedSendArray(Config.razeedashUrl || 'http://localhost:3000/api/v2', clusterID, undefined, true);
     this._sentSelflinks = {};
   }
 
