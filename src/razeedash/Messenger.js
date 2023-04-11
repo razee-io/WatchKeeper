@@ -1,5 +1,5 @@
 /**
-* Copyright 2019 IBM Corp. All Rights Reserved.
+* Copyright 2019, 2023 IBM Corp. All Rights Reserved.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -13,7 +13,7 @@
 * See the License for the specific language governing permissions and
 * limitations under the License.
 */
-var requestretry = require('requestretry');
+const RequestLib = require('@razee/request-util');
 const HttpAgent = require('agentkeepalive');
 const HttpsAgent = require('agentkeepalive').HttpsAgent;
 const validUrl = require('valid-url');
@@ -63,7 +63,7 @@ module.exports = class Messenger {
       data: data
     };
     let url = this._clusterID ? `${this.url}/clusters/${this._clusterID}/messages` : `${this.url}/messages`;
-    return requestretry({
+    return RequestLib.doRequestRetry({
       url: url,
       method: 'POST',
       agent: this.agent,
@@ -75,7 +75,6 @@ module.exports = class Messenger {
 
       maxAttempts: options.maxAttempts || 5, // (default) try 5 times
       retryDelay: options.retryDelay || 5000, // (default) wait for 5s before trying again
-      retryStrategy: options.retryStrategy || requestretry.RetryStrategies.HTTPOrNetworkError // (default) retry on 5xx or network errors
     });
   }
 };
