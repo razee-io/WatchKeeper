@@ -15,7 +15,7 @@ jobs:
      arch: amd64
      script:
        # Audit npm packages. Fail build whan a PR audit fails, otherwise report the vulnerability and proceed.
-       - if [ "${TRAVIS_PULL_REQUEST}" != "false" ]; then npm audit; else npm audit || true; fi
+       - if [ "${TRAVIS_PULL_REQUEST}" != "false" ]; then npx audit-ci --config audit-ci.json; else npx audit-ci --config audit-ci.json || true; fi
        - npm run lint
        - npm test
        - if [[ "${TRAVIS_TAG}" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then npm version --no-git-tag-version "${TRAVIS_TAG}"; fi
@@ -82,7 +82,7 @@ jobs:
      arch: s390x
      script:
        # Audit npm packages. Fail build whan a PR audit fails, otherwise report the vulnerability and proceed.
-       - if [ "${TRAVIS_PULL_REQUEST}" != "false" ]; then npm audit; else npm audit || true; fi
+       - if [ "${TRAVIS_PULL_REQUEST}" != "false" ]; then npx audit-ci --config audit-ci.json; else npx audit-ci --config audit-ci.json || true; fi
        - npm test
        - if [[ "${TRAVIS_TAG}" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then npm version --no-git-tag-version "${TRAVIS_TAG}"; fi
        - docker build --rm -t "quay.io/razee/watch-keeper:${TRAVIS_COMMIT}-s390x" .
