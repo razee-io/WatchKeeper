@@ -1,5 +1,5 @@
 /**
-* Copyright 2019 IBM Corp. All Rights Reserved.
+* Copyright 2019, 2023 IBM Corp. All Rights Reserved.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -13,8 +13,8 @@
 * See the License for the specific language governing permissions and
 * limitations under the License.
 */
-var validUrl = require('valid-url');
-var request = require('request-promise-native');
+const validUrl = require('valid-url');
+const RequestLib = require('@razee/request-util');
 const HttpAgent = require('agentkeepalive');
 const HttpsAgent = require('agentkeepalive').HttpsAgent;
 const log = require('../bunyan-api').createLogger('Heartbeat');
@@ -47,7 +47,7 @@ module.exports = class Heartbeat {
 
   async heartbeat(customMeta) {
     log.info('Sending Heartbeat ============');
-    return request({
+    return RequestLib.doRequest({
       url: `${this.url}/clusters/${this._clusterID}`,
       method: 'POST',
       agent: this.agent,
@@ -58,7 +58,7 @@ module.exports = class Heartbeat {
       body: customMeta,
       simple: false,
       resolveWithFullResponse: true
-    }).then(function (res) {
+    }, log).then(function (res) {
       if (res.statusCode == 200) {
         return false;
       } else if (res.statusCode == 205) {

@@ -1,5 +1,5 @@
 /**
- * Copyright 2019, 2022 IBM Corp. All Rights Reserved.
+ * Copyright 2019, 2023 IBM Corp. All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,7 +15,7 @@
  */
 const objectPath = require('object-path');
 const validUrl = require('valid-url');
-const requestretry = require('requestretry');
+const RequestLib = require('@razee/request-util');
 const HttpAgent = require('agentkeepalive');
 const HttpsAgent = require('agentkeepalive').HttpsAgent;
 const log = require('../bunyan-api').createLogger('DelayedSendArray');
@@ -113,7 +113,7 @@ module.exports = class DelayedSendArray {
     const remoteResourceSelfLinks = dArr.filter( d => objectPath.get( d, 'object.kind', '' ) == 'RemoteResource' ).map( d => objectPath.get( d, 'object.metadata.annotations.selfLink', 'no-selfLink' ) );
     log.info(`${httpMethod} ${dArr.length} resource(s) to ${url} starting. RemoteResource(s): ${remoteResourceSelfLinks.join( ', ' )}`);
 
-    return requestretry({
+    return RequestLib.doRequestRetry({
       url: url,
       method: httpMethod,
       agent: this.agent,
@@ -126,8 +126,7 @@ module.exports = class DelayedSendArray {
 
       maxAttempts: options.maxAttempts || 5, // (default) try 5 times
       retryDelay: options.retryDelay || 3000, // (default) wait for 3s before trying again
-      retryStrategy: options.retryStrategy || requestretry.RetryStrategies.HTTPOrNetworkError // (default) retry on 5xx or network errors
-    }).then(function (response) {
+    }, log).then(function (response) {
       if (response.statusCode >= 200 && response.statusCode < 300) {
         log.info(`${httpMethod} ${dArr.length} resource(s) to ${url} successful. StatusCode: ${response.statusCode}`);
         return response;
