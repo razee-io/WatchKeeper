@@ -1,17 +1,23 @@
 {
-    "low": true,
-    "_allowlistInfo": [
-      {
-        "advisory": "GHSA-p8p7-x288-28g6",
-        "details": "The Request package through 2.88.2 for Node.js allows a bypass of SSRF mitigations via an attacker-controller server that does a cross-protocol redirect (HTTP to HTTPS, or HTTPS to HTTP)",
-        "justification1": "Request package is deprecated and unlikely to receive updates.",
-        "justification2": "Application unaffected as it only uses request by way of kubernetes/client-node, which talks to kubernetes, which can be asserted as not an attacker-controlled server.",
-        "expiry": "28 April 2023 00:00"
-      }
-    ],
-    "allowlist": [
-      "GHSA-p8p7-x288-28g6"
-    ],
-    "skip-dev": true
-  }
-  
+  "low": true,
+  "_allowlistInfo": [
+    {
+      "advisory": "GHSA-p8p7-x288-28g6",
+      "details": "The Request package through 2.88.2 for Node.js allows a bypass of SSRF mitigations via an attacker-controller server that does a cross-protocol redirect (HTTP to HTTPS, or HTTPS to HTTP)",
+      "justification1": "Request package is deprecated and unlikely to receive updates.",
+      "justification2": "Application unaffected as it only uses request by way of kubernetes/client-node, which talks to kubernetes, which can be asserted as not an attacker-controlled server.",
+      "expiry": "31 July 2023 00:00"
+    },
+    {
+      "advisory": "GHSA-72xf-g2v4-qvf3",
+      "details": "Versions of the package tough-cookie before 4.1.3 are vulnerable to Prototype Pollution due to improper handling of Cookies when using CookieJar in rejectPublicSuffixes=false mode. This issue arises from the manner in which the objects are initialized.",
+      "justification1": "Package used by request, which is also exempted. Explicitly freezeing Object to guarantee attack vector is inaccessible.",
+      "expiry": "31 July 2023 00:00"
+    }
+  ],
+  "allowlist": [
+    "GHSA-p8p7-x288-28g6",
+    "GHSA-72xf-g2v4-qvf3"
+  ],
+  "skip-dev": true
+}
