@@ -158,26 +158,22 @@ function resourceFormatter(o, level) {
 
 // include/exclude list
 async function readIEList() {
-  console.log( `PLC readIEList entry` );
   let configNs = Config.configNamespace || process.env.NAMESPACE || 'kube-system';
   let limitPollConfigMap = await Util.getConfigMap('watch-keeper-limit-poll', configNs);
   if ((objectPath.has(limitPollConfigMap, 'data.include') && objectPath.get(limitPollConfigMap, 'data.include') === 'true') ||
     (objectPath.has(limitPollConfigMap, 'data.whitelist') && objectPath.get(limitPollConfigMap, 'data.whitelist') === 'true')) {
     let includeList = await Util.walkConfigMap('watch-keeper-limit-poll', ['include', 'whitelist.json', 'whitelist', 'exclude', 'blacklist.json', 'blacklist']);
-    console.log( `PLC readIEList returning includeList: ${JSON.stringify(includeList,null,2)}` );
     return { include: includeList };
 
   } else if ((objectPath.has(limitPollConfigMap, 'data.exclude') && objectPath.get(limitPollConfigMap, 'data.exclude') === 'true') ||
     (objectPath.has(limitPollConfigMap, 'data.blacklist') && objectPath.get(limitPollConfigMap, 'data.blacklist') === 'true')) {
     let excludeList = await Util.walkConfigMap('watch-keeper-limit-poll', ['include', 'whitelist.json', 'whitelist', 'exclude', 'blacklist.json', 'blacklist']);
-    console.log( `PLC readIEList returning excludeList: ${JSON.stringify(excludeList,null,2)}` );
     return { exclude: excludeList };
 
   } else if (objectPath.has(limitPollConfigMap, ['data', 'whitelist.json'])) {
     try {
       let wlistJson = JSON.parse(objectPath.get(limitPollConfigMap, ['data', 'whitelist.json'], '{}'));
       let flattenedList = flattenJsonListObj(wlistJson);
-      console.log( `PLC readIEList returning flattened includeList: ${JSON.stringify(flattenedList,null,2)}` );
       return { include: flattenedList };
     } catch (e) {
       log.error(e);
@@ -186,7 +182,6 @@ async function readIEList() {
     try {
       let blistJson = JSON.parse(objectPath.get(limitPollConfigMap, ['data', 'blacklist.json'], '{}'));
       let flattenedList = flattenJsonListObj(blistJson);
-      console.log( `PLC readIEList returning flattened excludeList: ${JSON.stringify(flattenedList,null,2)}` );
       return { exclude: flattenedList };
     } catch (e) {
       log.error(e);
@@ -206,7 +201,6 @@ function flattenJsonListObj(jsonObj) {
 }
 
 async function selectiveListTrim(metaResources) {
-  console.log( `PLC selectiveListTrim entry` );
   let { include, exclude } = await readIEList();
   if (!include && !exclude) {
     return metaResources;
@@ -237,7 +231,6 @@ async function selectiveListTrim(metaResources) {
 // doesnt have any resources on the system. This takes a while up front, but
 // should save time for the rest of the calls
 async function trimMetaResources(metaResources) {
-  console.log( `PLC trimMetaResources entry` );
   log.debug('- Trimming metaResources starting -');
   metaResources = await selectiveListTrim(metaResources);
 
@@ -246,7 +239,6 @@ async function trimMetaResources(metaResources) {
   let selector = { limit: 500 };
   let result = [];
   for (var i = 0; i < metaResources.length; i++) {
-    console.log( `PLC trimMetaResources metaResource[${i}]: ${metaResources[i].name}` );
     if (!metaResources[i].name.endsWith('/status')) { // call to /status returns same data as call to plain endpoint. so no need to make call
       let resource = await kc.getResource(metaResources[i], selector);
       let cont = objectPath.get(resource, 'object.metadata.continue');
