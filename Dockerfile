@@ -22,7 +22,7 @@ USER node
 WORKDIR /home/node
 
 COPY --chown=node . /home/node
-RUN npm install --production --loglevel=warn
+RUN npm install --omit=dev --loglevel=warn
 RUN node -v
 
 #######################################
