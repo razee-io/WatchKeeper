@@ -13,7 +13,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 ################################################################################
-FROM node:lts-alpine as buildImg
+FROM node:18-alpine as buildImg
 
 RUN apk update
 RUN apk --no-cache add gnupg python3 make curl
@@ -22,12 +22,12 @@ USER node
 WORKDIR /home/node
 
 COPY --chown=node . /home/node
-RUN npm install --omit=dev --loglevel=warn
+RUN npm ci --omit=dev --loglevel=warn
 RUN node -v
 
 #######################################
 # Build the production image
-FROM node:lts-alpine
+FROM node:18-alpine
 
 USER node
 WORKDIR /home/node
