@@ -1,4 +1,5 @@
 language: node_js
+dist: focal
 node_js:
   - "16"
 
@@ -89,7 +90,7 @@ jobs:
        - if [ "${TRAVIS_PULL_REQUEST}" != "false" ]; then npx audit-ci --config audit-ci.json; else npx audit-ci --config audit-ci.json || true; fi
        - npm test
        - if [[ "${TRAVIS_TAG}" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then npm version --no-git-tag-version "${TRAVIS_TAG}"; fi
-       - docker build --rm -t "quay.io/razee/watch-keeper:${TRAVIS_COMMIT}-s390x" .
+       - docker build --no-cache --progress=plain --rm -t "quay.io/razee/watch-keeper:${TRAVIS_COMMIT}-s390x" .
        - if [ -n "${TRAVIS_TAG}" ]; then docker tag quay.io/razee/watch-keeper:${TRAVIS_COMMIT}-s390x quay.io/razee/watch-keeper:${TRAVIS_TAG}-s390x; fi
        - docker images
        - ./build/process-template.sh kubernetes/watch-keeper/resource.yaml >/tmp/resource.yaml
