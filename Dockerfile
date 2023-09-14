@@ -18,10 +18,10 @@ FROM node:18-alpine as buildImg
 RUN apk update
 RUN apk --no-cache add gnupg python3 make curl
 
-RUN chown -R node:node "/home/node/.npm"
-
 USER node
 WORKDIR /home/node
+
+RUN mkdir "/home/node/.npm"
 
 COPY --chown=node . /home/node
 RUN npm ci --omit=dev --loglevel=warn
