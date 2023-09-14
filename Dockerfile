@@ -22,6 +22,7 @@ USER node
 WORKDIR /home/node
 
 RUN mkdir "/home/node/.npm"
+RUN chown -R node /home/node/.npm
 RUN ls -alR /home/node
 
 COPY --chown=node . /home/node
