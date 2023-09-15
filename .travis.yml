@@ -53,6 +53,7 @@ jobs:
    - name: building ppc64le image
      arch: ppc64le
      script:
+       - echo "script entry ppc64le"
        # Audit npm packages. Fail build whan a PR audit fails, otherwise report the vulnerability and proceed.
        - if [ "${TRAVIS_PULL_REQUEST}" != "false" ]; then npx audit-ci --config audit-ci.json; else npx audit-ci --config audit-ci.json || true; fi
        - npm test
@@ -86,6 +87,7 @@ jobs:
    - name: building s390x image
      arch: s390x
      script:
+       - echo "script entry s390x"
        # Audit npm packages. Fail build whan a PR audit fails, otherwise report the vulnerability and proceed.
        - if [ "${TRAVIS_PULL_REQUEST}" != "false" ]; then npx audit-ci --config audit-ci.json; else npx audit-ci --config audit-ci.json || true; fi
        - npm test
