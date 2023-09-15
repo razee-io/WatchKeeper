@@ -1,5 +1,5 @@
 language: node_js
-dist: jammy
+dist: focal
 node_js:
   - "18"
 
@@ -52,6 +52,7 @@ jobs:
 
    - name: building ppc64le image
      arch: ppc64le
+     group: power-focal
      script:
        - echo "script entry ppc64le"
        # Audit npm packages. Fail build whan a PR audit fails, otherwise report the vulnerability and proceed.
