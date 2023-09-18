@@ -12,11 +12,9 @@ to display information about your resources.
 
 ### Via RazeeDash
 
-1. [Install RazeeDash](https://github.com/razee-io/Razee#step-1-install-razee)
-or use a hosted razee such as [razee.io](https://app.razee.io).
+1. [Install RazeeDash](https://github.com/razee-io/Razee#step-1-install-razee) or use a hosted razee such as [razee.io](https://app.razee.io).
 1. Add your Github org to your razee.
-1. Go to `https://<razeedash-url>/<your-org-name>/org` then copy and run the
-`kubectl command` against your new cluster to install the watch-keeper components.
+1. Go to `https://<razeedash-url>/<your-org-name>/org` then copy and run the `kubectl command` against your new cluster to install the watch-keeper components.
 
 ### Manually
 
