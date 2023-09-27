@@ -9,6 +9,7 @@ services:
 env:
   global:
     - GITHUB_TOKEN="${PUBLIC_GITHUB_TOKEN_2023_07_10}"
+    - NODE_OPTIONS="--dns-result-order=ipv4first"
 
 before_install:
   - echo "$DOCKERHUB_TOKEN" | docker login -u "icdevops" --password-stdin
