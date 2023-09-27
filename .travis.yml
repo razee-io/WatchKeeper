@@ -1,6 +1,7 @@
 language: node_js
+dist: focal
 node_js:
-  - "16"
+  - "18"
 
 services:
   - docker
@@ -8,6 +9,8 @@ services:
 env:
   global:
     - GITHUB_TOKEN="${PUBLIC_GITHUB_TOKEN_2023_07_10}"
+    # The ipv4first option is needed to address node18 build issues on s390x
+    - NODE_OPTIONS="--dns-result-order=ipv4first"
 
 before_install:
   - echo "$DOCKERHUB_TOKEN" | docker login -u "icdevops" --password-stdin
