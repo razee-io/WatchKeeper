@@ -13,3 +13,6 @@ kubernetes/
 .env/
 testdata/
 .*
+
+# MEND unified agent
+wss-unified-agent.jar

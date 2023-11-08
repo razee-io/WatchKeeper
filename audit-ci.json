@@ -1,29 +1,28 @@
 {
-    "low": true,
-    "_allowListExample": [
-      {
-        "GHSA-1234-5678-9012": {
-          "active": true,
-          "notes": "The package X has vuln Y that is ignored because Y",
-          "expiry": "2077-04-01"
-        }
-      },
-    ],
-    "allowlist": [
-      {
-        "GHSA-p8p7-x288-28g6": {
-          "active": true,
-          "notes": "The Request package through 2.88.2 for Node.js allows a bypass of SSRF mitigations via an attacker-controller server that does a cross-protocol redirect (HTTP to HTTPS, or HTTPS to HTTP)",
-          "expiry": "2023-10-01"
-        }
-      },
-      {
-        "GHSA-72xf-g2v4-qvf3": {
-          "active": true,
-          "notes": "The Request package (see above) requires tough-cookie at a vulnerable version.",
-          "expiry": "2023-10-01"
-        }
-      }    ],
-    "skip-dev": true
-  }
-  
+  "low": true,
+  "_allowListExample": [
+    {
+      "GHSA-1234-5678-9012": {
+        "active": true,
+        "notes": "The package X has vuln Y that is ignored because Y",
+        "expiry": "2077-04-01"
+      }
+    },
+  ],
+  "allowlist": [
+    {
+      "GHSA-p8p7-x288-28g6": {
+        "active": true,
+        "notes": "The Request package through 2.88.2 for Node.js allows a bypass of SSRF mitigations via an attacker-controller server that does a cross-protocol redirect (HTTP to HTTPS, or HTTPS to HTTP)",
+        "expiry": "2023-12-31"
+      }
+    },
+    {
+      "GHSA-72xf-g2v4-qvf3": {
+        "active": true,
+        "notes": "The Request package (see above) requires tough-cookie at a vulnerable version.",
+        "expiry": "2023-12-31"
+      }
+    }    ],
+  "skip-dev": true
+}
