@@ -14,6 +14,11 @@ env:
 
 before_install:
   - echo "$DOCKERHUB_TOKEN" | docker login -u "icdevops" --password-stdin
+  - export WS_APIKEY=${WS_APIKEY}
+  - export WS_USERKEY=${WS_USERKEY}
+  - export WS_PRODUCTNAME=${WS_PRODUCTNAME}
+  - export WS_PROJECTNAME=WatchKeeper
+  - export WS_WSS_URL=https://ibmets.whitesourcesoftware.com/agent
 
 jobs:
   include:
@@ -133,6 +138,8 @@ jobs:
             quay.io/razee/watch-keeper:${TRAVIS_TAG}-ppc64le \
             quay.io/razee/watch-keeper:${TRAVIS_TAG}-s390x
          fi
+       # Perform UA scan on non-PR builds
+       - if [ "${TRAVIS_PULL_REQUEST}" = "false" ]; then curl -LJO https://unified-agent.s3.amazonaws.com/wss-unified-agent.jar; java -jar wss-unified-agent.jar -d . || echo "UA Scan Error occurred"; fi
 
      before_deploy:
        - docker login -u="${QUAY_ID}" -p="${QUAY_TOKEN}" quay.io

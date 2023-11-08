@@ -66,3 +66,6 @@ envs/
 limit-poll/
 non-namespaced/
 .npmrc
+
+# MEND unified agent
+wss-unified-agent.jar
