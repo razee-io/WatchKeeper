@@ -1,7 +1,7 @@
 language: node_js
 dist: focal
 node_js:
-  - "18"
+  - 18
 
 services:
   - docker
@@ -143,6 +143,8 @@ jobs:
 
      before_deploy:
        - docker login -u="${QUAY_ID}" -p="${QUAY_TOKEN}" quay.io
+       # Use npm v9 for deployments (v10 has problems with authentication with api_key)
+       - npm install -g npm@9
 
      deploy:
        # Deploy alpha builds
