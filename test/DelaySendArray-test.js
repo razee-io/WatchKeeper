@@ -139,7 +139,7 @@ describe('DelaySendArray', () => {
         .replyWithError('something awful happened');
 
       let dsa = new DelayedSendArray('http://localhost:3000/api/v2', clusterID);
-      let sent = await dsa.httpCall('POST', sendObject);
+      let sent = await dsa.httpCall('POST', sendObject, {maxAttempts: 1});
       assert.equal(sent.message, 'something awful happened', 'should fail and catch error');
     });
   });
