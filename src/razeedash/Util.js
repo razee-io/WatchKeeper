@@ -13,7 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-const log = require('../bunyan-api').createLogger('Util');
 const objectPath = require('object-path');
 const { KubeClass } = require('@razee/kubernetes-util');
 const kc = new KubeClass();
@@ -29,5 +28,5 @@ module.exports = class Util {
     }
     let secret = Buffer.from(base64KeyData, 'base64');
     return secret.toString();
-  };
+  }
 };
