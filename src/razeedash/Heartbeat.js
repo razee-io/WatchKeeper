@@ -19,6 +19,7 @@ const HttpAgent = require('agentkeepalive');
 const HttpsAgent = require('agentkeepalive').HttpsAgent;
 const log = require('../bunyan-api').createLogger('Heartbeat');
 const Config = require('../Config');
+const Util = require('./Util');
 
 const httpsAgent = new HttpsAgent({
   keepAlive: true
@@ -47,12 +48,21 @@ module.exports = class Heartbeat {
 
   async heartbeat(customMeta) {
     log.info('Sending Heartbeat ============');
+
+    let orgKey;
+    try {
+      orgKey = await Util.getOrgKey();
+    }
+    catch(e) {
+      orgKey = Config.orgKey;
+    }
+
     return RequestLib.doRequest({
       url: `${this.url}/clusters/${this._clusterID}`,
       method: 'POST',
       agent: this.agent,
       headers: {
-        'razee-org-key': Config.orgKey
+        'razee-org-key': orgKey
       },
       json: true,
       body: customMeta,

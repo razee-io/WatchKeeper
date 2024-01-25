@@ -20,6 +20,7 @@ const HttpAgent = require('agentkeepalive');
 const HttpsAgent = require('agentkeepalive').HttpsAgent;
 const log = require('../bunyan-api').createLogger('DelayedSendArray');
 const Config = require('../Config');
+const Util = require('./Util');
 
 const httpsAgent = new HttpsAgent({
   keepAlive: true
@@ -113,12 +114,20 @@ module.exports = class DelayedSendArray {
     const remoteResourceSelfLinks = dArr.filter( d => objectPath.get( d, 'object.kind', '' ) == 'RemoteResource' ).map( d => objectPath.get( d, 'object.metadata.annotations.selfLink', 'no-selfLink' ) );
     log.info(`${httpMethod} ${dArr.length} resource(s) to ${url} starting. RemoteResource(s): ${remoteResourceSelfLinks.join( ', ' )}`);
 
+    let orgKey;
+    try {
+      orgKey = await Util.getOrgKey();
+    }
+    catch(e) {
+      orgKey = Config.orgKey;
+    }
+
     return RequestLib.doRequestRetry({
       url: url,
       method: httpMethod,
       agent: this.agent,
       headers: {
-        'razee-org-key': Config.orgKey,
+        'razee-org-key': orgKey,
         'poll-cycle': this._pollStarted
       },
       json: true,
