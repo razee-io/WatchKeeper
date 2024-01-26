@@ -23,6 +23,7 @@
         "notes": "The Request package (see above) requires tough-cookie at a vulnerable version.",
         "expiry": "2024-02-30"
       }
-    }    ],
+    }
+  ],
   "skip-dev": true
 }

@@ -18,6 +18,7 @@ const HttpAgent = require('agentkeepalive');
 const HttpsAgent = require('agentkeepalive').HttpsAgent;
 const validUrl = require('valid-url');
 const Config = require('../Config');
+const Util = require('./Util');
 
 const httpsAgent = new HttpsAgent({
   keepAlive: true
@@ -63,12 +64,21 @@ module.exports = class Messenger {
       data: data
     };
     let url = this._clusterID ? `${this.url}/clusters/${this._clusterID}/messages` : `${this.url}/messages`;
+
+    let orgKey;
+    try {
+      orgKey = await Util.getOrgKey();
+    }
+    catch(e) {
+      orgKey = Config.orgKey;
+    }
+
     return RequestLib.doRequestRetry({
       url: url,
       method: 'POST',
       agent: this.agent,
       headers: {
-        'razee-org-key': Config.orgKey
+        'razee-org-key': orgKey
       },
       json: true,
       body: body,
