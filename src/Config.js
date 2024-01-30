@@ -20,7 +20,8 @@ const chokidar = require('chokidar');
 module.exports = class Config {
   static razeedashUrlPath1 = 'envs/watch-keeper-config/RAZEEDASH_URL';
   static razeedashUrlPath2 = 'envs/razee-identity-config/RAZEE_API';
-  static orgKeyPath = 'envs/watch-keeper-secret/RAZEEDASH_ORG_KEY';
+  static orgKeyPath1 = 'envs/razee-identity-secret/RAZEE_ORG_KEY';
+  static orgKeyPath2 = 'envs/watch-keeper-secret/RAZEEDASH_ORG_KEY';
   static clusterIdPath1 = 'envs/razee-identity-config/CLUSTER_ID';
   static clusterIdPath2 = 'envs/watch-keeper-config/CLUSTER_ID_OVERRIDE';
   static clusterNamePath1 = 'envs/razee-identity-config/CLUSTER_NAME';
@@ -56,7 +57,9 @@ module.exports = class Config {
   }
 
   static async readOrgKey() {
-    if (await fs.pathExists(this.orgKeyPath)) {
+    if (await fs.pathExists(this.orgKeyPath1)) {
+      this.orgKey = ((await fs.readFile(this.orgKeyPath1, 'utf8')).trim() || this.orgKey);
+    } else if (await fs.pathExists(this.orgKeyPath2)) {
       this.orgKey = ((await fs.readFile(this.orgKeyPath2, 'utf8')).trim() || this.orgKey);
     }
   }
@@ -133,7 +136,7 @@ module.exports = class Config {
           this.readRazeedashUrl();
         }
 
-        if (path === this.orgKeyPath) {
+        if (path === this.orgKeyPath1 || path === this.orgKeyPath2) {
           this.readOrgKey();
         }
 
