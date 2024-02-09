@@ -65,10 +65,19 @@ module.exports = class Config {
   }
 
   static async readClusterId() {
+    let fileToRead;
     if (await fs.pathExists(this.clusterIdPath1)) {
-      this.clusterId = ((await fs.readFile(this.clusterIdPath1, 'utf8')).trim() || this.clusterId);
+      fileToRead = this.clusterIdPath1;
     } else if (await fs.pathExists(this.clusterIdPath2)) {
-      this.clusterId = ((await fs.readFile(this.clusterIdPath2, 'utf8')).trim() || this.clusterId);
+      fileToRead = this.clusterIdPath2;
+    }
+    if( fileToRead ) {
+      newClusterId = (await fs.readFile(fileToRead, 'utf8')).trim();
+      // If the cluster id file exists it must contain a valid ID -- restart to try again
+      if( !newClusterId ) throw new Error( "invalid cluster id: (empty string)" );
+      // If the cluster id file was created or modified, watch-keeper must restart
+      if( this.clusterId && this.clusterId != newClusterId ) throw new Error( "watch-keeper does not support changing cluster id dynamically" );
+      this.clusterId = newClusterId;
     }
   }
 
@@ -132,44 +141,52 @@ module.exports = class Config {
   static {
     this.watcher = chokidar.watch('./envs/', { ignoreInitial: true }).on('all', (event, path) => {
       if (event === 'add' || event === 'change') {
-        if (path === this.razeedashUrlPath1 || path === this.razeedashUrlPath2) {
-          this.readRazeedashUrl();
-        }
+        try {
+          if (path === this.razeedashUrlPath1 || path === this.razeedashUrlPath2) {
+            this.readRazeedashUrl();
+          }
 
-        if (path === this.orgKeyPath1 || path === this.orgKeyPath2) {
-          this.readOrgKey();
-        }
+          if (path === this.orgKeyPath1 || path === this.orgKeyPath2) {
+            this.readOrgKey();
+          }
 
-        if (path === this.clusterIdPath1 || path === this.clusterIdPath2) {
-          this.readClusterId();
-        }
+          if (path === this.clusterIdPath1 || path === this.clusterIdPath2) {
+            this.readClusterId();
+          }
 
-        if (path === this.clusterNamePath1 || path === this.clusterNamePath2) {
-          this.readClusterName();
-        }
+          if (path === this.clusterNamePath1 || path === this.clusterNamePath2) {
+            this.readClusterName();
+          }
 
-        if (path === this.startDelayMaxPath) {
-          this.readStartDelaymax();
-        }
+          if (path === this.startDelayMaxPath) {
+            this.readStartDelaymax();
+          }
 
-        if (path === this.configNamespacePath) {
-          this.readConfigNamespace();
-        }
+          if (path === this.configNamespacePath) {
+            this.readConfigNamespace();
+          }
 
-        if (path === this.validateIntervalPath) {
-          this.readValidateInterval();
-        }
+          if (path === this.validateIntervalPath) {
+            this.readValidateInterval();
+          }
 
-        if (path === this.pollIntervalPath) {
-          this.readPollInterval();
-        }
+          if (path === this.pollIntervalPath) {
+            this.readPollInterval();
+          }
 
-        if (path === this.cleanStartIntervalPath) {
-          this.readCleanStartInterval();
-        }
+          if (path === this.cleanStartIntervalPath) {
+            this.readCleanStartInterval();
+          }
 
-        if (path === this.logLevelPath) {
-          this.readLogLevel();
+          if (path === this.logLevelPath) {
+            this.readLogLevel();
+          }
+        }
+        catch(e) {
+          // The process will exit to trigger reboot / crashLoopBackoff until the problem resolves
+          console.log( "An error occurred updating config after an /envs/ file update, process will exit: ", e.message );
+          // exit after 5s to give log output time to write.
+          setTimeout( process.exit, 5000, 1 );
         }
       }
     });
