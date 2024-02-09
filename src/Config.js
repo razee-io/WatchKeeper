@@ -184,7 +184,7 @@ module.exports = class Config {
         }
         catch(e) {
           // The process will exit to trigger reboot / crashLoopBackoff until the problem resolves
-          console.log( "An error occurred updating config after an /envs/ file update, process will exit: ", e.message );
+          console.log( "An error occurred updating config after an /envs/ file update, process will exit: ", e.message || e );
           // exit after 5s to give log output time to write.
           setTimeout( process.exit, 5000, 1 );
         }
