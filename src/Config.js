@@ -72,11 +72,11 @@ module.exports = class Config {
       fileToRead = this.clusterIdPath2;
     }
     if( fileToRead ) {
-      newClusterId = (await fs.readFile(fileToRead, 'utf8')).trim();
+      const newClusterId = (await fs.readFile(fileToRead, 'utf8')).trim();
       // If the cluster id file exists it must contain a valid ID -- restart to try again
-      if( !newClusterId ) throw new Error( "invalid cluster id: (empty string)" );
+      if( !newClusterId ) throw new Error( 'invalid cluster id: (empty string)' );
       // If the cluster id file was created or modified, watch-keeper must restart
-      if( this.clusterId && this.clusterId != newClusterId ) throw new Error( "watch-keeper does not support changing cluster id dynamically" );
+      if( this.clusterId && this.clusterId != newClusterId ) throw new Error( 'watch-keeper does not support changing cluster id dynamically' );
       this.clusterId = newClusterId;
     }
   }
@@ -184,7 +184,8 @@ module.exports = class Config {
         }
         catch(e) {
           // The process will exit to trigger reboot / crashLoopBackoff until the problem resolves
-          console.log( "An error occurred updating config after an /envs/ file update, process will exit: ", e.message || e );
+          // eslint-disable-next-line no-console
+          console.log( 'An error occurred updating config after an /envs/ file update, process will exit: ', e.message || e );
           // exit after 5s to give log output time to write.
           setTimeout( process.exit, 5000, 1 );
         }
