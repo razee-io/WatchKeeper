@@ -70,10 +70,11 @@ async function init() {
     }
     util = await Util.fetch();
   } catch (e) {
+    // E.g. Config found a clusterId, but it was an empty string
     const Messenger = require('./razeedash/Messenger');
     let msngr = new Messenger(Config.razeedashUrl || 'http://localhost:3000/api/v2');
-    log.error('Error fetching clusterID on startup.', e);
-    msngr.error('Error fetching clusterID on startup.', e);
+    log.error('Error initializing config on startup.', e);
+    msngr.error('Error initializing config on startup.', e);
     return Promise.reject(e);
   }
   try {
