@@ -1,0 +1,17 @@
+---
+checks:
+  exclude:
+    - "no-read-only-root-fs"  # impacts AT event writing
+    - "unset-cpu-requirements" # cpu limits are bad https://home.robusta.dev/blog/stop-using-cpu-limits
+    - "mismatching-selector" # selectors are immutable
+    # - "non-existent-service-account" # razeedeploy-sa created in razeedeploy-delta
+customChecks:
+  - name: ensure-environment-variables-populated
+    template: env-var
+    params:
+      name: "."
+      value: \$.* #ensures no environment variable values in the deployment start with a $
+    remediation: Ensure all of your environment variables are correctly substituted with envstub
+    scope:
+      objectKinds:
+        - DeploymentLike
