@@ -4,7 +4,7 @@ checks:
     - "no-read-only-root-fs"  # impacts AT event writing
     - "unset-cpu-requirements" # cpu limits are bad https://home.robusta.dev/blog/stop-using-cpu-limits
     - "mismatching-selector" # selectors are immutable
-    # - "non-existent-service-account" # razeedeploy-sa created in razeedeploy-delta
+    - "non-existent-service-account" # watch-keeper-sa created in rbac.yaml
 customChecks:
   - name: ensure-environment-variables-populated
     template: env-var
