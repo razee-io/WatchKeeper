@@ -35,10 +35,6 @@ jobs:
        - docker build --rm -t "quay.io/razee/watch-keeper:${TRAVIS_COMMIT}-amd64" .
        - if [ -n "${TRAVIS_TAG}" ]; then docker tag quay.io/razee/watch-keeper:${TRAVIS_COMMIT}-amd64 quay.io/razee/watch-keeper:${TRAVIS_TAG}-amd64; fi
        - docker images
-       - ./build/process-template.sh kubernetes/watch-keeper/resource.yaml >/tmp/resource.yaml
-       - ./build/process-template.sh kubernetes/watch-keeper/rbac.yaml >/tmp/rbac.yaml
-       - kubelint /tmp/resource.yaml
-       - kubelint /tmp/rbac.yaml
 
      before_deploy:
        - docker login -u="${QUAY_ID}" -p="${QUAY_TOKEN}" quay.io
@@ -70,8 +66,6 @@ jobs:
        - docker build --rm -t "quay.io/razee/watch-keeper:${TRAVIS_COMMIT}-ppc64le" .
        - if [ -n "${TRAVIS_TAG}" ]; then docker tag quay.io/razee/watch-keeper:${TRAVIS_COMMIT}-ppc64le quay.io/razee/watch-keeper:${TRAVIS_TAG}-ppc64le; fi
        - docker images
-       - ./build/process-template.sh kubernetes/watch-keeper/resource.yaml >/tmp/resource.yaml
-       - ./build/process-template.sh kubernetes/watch-keeper/rbac.yaml >/tmp/rbac.yaml
 
      before_deploy:
        - docker login -u="${QUAY_ID}" -p="${QUAY_TOKEN}" quay.io
@@ -103,8 +97,6 @@ jobs:
        - docker build --rm -t "quay.io/razee/watch-keeper:${TRAVIS_COMMIT}-s390x" .
        - if [ -n "${TRAVIS_TAG}" ]; then docker tag quay.io/razee/watch-keeper:${TRAVIS_COMMIT}-s390x quay.io/razee/watch-keeper:${TRAVIS_TAG}-s390x; fi
        - docker images
-       - ./build/process-template.sh kubernetes/watch-keeper/resource.yaml >/tmp/resource.yaml
-       - ./build/process-template.sh kubernetes/watch-keeper/rbac.yaml >/tmp/rbac.yaml
 
      before_deploy:
        - docker login -u="${QUAY_ID}" -p="${QUAY_TOKEN}" quay.io
@@ -132,6 +124,8 @@ jobs:
        - if [[ $TRAVIS_TAG =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then npm version --no-git-tag-version "${TRAVIS_TAG}"; fi
        - ./build/process-template.sh kubernetes/watch-keeper/resource.yaml >/tmp/resource.yaml
        - ./build/process-template.sh kubernetes/watch-keeper/rbac.yaml >/tmp/rbac.yaml
+       - kubelint /tmp/resource.yaml
+       - kubelint /tmp/rbac.yaml
        - export DOCKER_CLI_EXPERIMENTAL=enabled
        - sudo chown -R $USER:$USER /etc/docker/
        - |
