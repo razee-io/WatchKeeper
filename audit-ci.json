@@ -7,7 +7,7 @@
         "notes": "The package X has vuln Y that is ignored because Y",
         "expiry": "2077-04-01"
       }
-    },
+    }
   ],
   "allowlist": [
     {
