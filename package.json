@@ -36,7 +36,7 @@
   "license": "Apache-2.0",
   "dependencies": {
     "@kubernetes/client-node": "^0.21.0",
-    "@razee/kubernetes-util": "^1.1.15",
+    "@razee/kubernetes-util": "^1.1.16",
     "@razee/request-util": "^1.0.3",
     "agentkeepalive": "^4.5.0",
     "bunyan": "^1.8.15",
