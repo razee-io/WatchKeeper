@@ -8,7 +8,7 @@ services:
 
 env:
   global:
-    - GITHUB_TOKEN="${PUBLIC_GITHUB_TOKEN_2023_07_10}"
+    - GITHUB_TOKEN="${PUBLIC_GITHUB_TOKEN_2024_08_20}"
     # The ipv4first option is needed to address node18 build issues on s390x
     - NODE_OPTIONS="--dns-result-order=ipv4first"
 
