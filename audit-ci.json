@@ -14,14 +14,14 @@
       "GHSA-p8p7-x288-28g6": {
         "active": true,
         "notes": "The Request package through 2.88.2 for Node.js allows a bypass of SSRF mitigations via an attacker-controller server that does a cross-protocol redirect (HTTP to HTTPS, or HTTPS to HTTP)",
-        "expiry": "2024-10-04"
+        "expiry": "2025-01-14"
       }
     },
     {
       "GHSA-72xf-g2v4-qvf3": {
         "active": true,
         "notes": "The Request package (see above) requires tough-cookie at a vulnerable version.",
-        "expiry": "2024-10-04"
+        "expiry": "2025-01-14"
       }
     }
   ],
