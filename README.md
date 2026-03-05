@@ -8,6 +8,55 @@ Watch-Keeper is a tool that inventories and reports back the resources running o
 your cluster. Watch-Keeper works with [RazeeDash](https://github.com/razee-io/Razeedash)
 to display information about your resources.
 
+> **⚠️ DEPRECATION NOTICE**
+>
+> This project is deprecated and is no longer actively maintained.
+> The razee.io components are no longer being developed or supported.
+>
+> ## Alternatives
+>
+> **For IBM Cloud users:**
+>
+> - [IBM Cloud Continuous Delivery](https://www.ibm.com/products/continuous-delivery)
+>
+> **For open source users:**
+>
+> - [Argo CD](https://argo-cd.readthedocs.io/en/stable/)
+> - [Flux CD](https://fluxcd.io/)
+> - [Tekton](https://tekton.dev/)
+
+## Building from Source
+
+If you need to build the container images yourself, follow these instructions:
+
+### Prerequisites
+
+- Docker or Podman installed
+- Access to a container registry (Docker Hub, Quay.io, etc.)
+
+### Build Instructions
+
+1. Clone the repository:
+
+   ```bash
+   git clone <repository-url>
+   cd WatchKeeper
+   ```
+
+2. Build the container image:
+
+   ```bash
+   docker build -t <your-registry>/watchkeeper:<tag> .
+   ```
+
+3. Push the image to your registry:
+
+   ```bash
+   docker push <your-registry>/watchkeeper:<tag>
+   ```
+
+4. Update your Kubernetes manifests to use your custom image.
+
 ## Install
 
 ### Via RazeeDash
