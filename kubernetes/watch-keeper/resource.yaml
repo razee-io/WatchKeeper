@@ -47,7 +47,7 @@ spec:
                   key: KUBECONFIG
                   optional: true
           image: "quay.io/razee/watch-keeper:{{{TRAVIS_TAG}}}"
-          imagePullPolicy: Always
+          imagePullPolicy: IfNotPresent
           name: watch-keeper
           resources:
             limits:
